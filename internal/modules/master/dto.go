@@ -29,14 +29,13 @@ type ListResponse struct {
 }
 
 type SearchLocationResponse struct {
-	VillageID  int64  `json:"villageId" gorm:"column:village_id"`
+	VillageID  int64  `json:"village_id" gorm:"column:village_id"`
 	Village    string `json:"village" gorm:"column:village"`
 	District   string `json:"district" gorm:"column:district"`
 	Regency    string `json:"regency" gorm:"column:regency"`
 	Province   string `json:"province" gorm:"column:province"`
-	PostalCode string `json:"postalCode" gorm:"column:postal_code"`
+	PostalCode string `json:"postal_code" gorm:"column:postal_code"`
 }
-
 
 type LocationInfo struct {
 	ID   int64  `json:"id"`
@@ -48,7 +47,7 @@ type LocationDetailResponse struct {
 	Regency    LocationInfo `json:"regency"`
 	District   LocationInfo `json:"district"`
 	Village    LocationInfo `json:"village"`
-	PostalCode string       `json:"postalCode"`
+	PostalCode string       `json:"postal_code"`
 }
 
 type SearchLocationListResponse struct {

@@ -47,7 +47,7 @@ Setiap request HTTP wajib mengikuti alur eksekusi searah berikut:
 
 ---
 
-## 4. Validasi Input & Penanganan Error
+## 4. Validasi Input, Standarisasi Response, & Penanganan Error
 
 - **Validasi Struct:** Gunakan tag validator Gin pada _struct_ DTO di dalam `dto.go` untuk memvalidasi parameter secara deklaratif:
   ```go
@@ -56,15 +56,29 @@ Setiap request HTTP wajib mengikuti alur eksekusi searah berikut:
       Description string `json:"description" binding:"required"`
   }
   ```
-- **Handler Validation:** Di dalam handler, parse dan validasi DTO menggunakan `c.ShouldBindJSON()`:
+- **Handler Validation & Error:** Di dalam handler, parse dan validasi DTO menggunakan `c.ShouldBindJSON()`. Gunakan helper standar `response.Error` atau `response.ValidationError`:
   ```go
   var req CreateProjectRequest
   if err := c.ShouldBindJSON(&req); err != nil {
-      c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+      response.Error(c, http.StatusBadRequest, err.Error())
       return
   }
   ```
-- **Penanganan Error:** Service harus mengembalikan error yang spesifik jika terjadi kegagalan logika bisnis, dan handler bertugas menerjemahkannya ke dalam kode status HTTP yang tepat (misalnya: `http.StatusNotFound`, `http.StatusForbidden`).
+- **Standarisasi Response (WAJIB snake_case):**
+  - Seluruh field pada struct DTO response WAJIB menggunakan tag `snake_case`:
+    ```go
+    type ProjectResponse struct {
+        ID          uuid.UUID `json:"id"`
+        Title       string    `json:"title"`
+        CreatedBy   string    `json:"created_by"`
+        CreatedAt   time.Time `json:"created_at"`
+        TotalMembers int      `json:"total_members"`
+    }
+    ```
+  - Dilarang keras menggunakan `camelCase` pada response struct (misalnya `createdBy`, `totalMembers`).
+  - Response sukses: gunakan `response.Success(c, statusCode, message, data)` atau `response.SuccessWithMeta(c, statusCode, message, data, meta)` untuk list berpagination.
+  - Response error: gunakan `response.Error(c, statusCode, message)` (otomatis menyertakan `data: { "trace_id": "..." }`).
+- **Penanganan Error:** Service harus mengembalikan error yang spesifik jika terjadi kegagalan logika bisnis, dan handler bertugas menerjemahkannya ke dalam kode status HTTP yang tepat menggunakan `response.Error(c, statusCode, message)`. Rujuk skill `kolaboria-response-convention` untuk panduan lengkap.
 
 ---
 

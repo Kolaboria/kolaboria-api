@@ -12,6 +12,8 @@ import (
 	"github.com/syahrulfahmi/kolaboria-api/internal/infrastructure/database"
 	"github.com/syahrulfahmi/kolaboria-api/internal/infrastructure/jwt"
 	"github.com/syahrulfahmi/kolaboria-api/internal/infrastructure/logger"
+	"github.com/syahrulfahmi/kolaboria-api/internal/infrastructure/mail"
+	"github.com/syahrulfahmi/kolaboria-api/internal/modules/auth"
 	"github.com/syahrulfahmi/kolaboria-api/internal/modules/health"
 	"github.com/syahrulfahmi/kolaboria-api/internal/modules/master"
 	"gorm.io/gorm"
@@ -49,9 +51,13 @@ func New() *Application {
 	masterHandler := master.NewMasterHandler(masterService)
 
 	jwtService := jwt.NewJWTService(cfg.JWT)
+	mailer := mail.NewSMTPMailer(cfg.Mail, cfg.App.FrontendURL)
+	authRepository := auth.NewAuthRepository(db)
+	authService := auth.NewAuthService(authRepository, jwtService, mailer, cfg)
+	authHandler := auth.NewAuthHandler(authService)
 
 	// 5. Initialize Router
-	router := http.NewRouter(cfg, healthHandler, jwtService, masterHandler)
+	router := http.NewRouter(cfg, healthHandler, jwtService, masterHandler, authHandler)
 
 	// 6. Initialize Server
 	server := NewServer(cfg.App, router)

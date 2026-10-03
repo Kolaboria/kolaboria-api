@@ -32,4 +32,4 @@ tasks:
   swagger:
     desc: Generate Swagger documents from active API source
     cmds:
-      - swag init -g main.go --dir ./cmd/api,./internal/modules/health,./internal/modules/master,./internal/http/response -o ./docs
+      - swag init -g main.go --dir ./cmd/api,./internal/modules/auth,./internal/modules/health,./internal/modules/master,./internal/http/response -o ./docs

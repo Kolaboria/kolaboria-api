@@ -9,6 +9,7 @@ import (
 	"github.com/syahrulfahmi/kolaboria-api/internal/http/middleware"
 	"github.com/syahrulfahmi/kolaboria-api/internal/http/response"
 	"github.com/syahrulfahmi/kolaboria-api/internal/infrastructure/jwt"
+	"github.com/syahrulfahmi/kolaboria-api/internal/modules/auth"
 	"github.com/syahrulfahmi/kolaboria-api/internal/modules/health"
 	"github.com/syahrulfahmi/kolaboria-api/internal/modules/master"
 )
@@ -18,6 +19,7 @@ func NewRouter(
 	healthHandler *health.HealthHandler,
 	jwtService jwt.JWTService,
 	masterHandler *master.MasterHandler,
+	authHandler *auth.AuthHandler,
 ) *gin.Engine {
 	if cfg.App.Env == "production" {
 		gin.SetMode(gin.ReleaseMode)
@@ -39,9 +41,13 @@ func NewRouter(
 	// Register routes
 	health.RegisterHealthRoutes(r, healthHandler)
 	v1 := r.Group("/api/v1")
+	if authHandler != nil {
+		auth.RegisterAuthRoutes(v1, authHandler, middleware.Auth(jwtService))
+	}
 	master.RegisterMasterRoutes(v1, masterHandler)
 	r.NoRoute(func(c *gin.Context) { response.Error(c, 404, "Not Found") })
 	r.NoMethod(func(c *gin.Context) { response.Error(c, 405, "Method Not Allowed") })
 
 	return r
 }
+

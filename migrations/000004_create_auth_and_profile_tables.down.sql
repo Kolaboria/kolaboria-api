@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS user_tokens;
+DROP TABLE IF EXISTS profiles;
+DROP TABLE IF EXISTS users;
+DROP TYPE IF EXISTS token_type;
