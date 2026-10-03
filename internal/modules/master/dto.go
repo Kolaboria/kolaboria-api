@@ -27,3 +27,39 @@ type ListResponse struct {
 	Data    []ItemResponse `json:"data"`
 	Meta    PaginationMeta `json:"meta"`
 }
+
+type SearchLocationResponse struct {
+	VillageID  int64  `json:"villageId" gorm:"column:village_id"`
+	Village    string `json:"village" gorm:"column:village"`
+	District   string `json:"district" gorm:"column:district"`
+	Regency    string `json:"regency" gorm:"column:regency"`
+	Province   string `json:"province" gorm:"column:province"`
+	PostalCode string `json:"postalCode" gorm:"column:postal_code"`
+}
+
+
+type LocationInfo struct {
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
+}
+
+type LocationDetailResponse struct {
+	Province   LocationInfo `json:"province"`
+	Regency    LocationInfo `json:"regency"`
+	District   LocationInfo `json:"district"`
+	Village    LocationInfo `json:"village"`
+	PostalCode string       `json:"postalCode"`
+}
+
+type SearchLocationListResponse struct {
+	Status  int                      `json:"status"`
+	Message string                   `json:"message"`
+	Data    []SearchLocationResponse `json:"data"`
+}
+
+type LocationDetailResultResponse struct {
+	Status  int                    `json:"status"`
+	Message string                 `json:"message"`
+	Data    LocationDetailResponse `json:"data"`
+}
+

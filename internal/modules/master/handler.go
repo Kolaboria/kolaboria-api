@@ -17,6 +17,8 @@ import (
 
 type MasterReader interface {
 	List(context.Context, Catalog, ListQuery) ([]ItemResponse, PaginationMeta, error)
+	SearchLocations(context.Context, string) ([]SearchLocationResponse, error)
+	GetLocationDetail(context.Context, int64) (*LocationDetailResponse, error)
 }
 
 type MasterHandler struct {
@@ -108,6 +110,116 @@ func (h *MasterHandler) ListSkills(c *gin.Context) {
 // @Router /api/v1/master-data/tools [get]
 func (h *MasterHandler) ListTools(c *gin.Context) {
 	h.list(c, CatalogTools)
+}
+
+// SearchLocations godoc
+// @Summary Search locations
+// @Description Search locations (villages, districts, regencies, provinces) by keyword
+// @Tags master-data
+// @Produce json
+// @Param q query string true "Search keyword (min 2 characters)"
+// @Success 200 {object} SearchLocationListResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 408 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Failure 503 {object} response.ErrorResponse
+// @Failure 504 {object} response.ErrorResponse
+// @Router /api/v1/master-data/locations/search [get]
+func (h *MasterHandler) SearchLocations(c *gin.Context) {
+	values, err := url.ParseQuery(c.Request.URL.RawQuery)
+	if err != nil {
+		response.Error(c, http.StatusBadRequest, "Invalid query parameters")
+		return
+	}
+	if len(values["q"]) > 1 {
+		response.Error(c, http.StatusBadRequest, "Invalid query parameters")
+		return
+	}
+	q := c.Query("q")
+	results, err := h.service.SearchLocations(c.Request.Context(), q)
+	if err != nil {
+		switch {
+		case errors.Is(err, sharedErrors.ErrBadRequest):
+			response.Error(c, http.StatusBadRequest, "Invalid query parameters")
+		case errors.Is(err, sharedErrors.ErrServiceUnavailable):
+			slog.ErrorContext(c.Request.Context(), "master locations search service unavailable", "error", err)
+			response.Error(c, http.StatusServiceUnavailable, "Service unavailable")
+		case errors.Is(err, context.DeadlineExceeded):
+			slog.WarnContext(c.Request.Context(), "master locations search request deadline exceeded", "error", err)
+			response.Error(c, http.StatusGatewayTimeout, "Request timed out")
+		case errors.Is(err, context.Canceled):
+			slog.WarnContext(c.Request.Context(), "master locations search request canceled", "error", err)
+			response.Error(c, http.StatusRequestTimeout, "Request canceled")
+		default:
+			slog.ErrorContext(c.Request.Context(), "master locations search internal error", "error", err)
+			response.Error(c, http.StatusInternalServerError, "Internal server error")
+		}
+		return
+	}
+	response.Success(c, http.StatusOK, "Locations retrieved successfully", results)
+}
+
+// GetLocationDetail godoc
+// @Summary Get location detail
+// @Description Get detailed hierarchy (province, regency, district, village) by village ID
+// @Tags master-data
+// @Produce json
+// @Param village_id path int true "Village ID"
+// @Success 200 {object} LocationDetailResultResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 408 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Failure 503 {object} response.ErrorResponse
+// @Failure 504 {object} response.ErrorResponse
+// @Router /api/v1/master-data/locations/{village_id} [get]
+func (h *MasterHandler) GetLocationDetail(c *gin.Context) {
+	villageIDStr := c.Param("village_id")
+	villageID, err := parsePositiveInt64(villageIDStr)
+	if err != nil {
+		response.Error(c, http.StatusBadRequest, "Invalid village ID")
+		return
+	}
+
+	detail, err := h.service.GetLocationDetail(c.Request.Context(), villageID)
+	if err != nil {
+		switch {
+		case errors.Is(err, sharedErrors.ErrNotFound):
+			response.Error(c, http.StatusNotFound, "Location not found")
+		case errors.Is(err, sharedErrors.ErrBadRequest):
+			response.Error(c, http.StatusBadRequest, "Invalid village ID")
+		case errors.Is(err, sharedErrors.ErrServiceUnavailable):
+			slog.ErrorContext(c.Request.Context(), "master location detail service unavailable", "village_id", villageID, "error", err)
+			response.Error(c, http.StatusServiceUnavailable, "Service unavailable")
+		case errors.Is(err, context.DeadlineExceeded):
+			slog.WarnContext(c.Request.Context(), "master location detail request deadline exceeded", "village_id", villageID, "error", err)
+			response.Error(c, http.StatusGatewayTimeout, "Request timed out")
+		case errors.Is(err, context.Canceled):
+			slog.WarnContext(c.Request.Context(), "master location detail request canceled", "village_id", villageID, "error", err)
+			response.Error(c, http.StatusRequestTimeout, "Request canceled")
+		default:
+			slog.ErrorContext(c.Request.Context(), "master location detail internal error", "village_id", villageID, "error", err)
+			response.Error(c, http.StatusInternalServerError, "Internal server error")
+		}
+		return
+	}
+	response.Success(c, http.StatusOK, "Location detail retrieved successfully", detail)
+}
+
+func parsePositiveInt64(value string) (int64, error) {
+	if value == "" {
+		return 0, sharedErrors.ErrBadRequest
+	}
+	for _, digit := range value {
+		if digit < '0' || digit > '9' {
+			return 0, sharedErrors.ErrBadRequest
+		}
+	}
+	parsed, err := strconv.ParseInt(value, 10, 64)
+	if err != nil || parsed < 1 {
+		return 0, sharedErrors.ErrBadRequest
+	}
+	return parsed, nil
 }
 
 func parseListQuery(rawQuery string) (ListQuery, error) {

@@ -82,6 +82,130 @@
                 }
             }
         },
+        "/api/v1/master-data/locations/search": {
+            "get": {
+                "description": "Search locations (villages, districts, regencies, provinces) by keyword",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "master-data"
+                ],
+                "summary": "Search locations",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search keyword (min 2 characters)",
+                        "name": "q",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/master.SearchLocationListResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "504": {
+                        "description": "Gateway Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/master-data/locations/{village_id}": {
+            "get": {
+                "description": "Get detailed hierarchy (province, regency, district, village) by village ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "master-data"
+                ],
+                "summary": "Get location detail",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Village ID",
+                        "name": "village_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/master.LocationDetailResultResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "504": {
+                        "description": "Gateway Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/master-data/skills": {
             "get": {
                 "produces": [
@@ -286,6 +410,51 @@
                 }
             }
         },
+        "master.LocationDetailResponse": {
+            "type": "object",
+            "properties": {
+                "district": {
+                    "$ref": "#/definitions/master.LocationInfo"
+                },
+                "postalCode": {
+                    "type": "string"
+                },
+                "province": {
+                    "$ref": "#/definitions/master.LocationInfo"
+                },
+                "regency": {
+                    "$ref": "#/definitions/master.LocationInfo"
+                },
+                "village": {
+                    "$ref": "#/definitions/master.LocationInfo"
+                }
+            }
+        },
+        "master.LocationDetailResultResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/master.LocationDetailResponse"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "master.LocationInfo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "master.PaginationMeta": {
             "type": "object",
             "properties": {
@@ -299,6 +468,46 @@
                     "type": "integer"
                 },
                 "total_pages": {
+                    "type": "integer"
+                }
+            }
+        },
+        "master.SearchLocationListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/master.SearchLocationResponse"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "master.SearchLocationResponse": {
+            "type": "object",
+            "properties": {
+                "district": {
+                    "type": "string"
+                },
+                "postalCode": {
+                    "type": "string"
+                },
+                "province": {
+                    "type": "string"
+                },
+                "regency": {
+                    "type": "string"
+                },
+                "village": {
+                    "type": "string"
+                },
+                "villageId": {
                     "type": "integer"
                 }
             }

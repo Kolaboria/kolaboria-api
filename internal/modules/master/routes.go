@@ -7,4 +7,7 @@ func RegisterMasterRoutes(v1 gin.IRouter, handler *MasterHandler) {
 	group.GET("/contribution-roles", handler.ListContributionRoles)
 	group.GET("/skills", handler.ListSkills)
 	group.GET("/tools", handler.ListTools)
+	group.GET("/locations/search", handler.SearchLocations)
+	group.GET("/locations/:village_id", handler.GetLocationDetail)
 }
+

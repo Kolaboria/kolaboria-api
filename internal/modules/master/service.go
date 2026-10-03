@@ -61,6 +61,42 @@ func (s *MasterService) List(ctx context.Context, catalog Catalog, query ListQue
 	return mapCatalogItems(entities), PaginationMeta{Page: query.Page, Limit: query.Limit, Total: total, TotalPages: totalPages}, nil
 }
 
+func (s *MasterService) SearchLocations(ctx context.Context, query string) ([]SearchLocationResponse, error) {
+	search := strings.TrimSpace(query)
+	if !utf8.ValidString(search) || strings.ContainsRune(search, '\x00') || utf8.RuneCountInString(search) > maxQuerySize {
+		return nil, sharedErrors.ErrBadRequest
+	}
+	if utf8.RuneCountInString(search) < 2 {
+		return []SearchLocationResponse{}, nil
+	}
+	results, err := s.repository.SearchLocations(ctx, search)
+	if err != nil {
+		if isDatabaseUnavailable(err) {
+			return nil, fmt.Errorf("%w: %w", sharedErrors.ErrServiceUnavailable, err)
+		}
+		return nil, err
+	}
+	if results == nil {
+		results = []SearchLocationResponse{}
+	}
+	return results, nil
+}
+
+func (s *MasterService) GetLocationDetail(ctx context.Context, villageID int64) (*LocationDetailResponse, error) {
+	if villageID <= 0 {
+		return nil, sharedErrors.ErrBadRequest
+	}
+	detail, err := s.repository.GetLocationDetail(ctx, villageID)
+	if err != nil {
+		if isDatabaseUnavailable(err) {
+			return nil, fmt.Errorf("%w: %w", sharedErrors.ErrServiceUnavailable, err)
+		}
+		return nil, err
+	}
+	return detail, nil
+}
+
+
 func isDatabaseUnavailable(err error) bool {
 	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 		return false

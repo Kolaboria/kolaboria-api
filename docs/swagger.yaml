@@ -22,6 +22,35 @@ definitions:
       status:
         type: integer
     type: object
+  master.LocationDetailResponse:
+    properties:
+      district:
+        $ref: '#/definitions/master.LocationInfo'
+      postalCode:
+        type: string
+      province:
+        $ref: '#/definitions/master.LocationInfo'
+      regency:
+        $ref: '#/definitions/master.LocationInfo'
+      village:
+        $ref: '#/definitions/master.LocationInfo'
+    type: object
+  master.LocationDetailResultResponse:
+    properties:
+      data:
+        $ref: '#/definitions/master.LocationDetailResponse'
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  master.LocationInfo:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
   master.PaginationMeta:
     properties:
       limit:
@@ -31,6 +60,32 @@ definitions:
       total:
         type: integer
       total_pages:
+        type: integer
+    type: object
+  master.SearchLocationListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/master.SearchLocationResponse'
+        type: array
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  master.SearchLocationResponse:
+    properties:
+      district:
+        type: string
+      postalCode:
+        type: string
+      province:
+        type: string
+      regency:
+        type: string
+      village:
+        type: string
+      villageId:
         type: integer
     type: object
   response.ErrorData:
@@ -110,6 +165,90 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorResponse'
       summary: List contribution roles
+      tags:
+      - master-data
+  /api/v1/master-data/locations/{village_id}:
+    get:
+      description: Get detailed hierarchy (province, regency, district, village) by
+        village ID
+      parameters:
+      - description: Village ID
+        in: path
+        name: village_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/master.LocationDetailResultResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "504":
+          description: Gateway Timeout
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get location detail
+      tags:
+      - master-data
+  /api/v1/master-data/locations/search:
+    get:
+      description: Search locations (villages, districts, regencies, provinces) by
+        keyword
+      parameters:
+      - description: Search keyword (min 2 characters)
+        in: query
+        name: q
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/master.SearchLocationListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "504":
+          description: Gateway Timeout
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Search locations
       tags:
       - master-data
   /api/v1/master-data/skills:
