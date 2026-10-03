@@ -1,0 +1,820 @@
+{
+  "uuid_namespace": "6f6f8eec-493b-5f70-baa8-1b07a7a2da44",
+  "catalogs": [
+    {
+      "table": "contribution_roles",
+      "items": [
+        {
+          "name": "Frontend Developer",
+          "slug": "frontend-developer",
+          "id": "5838d3f2-7c00-5cc7-bf80-96e063b006e1"
+        },
+        {
+          "name": "Backend Developer",
+          "slug": "backend-developer",
+          "id": "540b1676-7eb8-518d-a737-103b6499731e"
+        },
+        {
+          "name": "Fullstack Developer",
+          "slug": "fullstack-developer",
+          "id": "997bee4f-f626-50ac-a2ba-783b2e7b104c"
+        },
+        {
+          "name": "Mobile Developer",
+          "slug": "mobile-developer",
+          "id": "709286f2-1a22-54e8-b7ca-aa2e9ea8bbb5"
+        },
+        {
+          "name": "DevOps Engineer",
+          "slug": "devops-engineer",
+          "id": "a9df99e4-0804-5074-bf26-79acc426ce4d"
+        },
+        {
+          "name": "Site Reliability Engineer",
+          "slug": "site-reliability-engineer",
+          "id": "ae7b5c74-d9ea-57cf-baf6-21a6d2d389a9"
+        },
+        {
+          "name": "Software Architect",
+          "slug": "software-architect",
+          "id": "03d12075-fe32-5e7a-a98c-39034618be87"
+        },
+        {
+          "name": "Cybersecurity Specialist",
+          "slug": "cybersecurity-specialist",
+          "id": "49f4165e-d346-5270-9a38-a2bfe9494930"
+        },
+        {
+          "name": "QA Engineer",
+          "slug": "qa-engineer",
+          "id": "8ab5f16d-281b-5f14-be25-d96c65e591e9"
+        },
+        {
+          "name": "Game Developer",
+          "slug": "game-developer",
+          "id": "1609f746-8be2-502a-8f10-a87270af9d9c"
+        },
+        {
+          "name": "AI Engineer",
+          "slug": "ai-engineer",
+          "id": "0788cc22-f40a-5714-a092-3c2879b453f4"
+        },
+        {
+          "name": "Machine Learning Engineer",
+          "slug": "machine-learning-engineer",
+          "id": "9a6e9a1b-8e63-503e-92ea-00ea9b66912a"
+        },
+        {
+          "name": "Data Scientist",
+          "slug": "data-scientist",
+          "id": "bbcadce2-1e35-5bff-aa73-4abdd94c0eb5"
+        },
+        {
+          "name": "Data Analyst",
+          "slug": "data-analyst",
+          "id": "9e99a9bb-5db2-5b6c-b784-e38b3d362660"
+        },
+        {
+          "name": "Data Engineer",
+          "slug": "data-engineer",
+          "id": "908706aa-99fd-5c6d-b819-fbf38f0b896b"
+        },
+        {
+          "name": "UI/UX Designer",
+          "slug": "ui-ux-designer",
+          "id": "227efbda-9515-5b42-aad8-83608b783b71"
+        },
+        {
+          "name": "Product Designer",
+          "slug": "product-designer",
+          "id": "f1e70bd6-8820-56ae-8b01-300428c8a566"
+        },
+        {
+          "name": "Motion Designer",
+          "slug": "motion-designer",
+          "id": "81397e51-53ca-5323-b278-c61f53107756"
+        },
+        {
+          "name": "Brand Designer",
+          "slug": "brand-designer",
+          "id": "dfc637dd-b1c7-595b-9870-22b38dae62e5"
+        },
+        {
+          "name": "3D Artist",
+          "slug": "3d-artist",
+          "id": "da5ed9c5-abbe-59bb-96bc-a8856c4d634f"
+        },
+        {
+          "name": "Product Manager",
+          "slug": "product-manager",
+          "id": "c1b042c5-ed42-596b-9f35-f5fb69da03c1"
+        },
+        {
+          "name": "Project Manager",
+          "slug": "project-manager",
+          "id": "c8d3496d-a53a-53a0-ac43-fedba2968e1d"
+        },
+        {
+          "name": "Business Analyst",
+          "slug": "business-analyst",
+          "id": "739e1b8b-614c-54ad-86e3-ba312efa53f0"
+        },
+        {
+          "name": "Scrum Master",
+          "slug": "scrum-master",
+          "id": "e15cd8cd-2b5b-5c0f-aa51-ecbe3426df0b"
+        },
+        {
+          "name": "Digital Marketer",
+          "slug": "digital-marketer",
+          "id": "2e711e3f-3e09-5e59-b0a2-c03b5105f5f5"
+        },
+        {
+          "name": "Content Creator",
+          "slug": "content-creator",
+          "id": "d34bc224-5927-5ab0-ad39-d1e360104c84"
+        },
+        {
+          "name": "Copywriter",
+          "slug": "copywriter",
+          "id": "e0037ab6-f375-5045-8caf-d32b478b229e"
+        },
+        {
+          "name": "SEO Specialist",
+          "slug": "seo-specialist",
+          "id": "9de0dd9c-b0da-5220-bc3e-4ab41fd1b41e"
+        },
+        {
+          "name": "Technical Writer",
+          "slug": "technical-writer",
+          "id": "242a538c-7cc2-5abe-b1bf-140313b89140"
+        },
+        {
+          "name": "General Contributor",
+          "slug": "general-contributor",
+          "id": "02020b41-3ddf-55d1-a206-d4931f2cbc8b"
+        }
+      ]
+    },
+    {
+      "table": "skills",
+      "items": [
+        {
+          "name": "Frontend Development",
+          "slug": "frontend-development",
+          "id": "e61e074d-34a6-5235-93d7-c2b47ed74f02"
+        },
+        {
+          "name": "Backend Development",
+          "slug": "backend-development",
+          "id": "92994309-518c-5d15-b7bf-ba77d86742de"
+        },
+        {
+          "name": "Mobile Development",
+          "slug": "mobile-development",
+          "id": "13b8d7c6-4755-5db1-abd1-85be531fdf42"
+        },
+        {
+          "name": "API Design",
+          "slug": "api-design",
+          "id": "97dba0ab-b8e3-530c-a02e-4a39ef5bab27"
+        },
+        {
+          "name": "Database Design",
+          "slug": "database-design",
+          "id": "3ca70ed2-4221-515e-93c3-45eb1c4d8ed3"
+        },
+        {
+          "name": "System Design",
+          "slug": "system-design",
+          "id": "9b7e5ed8-6bc7-59b2-a7ed-ea6af64349d1"
+        },
+        {
+          "name": "Software Architecture",
+          "slug": "software-architecture",
+          "id": "c5173a8a-0f4b-5c9e-adc8-67745bda5db9"
+        },
+        {
+          "name": "Version Control",
+          "slug": "version-control",
+          "id": "95792fe6-797c-51da-8a69-f96d515268fb"
+        },
+        {
+          "name": "SQL Querying",
+          "slug": "sql-querying",
+          "id": "1f134da6-53f7-5859-a8fa-1ae00472c9d8"
+        },
+        {
+          "name": "Unit Testing",
+          "slug": "unit-testing",
+          "id": "ce30967c-6451-5ebc-9548-f283075f4ab3"
+        },
+        {
+          "name": "Integration Testing",
+          "slug": "integration-testing",
+          "id": "1fd1a0d9-931d-5e6e-94d4-5104bc48601d"
+        },
+        {
+          "name": "End-to-End Testing",
+          "slug": "end-to-end-testing",
+          "id": "0bfa3ebe-286b-5d7f-b273-839f3c1ee4bb"
+        },
+        {
+          "name": "Performance Testing",
+          "slug": "performance-testing",
+          "id": "262c39fd-c794-5cd9-891b-cd3dc0fa7ced"
+        },
+        {
+          "name": "CI/CD",
+          "slug": "ci-cd",
+          "id": "9c1b06f3-a806-5ca8-8a5b-ba7d8c25f110"
+        },
+        {
+          "name": "Containerization",
+          "slug": "containerization",
+          "id": "371092b4-b171-5b66-90e8-c0a06c844c4b"
+        },
+        {
+          "name": "Cloud Computing",
+          "slug": "cloud-computing",
+          "id": "24dc84fd-68db-5e63-8ab3-338214021d62"
+        },
+        {
+          "name": "Application Security",
+          "slug": "application-security",
+          "id": "c3d5cd9b-c018-50b6-b813-49f6a93d25fa"
+        },
+        {
+          "name": "Web Accessibility",
+          "slug": "web-accessibility",
+          "id": "e8ffd3ee-fd4e-58bb-b739-f151ded8c2fc"
+        },
+        {
+          "name": "UI Design",
+          "slug": "ui-design",
+          "id": "b1e7a2c6-66c9-5a31-b950-58bece85c14e"
+        },
+        {
+          "name": "UX Design",
+          "slug": "ux-design",
+          "id": "58ee6126-a3a8-546c-a36f-e0bcb9194ad7"
+        },
+        {
+          "name": "User Research",
+          "slug": "user-research",
+          "id": "e8a8128b-25d9-5d88-b175-9f4c774d15c7"
+        },
+        {
+          "name": "Wireframing",
+          "slug": "wireframing",
+          "id": "9556beb4-98f1-51c8-9a36-0ff17232baa9"
+        },
+        {
+          "name": "Prototyping",
+          "slug": "prototyping",
+          "id": "25fce2ad-e582-5bc2-9641-8b733dac974b"
+        },
+        {
+          "name": "Interaction Design",
+          "slug": "interaction-design",
+          "id": "142f6aba-d9dc-5cb2-be01-b4f2c863249b"
+        },
+        {
+          "name": "Visual Design",
+          "slug": "visual-design",
+          "id": "dc248515-1017-522f-92a6-846260295bd0"
+        },
+        {
+          "name": "Usability Testing",
+          "slug": "usability-testing",
+          "id": "5b0c73f4-3378-5531-8365-e54576175ee9"
+        },
+        {
+          "name": "Design Systems",
+          "slug": "design-systems",
+          "id": "c1737da8-6499-5d26-b252-27a4d546af4d"
+        },
+        {
+          "name": "Motion Design",
+          "slug": "motion-design",
+          "id": "f40b7a4e-8958-53b4-930c-c09abcd1298c"
+        },
+        {
+          "name": "Data Analysis",
+          "slug": "data-analysis",
+          "id": "d42697c3-cc16-5cf0-ba6a-e3ff37a6a925"
+        },
+        {
+          "name": "Data Visualization",
+          "slug": "data-visualization",
+          "id": "23037154-a766-535b-948f-f8037fef098d"
+        },
+        {
+          "name": "Data Cleaning",
+          "slug": "data-cleaning",
+          "id": "809d4dc0-4420-52d6-ac0b-d0a7bf640b86"
+        },
+        {
+          "name": "Statistical Analysis",
+          "slug": "statistical-analysis",
+          "id": "d9bf73f8-5a59-52c8-9f36-4fd520613c8b"
+        },
+        {
+          "name": "Data Engineering",
+          "slug": "data-engineering",
+          "id": "a95450a1-89c2-5100-89a3-2fda584af679"
+        },
+        {
+          "name": "Machine Learning",
+          "slug": "machine-learning",
+          "id": "98f002e1-6ed5-510c-a19a-ed531e91e073"
+        },
+        {
+          "name": "Test Automation",
+          "slug": "test-automation",
+          "id": "7f983710-3c4a-5122-9758-f235480e9acc"
+        },
+        {
+          "name": "Natural Language Processing",
+          "slug": "natural-language-processing",
+          "id": "5626ac86-657b-5ac3-9a93-f0dd43370cc4"
+        },
+        {
+          "name": "Product Management",
+          "slug": "product-management",
+          "id": "420035e8-d668-50bd-8723-bd2adb6bf066"
+        },
+        {
+          "name": "Project Management",
+          "slug": "project-management",
+          "id": "9a30a8db-25a4-572b-a21a-916e2590d855"
+        },
+        {
+          "name": "Business Analysis",
+          "slug": "business-analysis",
+          "id": "a9e822ec-28c4-5121-839c-7131086d4911"
+        },
+        {
+          "name": "Requirements Analysis",
+          "slug": "requirements-analysis",
+          "id": "5df6d0a9-a7ff-5819-afd6-b00af418cb2d"
+        },
+        {
+          "name": "Agile Facilitation",
+          "slug": "agile-facilitation",
+          "id": "ee92c177-c727-5c91-bec6-34939b846834"
+        },
+        {
+          "name": "Stakeholder Management",
+          "slug": "stakeholder-management",
+          "id": "cf2619b0-afb8-5ed5-b7ae-c0905db37d43"
+        },
+        {
+          "name": "Product Roadmapping",
+          "slug": "product-roadmapping",
+          "id": "2c9e083e-1000-5021-b9f2-69dd4da46ce5"
+        },
+        {
+          "name": "Software Testing",
+          "slug": "software-testing",
+          "id": "c4c102a0-9c0e-57f2-9841-95e9e7cadf77"
+        },
+        {
+          "name": "Copywriting",
+          "slug": "copywriting",
+          "id": "33e545b3-367d-51cd-be82-fec56bed4078"
+        },
+        {
+          "name": "Content Writing",
+          "slug": "content-writing",
+          "id": "9b4d5f57-9608-5f70-b09d-046833d3103a"
+        },
+        {
+          "name": "Technical Writing",
+          "slug": "technical-writing",
+          "id": "d5d4dbc8-ad99-568a-80ed-bf3aacfb5cea"
+        },
+        {
+          "name": "Search Engine Optimization",
+          "slug": "search-engine-optimization",
+          "id": "75cff9bb-51af-58c5-b57e-9e2804feadf5"
+        },
+        {
+          "name": "Social Media Marketing",
+          "slug": "social-media-marketing",
+          "id": "bd483843-f6b2-5f52-aa83-f9d4e6898b1c"
+        },
+        {
+          "name": "Digital Marketing",
+          "slug": "digital-marketing",
+          "id": "5609c72e-2e1d-5214-8ce6-300dfff705da"
+        }
+      ]
+    },
+    {
+      "table": "tools",
+      "items": [
+        {
+          "name": "JavaScript",
+          "slug": "javascript",
+          "id": "131186eb-5651-5cee-af52-b35480c86b60"
+        },
+        {
+          "name": "TypeScript",
+          "slug": "typescript",
+          "id": "cc6141eb-4185-54dd-ae50-46ca9a211bee"
+        },
+        {
+          "name": "Go",
+          "slug": "go",
+          "id": "c9b6abb2-a812-5c61-bf33-3351abebb50c"
+        },
+        {
+          "name": "Python",
+          "slug": "python",
+          "id": "c735121f-c7d0-5a50-b3ee-6aed5625a1c6"
+        },
+        {
+          "name": "Java",
+          "slug": "java",
+          "id": "849561d6-d13f-59a6-8f45-4a2bf2faab2d"
+        },
+        {
+          "name": "Kotlin",
+          "slug": "kotlin",
+          "id": "6ef375e7-257a-5048-8fd2-a3d69743eea1"
+        },
+        {
+          "name": "Swift",
+          "slug": "swift",
+          "id": "5da39fb6-b188-568c-b286-96e315d7483a"
+        },
+        {
+          "name": "PHP",
+          "slug": "php",
+          "id": "87e62eff-decb-5085-b60c-685f8027d3f3"
+        },
+        {
+          "name": "Rust",
+          "slug": "rust",
+          "id": "780004f8-278d-5e46-9645-b25c9bcafe07"
+        },
+        {
+          "name": "C#",
+          "slug": "csharp",
+          "id": "7cb95439-2091-5787-bba3-cf3fba1f6e4a"
+        },
+        {
+          "name": "C++",
+          "slug": "cpp",
+          "id": "66424cfa-bf56-5081-9b28-e298b2696c03"
+        },
+        {
+          "name": "Dart",
+          "slug": "dart",
+          "id": "34e38ebd-8257-54f9-9cb4-70824a44b4b1"
+        },
+        {
+          "name": "Vue",
+          "slug": "vue",
+          "id": "9f6fa0cb-f5da-5cb4-899d-c5878059621a"
+        },
+        {
+          "name": "Nuxt",
+          "slug": "nuxt",
+          "id": "c04676b1-1823-54a3-8d5e-f84bb73305b6"
+        },
+        {
+          "name": "React",
+          "slug": "react",
+          "id": "4d7950db-ee09-58cc-b8f2-67ebb3fd9e80"
+        },
+        {
+          "name": "Next.js",
+          "slug": "next-js",
+          "id": "0b40f212-e564-5b3d-98f3-d0177af8d3ff"
+        },
+        {
+          "name": "Angular",
+          "slug": "angular",
+          "id": "c1c72f91-3539-55aa-9974-499923ca9484"
+        },
+        {
+          "name": "Svelte",
+          "slug": "svelte",
+          "id": "e4c2c683-1683-5cba-a130-b8d7c3eb2d3a"
+        },
+        {
+          "name": "SvelteKit",
+          "slug": "sveltekit",
+          "id": "b09d1f0e-0a3c-54eb-a692-3d0f57224613"
+        },
+        {
+          "name": "Astro",
+          "slug": "astro",
+          "id": "78afd6ab-6889-5bf0-95f4-75a992b09796"
+        },
+        {
+          "name": "Tailwind CSS",
+          "slug": "tailwind-css",
+          "id": "4dd5f467-5e80-5d47-b5a2-15430061599c"
+        },
+        {
+          "name": "Bootstrap",
+          "slug": "bootstrap",
+          "id": "e8a299a7-de3f-5911-9d54-330cf8420721"
+        },
+        {
+          "name": "Node.js",
+          "slug": "node-js",
+          "id": "8e1fd411-bc34-52f6-bc1e-697d216e8394"
+        },
+        {
+          "name": "Express",
+          "slug": "express",
+          "id": "6b44c34f-b56e-54cc-bfb8-905e85358e06"
+        },
+        {
+          "name": "NestJS",
+          "slug": "nestjs",
+          "id": "84fc32f3-48de-58fa-b293-1f765be54a5d"
+        },
+        {
+          "name": "Gin",
+          "slug": "gin",
+          "id": "606b43ea-f94c-5d54-b41f-960d504dcfbe"
+        },
+        {
+          "name": "Echo",
+          "slug": "echo",
+          "id": "c35cb49e-3664-5608-b267-7bd0afe5aaf8"
+        },
+        {
+          "name": "Fiber",
+          "slug": "fiber",
+          "id": "af792c36-0be0-5eaa-819a-cabce9aae6ec"
+        },
+        {
+          "name": "Django",
+          "slug": "django",
+          "id": "3ef5c185-4037-5783-af8c-dd0c1eeaef96"
+        },
+        {
+          "name": "FastAPI",
+          "slug": "fastapi",
+          "id": "030fbc09-eb96-59fc-9b93-fb6b8e737a00"
+        },
+        {
+          "name": "Laravel",
+          "slug": "laravel",
+          "id": "9c096c71-ebf8-5a15-aa2f-fe7116ff5a11"
+        },
+        {
+          "name": "Spring Boot",
+          "slug": "spring-boot",
+          "id": "d603a47b-779b-5255-8f48-661262acecd6"
+        },
+        {
+          "name": "Flutter",
+          "slug": "flutter",
+          "id": "5ed0d32b-db78-5ae2-aa4e-6e5fddb5f830"
+        },
+        {
+          "name": "React Native",
+          "slug": "react-native",
+          "id": "83c0bd89-4295-5891-b0da-9d50f30d4bc4"
+        },
+        {
+          "name": "PostgreSQL",
+          "slug": "postgresql",
+          "id": "87677701-6f88-5782-8a67-c70eda7bf8ac"
+        },
+        {
+          "name": "MySQL",
+          "slug": "mysql",
+          "id": "7b236c43-9365-5b96-b4f9-ea02b5305294"
+        },
+        {
+          "name": "SQLite",
+          "slug": "sqlite",
+          "id": "13b20fdb-4fe8-54d2-9e28-2cab2ab74f95"
+        },
+        {
+          "name": "MongoDB",
+          "slug": "mongodb",
+          "id": "ef5978d8-c145-5b98-80ec-01d8d840dd10"
+        },
+        {
+          "name": "Redis",
+          "slug": "redis",
+          "id": "d64c5d95-0540-5f04-a0b0-750138e58267"
+        },
+        {
+          "name": "MariaDB",
+          "slug": "mariadb",
+          "id": "4cd92084-e906-5e26-9cc4-fb62487075e7"
+        },
+        {
+          "name": "Supabase",
+          "slug": "supabase",
+          "id": "832faf32-4e18-5a49-94be-ec8682661cc7"
+        },
+        {
+          "name": "Firebase",
+          "slug": "firebase",
+          "id": "3921da42-8941-5e52-922a-93f18b6a852b"
+        },
+        {
+          "name": "Docker",
+          "slug": "docker",
+          "id": "8fcd01e0-189d-5977-a80b-0833e5d22ed4"
+        },
+        {
+          "name": "Kubernetes",
+          "slug": "kubernetes",
+          "id": "4286a131-38a4-5490-a2cf-ef1e93422ab8"
+        },
+        {
+          "name": "Terraform",
+          "slug": "terraform",
+          "id": "09ffaaf7-a5c8-5157-a93f-1abafa3edf1d"
+        },
+        {
+          "name": "Ansible",
+          "slug": "ansible",
+          "id": "4a661702-12da-53b0-9246-eae262d89f95"
+        },
+        {
+          "name": "Nginx",
+          "slug": "nginx",
+          "id": "d9934abb-98dc-5bdb-841f-6b49998ca179"
+        },
+        {
+          "name": "GitHub Actions",
+          "slug": "github-actions",
+          "id": "26f5b4c9-b30b-570f-b17a-0d7989097c9d"
+        },
+        {
+          "name": "GitLab CI",
+          "slug": "gitlab-ci",
+          "id": "f249eb63-cbf3-5bfc-90a6-a1d9ce991214"
+        },
+        {
+          "name": "Jenkins",
+          "slug": "jenkins",
+          "id": "89b87003-a63c-5680-a10b-d336ced9b121"
+        },
+        {
+          "name": "Amazon Web Services",
+          "slug": "aws",
+          "id": "c98df12a-5966-5e2e-8efa-d4620f9b4fdc"
+        },
+        {
+          "name": "Google Cloud",
+          "slug": "google-cloud",
+          "id": "edef05d2-7332-503c-919f-1cc8158cdb7d"
+        },
+        {
+          "name": "Figma",
+          "slug": "figma",
+          "id": "f99a082a-7ffc-5208-b012-208fa734a8dc"
+        },
+        {
+          "name": "FigJam",
+          "slug": "figjam",
+          "id": "bfe4cf92-a270-5ebd-8e97-14dca80699f0"
+        },
+        {
+          "name": "Sketch",
+          "slug": "sketch",
+          "id": "3fa90602-d11a-5c2c-9361-9c89dd88e39a"
+        },
+        {
+          "name": "Adobe XD",
+          "slug": "adobe-xd",
+          "id": "0b904dca-18c4-57db-a891-fe5e8d5417b1"
+        },
+        {
+          "name": "Adobe Illustrator",
+          "slug": "adobe-illustrator",
+          "id": "ae81b203-cec9-5d84-b7e5-e02537df35f2"
+        },
+        {
+          "name": "Adobe Photoshop",
+          "slug": "adobe-photoshop",
+          "id": "7b8c148d-0554-5b9c-9555-bc602530b28f"
+        },
+        {
+          "name": "Adobe After Effects",
+          "slug": "adobe-after-effects",
+          "id": "7d74cddb-5d52-5870-8ad1-0cc54fa8d699"
+        },
+        {
+          "name": "Blender",
+          "slug": "blender",
+          "id": "c0193958-0373-54a4-aa9f-6cdf241ddf02"
+        },
+        {
+          "name": "Canva",
+          "slug": "canva",
+          "id": "1d6dfdb0-dcb8-592e-8b5e-358e2c04f124"
+        },
+        {
+          "name": "Framer",
+          "slug": "framer",
+          "id": "f466f520-7b9f-5328-b8d1-f0258228ff59"
+        },
+        {
+          "name": "Git",
+          "slug": "git",
+          "id": "6424c802-9bcf-5415-89a7-48fb4baeef56"
+        },
+        {
+          "name": "GitHub",
+          "slug": "github",
+          "id": "417bd97e-5370-50bc-889a-b8956906ee23"
+        },
+        {
+          "name": "GitLab",
+          "slug": "gitlab",
+          "id": "babcf78d-cd79-56d7-beac-84ef93f7fb11"
+        },
+        {
+          "name": "Notion",
+          "slug": "notion",
+          "id": "9cf34048-6731-5ff6-b4b7-0c3305dd16e3"
+        },
+        {
+          "name": "Jira",
+          "slug": "jira",
+          "id": "756fa79c-a7fd-5f9c-8e80-ef4fba5448b2"
+        },
+        {
+          "name": "Linear",
+          "slug": "linear",
+          "id": "059cc808-946c-5083-aac2-c5e9c84d3b99"
+        },
+        {
+          "name": "Trello",
+          "slug": "trello",
+          "id": "7afcf769-c7cf-50df-9fd1-f360fcfc5210"
+        },
+        {
+          "name": "Slack",
+          "slug": "slack",
+          "id": "58c707a8-4a52-56c1-8c95-038320f91113"
+        },
+        {
+          "name": "Postman",
+          "slug": "postman",
+          "id": "ee24329b-7a0b-56c6-9800-8250a2421fd2"
+        },
+        {
+          "name": "Insomnia",
+          "slug": "insomnia",
+          "id": "3a911ac8-54fc-508e-9af8-10f3b44b261e"
+        },
+        {
+          "name": "Playwright",
+          "slug": "playwright",
+          "id": "c79668c6-2a1e-59ea-95cb-67d627ee2d7a"
+        },
+        {
+          "name": "Cypress",
+          "slug": "cypress",
+          "id": "0b2de35d-6fc7-59e8-9433-35ea5639c790"
+        },
+        {
+          "name": "Selenium",
+          "slug": "selenium",
+          "id": "d8148db6-7f6d-5256-b1f9-1daebdecafa5"
+        },
+        {
+          "name": "Jupyter",
+          "slug": "jupyter",
+          "id": "1d20d46c-4044-52aa-a043-2e1d091ff782"
+        },
+        {
+          "name": "Pandas",
+          "slug": "pandas",
+          "id": "1f3a643b-129f-5557-9bdb-ce9dc286bb59"
+        },
+        {
+          "name": "NumPy",
+          "slug": "numpy",
+          "id": "0ac8ede7-08ea-5db0-83e6-0904576136e0"
+        },
+        {
+          "name": "TensorFlow",
+          "slug": "tensorflow",
+          "id": "90bb6acf-5ede-5171-bce2-816e2792e6fc"
+        },
+        {
+          "name": "PyTorch",
+          "slug": "pytorch",
+          "id": "e957b10b-6ad6-5c69-98e6-63f4bd3c5200"
+        }
+      ]
+    }
+  ]
+}

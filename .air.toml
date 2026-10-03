@@ -1,0 +1,67 @@
+# Config file for [Air](https://github.com/cosmtrek/air) in TOML format
+
+# Working directory
+# . or absolute path, please note that the subdirectories are directories relative to the root.
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  # Just plain old go build. Make sure you build to tmp_dir
+  cmd = "go build -o ./tmp/main.exe ./cmd/api/main.go"
+  # Binary file yields from `cmd`.
+  bin = "./tmp/main.exe"
+  # Customize binary.
+  full_bin = ""
+  # Watch these filename extensions.
+  include_ext = ["go", "tpl", "html", "tmpl"]
+  # Ignore these filename extensions or directories.
+  exclude_dir = ["assets", "tmp", "vendor", "test-bin", "migrations", ".skills", ".git", ".gemini", "brain"]
+  # Watch these directories if you specified.
+  include_dir = []
+  # Watch these files.
+  include_file = []
+  # Exclude files.
+  exclude_file = []
+  # Exclude specific regular expressions.
+  exclude_regex = ["_test.go"]
+  # Exclude unchanged files.
+  exclude_unchanged = false
+  # Follow symlink for directories
+  follow_symlink = false
+  # This log file places in your tmp_dir.
+  log = "build-errors.log"
+  # Poll files for changes instead of using fsnotify.
+  poll = false
+  # Poll interval (ms) if poll is enabled.
+  poll_interval = 0
+  # Delay after each trigger. If it's too large, behave like double trigger.
+  delay = 1000 # ms
+  # Stop building once one error occurs.
+  stop_on_error = true
+  # Send Interrupt signal instead of Kill when restarting the process
+  send_interrupt = false
+  # Delay before killing process
+  kill_delay = "0s"
+  # Rerun process if it exits cleanly or not
+  rerun = false
+  # Rerun delay
+  rerun_delay = 500
+
+[color]
+  app = ""
+  build = "yellow"
+  main = "cyan"
+  runner = "green"
+  watcher = "magenta"
+
+[log]
+  main_only = false
+  time = false
+
+[misc]
+  # Clean tmp directory on exit
+  clean_on_exit = true
+
+[screen]
+  clear_on_rebuild = false
+  keep_scroll = true

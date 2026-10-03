@@ -1,0 +1,60 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Go workspaces
+go.work
+go.work.sum
+
+# Environment files
+.env
+
+# IDEs
+.vscode/
+.idea/
+.skills/
+
+
+# Generated Swagger and maintained API artifacts needed by a clean checkout.
+docs/*
+!docs/placeholder.go
+!docs/docs.go
+!docs/swagger.json
+!docs/swagger.yaml
+!docs/apidog/
+docs/apidog/*
+!docs/apidog/master-data.postman_collection.json
+!docs/apidog/master-data.openapi.json
+!docs/apidog/README.md
+!docs/master-data.md
+!docs/superpowers/
+docs/superpowers/*
+docs/superpowers/plans/
+docs/superpowers/plans/*
+!docs/superpowers/plans/2026-10-03-master-data-current-boilerplate.md
+
+# Air temporary build directory
+tmp/
+
+# .graphifyignore
+node_modules/
+dist/
+*.generated.py
+
+graphify-out/
+
+.codex

@@ -1,0 +1,35 @@
+version: '3'
+
+vars:
+  DB_ENV_FILE: '{{.DB_ENV_FILE | default ".env"}}'
+
+tasks:
+  dev:
+    desc: Run the application in development mode with hot reload (Air)
+    cmds:
+      - air
+
+  seed:
+    desc: Apply pending schema and master-data seed migrations
+    cmds:
+      - task: migrate:up
+
+  migrate:up:
+    desc: Apply pending migrations using DB_ENV_FILE or .env
+    cmds:
+      - go run ./cmd/db migrate --env-file "{{.DB_ENV_FILE}}" {{.CLI_ARGS}}
+
+  migrate:version:
+    desc: Show the current migration version
+    cmds:
+      - go run ./cmd/db version --env-file "{{.DB_ENV_FILE}}" {{.CLI_ARGS}}
+
+  migrate:down:
+    desc: Roll back one migration using DB_ENV_FILE or .env
+    cmds:
+      - go run ./cmd/db down --env-file "{{.DB_ENV_FILE}}" {{.CLI_ARGS}}
+
+  swagger:
+    desc: Generate Swagger documents from active API source
+    cmds:
+      - swag init -g main.go --dir ./cmd/api,./internal/modules/health,./internal/modules/master,./internal/http/response -o ./docs

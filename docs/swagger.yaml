@@ -1,0 +1,228 @@
+basePath: /
+definitions:
+  master.ItemResponse:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+    type: object
+  master.ListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/master.ItemResponse'
+        type: array
+      message:
+        type: string
+      meta:
+        $ref: '#/definitions/master.PaginationMeta'
+      status:
+        type: integer
+    type: object
+  master.PaginationMeta:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  response.ErrorData:
+    properties:
+      trace_id:
+        type: string
+    type: object
+  response.ErrorResponse:
+    properties:
+      data:
+        $ref: '#/definitions/response.ErrorData'
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  response.SuccessResponse:
+    properties:
+      data: {}
+      message:
+        type: string
+      meta: {}
+      status:
+        type: integer
+    type: object
+info:
+  contact: {}
+  description: Backend API for Kolaboria Platform
+  title: Kolaboria API
+  version: "1.0"
+paths:
+  /api/v1/master-data/contribution-roles:
+    get:
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 50
+        description: Page size
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      - description: Literal case-insensitive substring search
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/master.ListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "504":
+          description: Gateway Timeout
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: List contribution roles
+      tags:
+      - master-data
+  /api/v1/master-data/skills:
+    get:
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 50
+        description: Page size
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      - description: Literal case-insensitive substring search
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/master.ListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "504":
+          description: Gateway Timeout
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: List skills
+      tags:
+      - master-data
+  /api/v1/master-data/tools:
+    get:
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 50
+        description: Page size
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      - description: Literal case-insensitive substring search
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/master.ListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "504":
+          description: Gateway Timeout
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: List tools
+      tags:
+      - master-data
+  /health:
+    get:
+      description: Check if the application is running and healthy
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      summary: Health Check
+      tags:
+      - health
+swagger: "2.0"

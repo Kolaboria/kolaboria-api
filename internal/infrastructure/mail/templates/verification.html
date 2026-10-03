@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Verifikasi Email Kamu - Kolaboria</title>
+    <style>
+      body,
+      table,
+      td,
+      a {
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+      }
+      table,
+      td {
+        mso-table-lspace: 0pt;
+        mso-table-rspace: 0pt;
+      }
+      img {
+        -ms-interpolation-mode: bicubic;
+        border: 0;
+        height: auto;
+        line-height: 100%;
+        outline: none;
+        text-decoration: none;
+      }
+      table {
+        border-collapse: collapse !important;
+      }
+      body {
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        background-color: #f4f6f8;
+        font-family:
+          'Inter',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+        color: #121820;
+      }
+      @media screen and (max-width: 600px) {
+        .email-container {
+          width: 100% !important;
+          margin: auto !important;
+        }
+        .fluid-padding {
+          padding-left: 20px !important;
+          padding-right: 20px !important;
+        }
+      }
+    </style>
+  </head>
+  <body style="margin: 0; padding: 0; background-color: #f4f6f8">
+    <table
+      role="presentation"
+      border="0"
+      cellpadding="0"
+      cellspacing="0"
+      width="100%"
+      style="background-color: #f4f6f8; table-layout: fixed"
+    >
+      <tr>
+        <td align="center" style="padding: 40px 16px">
+          <!-- Main Container -->
+          <table
+            role="presentation"
+            border="0"
+            cellpadding="0"
+            cellspacing="0"
+            width="100%"
+            class="email-container"
+            style="
+              max-width: 600px;
+              background-color: #ffffff;
+              border: 1px solid #e2e8ef;
+              border-radius: 12px;
+              overflow: hidden;
+            "
+          >
+            <!-- Header with Logo -->
+            <tr>
+              <td
+                class="fluid-padding"
+                style="
+                  padding: 36px 40px 24px 40px;
+                  border-bottom: 1px solid #e2e8ef;
+                "
+              >
+                {{if .LogoURL}}
+                <img
+                  src="{{.LogoURL}}"
+                  alt="Kolaboria"
+                  width="188"
+                  style="
+                    display: block;
+                    width: 188px;
+                    max-width: 188px;
+                    height: auto;
+                    border: 0;
+                    font-family: 'Inter', Helvetica, Arial, sans-serif;
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: #1c2e4a;
+                  "
+                />
+                {{else}}
+                <span
+                  style="
+                    font-family: 'Inter', Helvetica, Arial, sans-serif;
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: #1c2e4a;
+                    letter-spacing: -0.5px;
+                  "
+                  >Kolaboria</span
+                >
+                {{end}}
+              </td>
+            </tr>
+
+            <!-- Body Content -->
+            <tr>
+              <td class="fluid-padding" style="padding: 32px 40px 36px 40px">
+                <h1
+                  style="
+                    margin: 0 0 20px 0;
+                    font-size: 22px;
+                    line-height: 1.3;
+                    font-weight: 700;
+                    color: #1c2e4a;
+                  "
+                >
+                  Verifikasi Email Kamu
+                </h1>
+
+                <p
+                  style="
+                    margin: 0 0 16px 0;
+                    font-size: 15px;
+                    line-height: 1.6;
+                    color: #121820;
+                  "
+                >
+                  Halo <strong>{{.Name}}</strong>,
+                </p>
+
+                <p
+                  style="
+                    margin: 0 0 28px 0;
+                    font-size: 15px;
+                    line-height: 1.6;
+                    color: #546270;
+                  "
+                >
+                  Selamat datang di Kolaboria! Kami sangat senang menyambut
+                  kamu. Untuk mengaktifkan akun dan mulai berkolaborasi, silakan
+                  verifikasi alamat email kamu melalui tombol di bawah ini:
+                </p>
+
+                <!-- Call to Action Button -->
+                <table
+                  role="presentation"
+                  border="0"
+                  cellpadding="0"
+                  cellspacing="0"
+                  width="100%"
+                  style="margin-bottom: 32px"
+                >
+                  <tr>
+                    <td align="center">
+                      <a
+                        href="{{.URL}}"
+                        target="_blank"
+                        style="
+                          display: inline-block;
+                          background-color: #1d7ca0;
+                          color: #ffffff;
+                          font-size: 15px;
+                          font-weight: 600;
+                          text-decoration: none;
+                          padding: 14px 32px;
+                          border-radius: 8px;
+                          text-align: center;
+                        "
+                      >
+                        Verifikasi Email
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Fallback Link Section -->
+                <div
+                  style="
+                    background-color: #f4f6f8;
+                    border: 1px solid #e2e8ef;
+                    border-radius: 8px;
+                    padding: 16px;
+                    margin-bottom: 28px;
+                  "
+                >
+                  <p
+                    style="
+                      margin: 0 0 8px 0;
+                      font-size: 13px;
+                      line-height: 1.5;
+                      color: #546270;
+                    "
+                  >
+                    Jika tombol di atas tidak dapat diklik, kamu bisa menyalin
+                    dan menempelkan tautan berikut ke peramban kamu:
+                  </p>
+                  <p
+                    style="
+                      margin: 0;
+                      font-size: 13px;
+                      line-height: 1.5;
+                      word-break: break-all;
+                    "
+                  >
+                    <a
+                      href="{{.URL}}"
+                      style="color: #1d7ca0; text-decoration: underline"
+                      >{{.URL}}</a
+                    >
+                  </p>
+                </div>
+
+                <!-- Expiry & Notice -->
+                <p
+                  style="
+                    margin: 0 0 8px 0;
+                    font-size: 13px;
+                    line-height: 1.5;
+                    color: #546270;
+                  "
+                >
+                  Tautan verifikasi ini berlaku selama <strong>24 jam</strong>.
+                </p>
+                <p
+                  style="
+                    margin: 0;
+                    font-size: 13px;
+                    line-height: 1.5;
+                    color: #546270;
+                  "
+                >
+                  Jika kamu tidak merasa mendaftar di Kolaboria, kamu dapat
+                  mengabaikan email ini dengan aman.
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td
+                class="fluid-padding"
+                style="
+                  padding: 24px 40px;
+                  background-color: #f4f6f8;
+                  border-top: 1px solid #e2e8ef;
+                  text-align: center;
+                "
+              >
+                <p
+                  style="
+                    margin: 0;
+                    font-size: 12px;
+                    line-height: 1.5;
+                    color: #546270;
+                  "
+                >
+                  &copy; {{.Year}} Kolaboria. Platform Kolaborasi & Portofolio
+                  Tim.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
