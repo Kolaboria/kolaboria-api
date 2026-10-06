@@ -277,6 +277,233 @@ definitions:
       village_id:
         type: integer
     type: object
+  profile.AddSkillRequest:
+    properties:
+      isPrimary:
+        type: boolean
+      skillId:
+        type: string
+    required:
+    - skillId
+    type: object
+  profile.AddToolRequest:
+    properties:
+      toolId:
+        type: string
+    required:
+    - toolId
+    type: object
+  profile.CareerHistoryRequest:
+    properties:
+      company:
+        maxLength: 150
+        minLength: 2
+        type: string
+      description:
+        maxLength: 2000
+        type: string
+      endMonth:
+        maximum: 12
+        minimum: 1
+        type: integer
+        x-nullable: true
+      endYear:
+        minimum: 1950
+        type: integer
+        x-nullable: true
+      startMonth:
+        maximum: 12
+        minimum: 1
+        type: integer
+        x-nullable: true
+      startYear:
+        minimum: 1950
+        type: integer
+      title:
+        maxLength: 150
+        minLength: 2
+        type: string
+    required:
+    - company
+    - startYear
+    - title
+    type: object
+  profile.CareerHistoryResponse:
+    properties:
+      company:
+        type: string
+      description:
+        type: string
+      end_month:
+        type: integer
+        x-nullable: true
+      end_year:
+        type: integer
+        x-nullable: true
+      id:
+        type: string
+      start_month:
+        type: integer
+        x-nullable: true
+      start_year:
+        type: integer
+      title:
+        type: string
+    type: object
+  profile.ExperienceLevel:
+    enum:
+    - Beginner
+    - Intermediate
+    - Advanced
+    - Expert
+    type: string
+    x-enum-varnames:
+    - ExperienceLevelBeginner
+    - ExperienceLevelIntermediate
+    - ExperienceLevelAdvanced
+    - ExperienceLevelExpert
+  profile.MyProfileDetailResponse:
+    properties:
+      account_type:
+        type: string
+      address:
+        type: string
+      avatar:
+        type: string
+      bio:
+        type: string
+      created_at:
+        type: string
+      external_links:
+        additionalProperties:
+          type: string
+        type: object
+      full_name:
+        type: string
+      headline:
+        type: string
+      id:
+        type: string
+      is_verified:
+        type: boolean
+      location:
+        type: string
+      skills:
+        items:
+          $ref: '#/definitions/profile.UserSkillResponse'
+        type: array
+      talent_profile:
+        $ref: '#/definitions/profile.TalentProfileResponse'
+      tools:
+        items:
+          $ref: '#/definitions/profile.UserToolResponse'
+        type: array
+      updated_at:
+        type: string
+      username:
+        type: string
+      village:
+        $ref: '#/definitions/profile.ProfileVillageResponse'
+      village_id:
+        type: integer
+    type: object
+  profile.OnboardingStatusResponse:
+    properties:
+      is_onboarded:
+        type: boolean
+    type: object
+  profile.ProfileVillageResponse:
+    properties:
+      district:
+        type: string
+      postal_code:
+        type: string
+      province:
+        type: string
+      regency:
+        type: string
+      village:
+        type: string
+      village_id:
+        type: integer
+    type: object
+  profile.SubmitOnboardingRequest:
+    properties:
+      bio:
+        maxLength: 300
+        type: string
+      experienceLevel:
+        allOf:
+        - $ref: '#/definitions/profile.ExperienceLevel'
+        enum:
+        - Beginner
+        - Intermediate
+        - Advanced
+        - Expert
+      externalLink:
+        type: string
+      goal:
+        maxLength: 200
+        type: string
+      primarySkillId:
+        type: string
+      toolIds:
+        items:
+          type: string
+        maxItems: 5
+        type: array
+    required:
+    - experienceLevel
+    - primarySkillId
+    type: object
+  profile.TalentProfileResponse:
+    properties:
+      experience_level:
+        $ref: '#/definitions/profile.ExperienceLevel'
+      goal:
+        type: string
+    type: object
+  profile.UpdateProfileRequest:
+    properties:
+      address:
+        type: string
+      bio:
+        type: string
+      experienceLevel:
+        $ref: '#/definitions/profile.ExperienceLevel'
+      fullName:
+        type: string
+      goal:
+        type: string
+      headline:
+        type: string
+      villageId:
+        type: integer
+    type: object
+  profile.UserSkillResponse:
+    properties:
+      id:
+        type: string
+      is_primary:
+        type: boolean
+      name:
+        type: string
+      skill_id:
+        type: string
+      slug:
+        type: string
+    type: object
+  profile.UserToolResponse:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+      tool_id:
+        type: string
+    type: object
   response.ErrorData:
     properties:
       trace_id:
@@ -896,6 +1123,404 @@ paths:
       summary: List tools
       tags:
       - master-data
+  /api/v1/profiles/me:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/profile.MyProfileDetailResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get current profile
+      tags:
+      - profile
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Partial profile update
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/profile.UpdateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/profile.MyProfileDetailResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update current profile
+      tags:
+      - profile
+  /api/v1/profiles/me/careers:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/profile.CareerHistoryResponse'
+                  type: array
+              type: object
+      security:
+      - BearerAuth: []
+      summary: List current user's career history
+      tags:
+      - profile
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Career history
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/profile.CareerHistoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/profile.CareerHistoryResponse'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Add career history
+      tags:
+      - profile
+  /api/v1/profiles/me/careers/{id}:
+    delete:
+      parameters:
+      - description: Career history ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete career history
+      tags:
+      - profile
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Career history ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Career history
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/profile.CareerHistoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/profile.CareerHistoryResponse'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Update career history
+      tags:
+      - profile
+  /api/v1/profiles/me/skills:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/profile.UserSkillResponse'
+                  type: array
+              type: object
+      security:
+      - BearerAuth: []
+      summary: List current user's skills
+      tags:
+      - profile
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Skill selection
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/profile.AddSkillRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/profile.UserSkillResponse'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Add a skill to current profile
+      tags:
+      - profile
+  /api/v1/profiles/me/skills/{id}:
+    delete:
+      parameters:
+      - description: User skill ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove a skill from current profile
+      tags:
+      - profile
+  /api/v1/profiles/me/skills/{id}/primary:
+    patch:
+      parameters:
+      - description: User skill ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      security:
+      - BearerAuth: []
+      summary: Set current profile primary skill
+      tags:
+      - profile
+  /api/v1/profiles/me/tools:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/profile.UserToolResponse'
+                  type: array
+              type: object
+      security:
+      - BearerAuth: []
+      summary: List current user's tools
+      tags:
+      - profile
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Tool selection
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/profile.AddToolRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/profile.UserToolResponse'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Add a tool to current profile
+      tags:
+      - profile
+  /api/v1/profiles/me/tools/{id}:
+    delete:
+      parameters:
+      - description: User tool ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove a tool from current profile
+      tags:
+      - profile
+  /api/v1/profiles/onboarding:
+    post:
+      consumes:
+      - application/json
+      description: Save talent profile details, primary skill, and selected tools.
+      parameters:
+      - description: Onboarding request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/profile.SubmitOnboardingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Submit talent onboarding
+      tags:
+      - profile
+  /api/v1/profiles/onboarding/status:
+    get:
+      description: Check whether the authenticated user's profile has an account type.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/profile.OnboardingStatusResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Check onboarding status
+      tags:
+      - profile
   /health:
     get:
       description: Check if the application is running and healthy
