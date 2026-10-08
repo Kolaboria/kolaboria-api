@@ -41,6 +41,7 @@ docs/apidog/*
 !docs/apidog/master-data.openapi.json
 !docs/apidog/README.md
 !docs/master-data.md
+!docs/project-editor.md
 !docs/superpowers/
 docs/superpowers/*
 docs/superpowers/plans/

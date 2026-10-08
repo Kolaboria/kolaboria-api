@@ -47,6 +47,8 @@ task migrate:down
 
 `task seed` aliases `task migrate:up`. Choose one of them; both apply every pending migration, including schema and seed. `task migrate:down` rolls back one migration. The command wrapper never offers `force`; it does not run automatically during API startup. For a different environment file, set `DB_ENV_FILE` in the process environment before running the task.
 
+Migration `000009_create_project_editor_tables` adds the active project editor schema. Project role skills and tools are master-data join tables; create projects are always public. See [Project editor API](docs/project-editor.md) for write/read behavior and its disposable PostgreSQL verifier.
+
 ## Swagger and Apidog
 
 Run `task swagger` after changing API annotations. Maintained Apidog import files are in `docs/apidog/`; select the Postman collection or OpenAPI file in Apidog's import dialog. Set the collection variable `base_url` to the API scheme, host, and port only, such as `http://localhost:8080`.

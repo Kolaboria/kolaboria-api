@@ -537,6 +537,359 @@ definitions:
       tool_id:
         type: string
     type: object
+  project.CreateProjectDraftRequest:
+    properties:
+      client_request_id:
+        type: string
+      definition:
+        $ref: '#/definitions/project.ProjectDefinitionInput'
+    type: object
+  project.CreationMode:
+    enum:
+    - personal
+    - organization_initiated
+    type: string
+    x-enum-varnames:
+    - CreationModePersonal
+    - CreationModeOrganizationInitiated
+  project.ProjectCapabilitiesResponse:
+    properties:
+      allowed_status_actions:
+        items:
+          type: string
+        type: array
+      can_apply:
+        type: boolean
+      can_claim:
+        type: boolean
+      can_edit_definition:
+        type: boolean
+      can_manage_applications:
+        type: boolean
+      can_manage_workspace:
+        type: boolean
+      can_publish:
+        type: boolean
+    type: object
+  project.ProjectDefinitionInput:
+    properties:
+      availability:
+        type: string
+      client_acknowledgement:
+        type: boolean
+      collaboration_agreement:
+        type: boolean
+      contributor_outcome:
+        type: string
+      creation_mode:
+        $ref: '#/definitions/project.CreationMode'
+      deadline:
+        example: "2026-10-08"
+        format: date
+        type: string
+      description:
+        type: string
+      hours_per_week:
+        type: integer
+      initiator_organization_id:
+        type: string
+      lead_expectations:
+        type: string
+      origin:
+        type: string
+      owner_commitment:
+        type: string
+      owner_contribution_role_id:
+        type: string
+      project_category:
+        type: string
+      roles:
+        items:
+          $ref: '#/definitions/project.ProjectRoleWriteInput'
+        type: array
+      slug:
+        type: string
+      start_date:
+        example: "2026-10-08"
+        format: date
+        type: string
+      summary:
+        type: string
+      title:
+        type: string
+      visibility:
+        type: string
+      why_collaborative:
+        type: string
+    type: object
+  project.ProjectDetailResponse:
+    properties:
+      availability:
+        type: string
+      capabilities:
+        $ref: '#/definitions/project.ProjectCapabilitiesResponse'
+      client_acknowledgement:
+        type: boolean
+      collaboration_agreement:
+        type: boolean
+      contributor_outcome:
+        type: string
+      created_at:
+        type: string
+      creation_mode:
+        $ref: '#/definitions/project.CreationMode'
+      deadline:
+        example: "2026-10-08"
+        format: date
+        type: string
+      description:
+        type: string
+      hours_per_week:
+        type: integer
+      id:
+        type: string
+      initiator_organization_id:
+        type: string
+      lead_expectations:
+        type: string
+      origin:
+        type: string
+      owner_commitment:
+        type: string
+      owner_role:
+        $ref: '#/definitions/project.ProjectOwnerRoleResponse'
+      ownership:
+        $ref: '#/definitions/project.ProjectOwnershipResponse'
+      project_category:
+        type: string
+      published_at:
+        type: string
+      roles:
+        items:
+          $ref: '#/definitions/project.ProjectRoleResponse'
+        type: array
+      slug:
+        type: string
+      start_date:
+        example: "2026-10-08"
+        format: date
+        type: string
+      status:
+        $ref: '#/definitions/project.ProjectStatus'
+      summary:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      version:
+        type: integer
+      visibility:
+        type: string
+      why_collaborative:
+        type: string
+    type: object
+  project.ProjectMasterResponse:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+    type: object
+  project.ProjectOrganizationResponse:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+    type: object
+  project.ProjectOwnerRoleResponse:
+    properties:
+      contribution_role:
+        $ref: '#/definitions/project.ProjectMasterResponse'
+      contribution_role_id:
+        type: string
+    type: object
+  project.ProjectOwnershipResponse:
+    properties:
+      can_accept_contributors:
+        type: boolean
+      created_by_user_id:
+        type: string
+      initiator_organization:
+        $ref: '#/definitions/project.ProjectOrganizationResponse'
+      initiator_organization_id:
+        type: string
+      initiator_profile:
+        $ref: '#/definitions/project.ProjectPublicProfileResponse'
+      initiator_user_id:
+        type: string
+      owner_id:
+        type: string
+      owner_profile:
+        $ref: '#/definitions/project.ProjectPublicProfileResponse'
+      show_initiator:
+        type: boolean
+    type: object
+  project.ProjectPaginationMeta:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  project.ProjectPublicProfileResponse:
+    properties:
+      avatar:
+        type: string
+      full_name:
+        type: string
+      headline:
+        type: string
+      id:
+        type: string
+      is_verified:
+        type: boolean
+      username:
+        type: string
+    type: object
+  project.ProjectRoleResponse:
+    properties:
+      capacity:
+        type: integer
+      contribution_role:
+        $ref: '#/definitions/project.ProjectMasterResponse'
+      contribution_role_id:
+        type: string
+      description:
+        type: string
+      filled_capacity:
+        type: integer
+      id:
+        type: string
+      position:
+        type: integer
+      remaining_capacity:
+        type: integer
+      skill_ids:
+        items:
+          type: string
+        type: array
+      skills:
+        items:
+          $ref: '#/definitions/project.ProjectMasterResponse'
+        type: array
+      status:
+        type: string
+      tool_ids:
+        items:
+          type: string
+        type: array
+      tools:
+        items:
+          $ref: '#/definitions/project.ProjectMasterResponse'
+        type: array
+    type: object
+  project.ProjectRoleWriteInput:
+    properties:
+      capacity:
+        type: integer
+      contribution_role_id:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      skill_ids:
+        items:
+          type: string
+        type: array
+      tool_ids:
+        items:
+          type: string
+        type: array
+    type: object
+  project.ProjectStatus:
+    enum:
+    - draft
+    - open
+    - awaiting_owner
+    - in_progress
+    - completed
+    - archived
+    type: string
+    x-enum-varnames:
+    - ProjectStatusDraft
+    - ProjectStatusOpen
+    - ProjectStatusAwaitingOwner
+    - ProjectStatusInProgress
+    - ProjectStatusCompleted
+    - ProjectStatusArchived
+  project.ProjectSummaryResponse:
+    properties:
+      created_at:
+        type: string
+      deadline:
+        example: "2026-10-08"
+        format: date
+        type: string
+      filled_capacity:
+        type: integer
+      hours_per_week:
+        type: integer
+      id:
+        type: string
+      initiator_organization:
+        $ref: '#/definitions/project.ProjectOrganizationResponse'
+      initiator_organization_id:
+        type: string
+      origin:
+        type: string
+      owner_id:
+        type: string
+      owner_profile:
+        $ref: '#/definitions/project.ProjectPublicProfileResponse'
+      project_category:
+        type: string
+      skills:
+        items:
+          $ref: '#/definitions/project.ProjectMasterResponse'
+        type: array
+      slug:
+        type: string
+      status:
+        $ref: '#/definitions/project.ProjectStatus'
+      summary:
+        type: string
+      title:
+        type: string
+      tools:
+        items:
+          $ref: '#/definitions/project.ProjectMasterResponse'
+        type: array
+      total_capacity:
+        type: integer
+    type: object
+  project.PublishProjectRequest:
+    properties:
+      version:
+        type: integer
+    type: object
+  project.UpdateProjectDefinitionRequest:
+    properties:
+      definition:
+        $ref: '#/definitions/project.ProjectDefinitionInput'
+      version:
+        type: integer
+    type: object
   response.ErrorData:
     properties:
       trace_id:
@@ -1560,6 +1913,298 @@ paths:
       summary: Check onboarding status
       tags:
       - profile
+  /api/v1/projects:
+    get:
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page (max 100)
+        in: query
+        name: limit
+        type: integer
+      - description: Search title and summary
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/project.ProjectSummaryResponse'
+                  type: array
+                meta:
+                  $ref: '#/definitions/project.ProjectPaginationMeta'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: List public projects
+      tags:
+      - Projects
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Project draft
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/project.CreateProjectDraftRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/project.ProjectDetailResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create project draft
+      tags:
+      - Projects
+  /api/v1/projects/{id}:
+    get:
+      parameters:
+      - description: Project UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/project.ProjectDetailResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get project by ID
+      tags:
+      - Projects
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Project UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Project definition
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/project.UpdateProjectDefinitionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/project.ProjectDetailResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update project definition
+      tags:
+      - Projects
+  /api/v1/projects/{id}/publish:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Project UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Current project version
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/project.PublishProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/project.ProjectDetailResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Publish project
+      tags:
+      - Projects
+  /api/v1/projects/my-projects:
+    get:
+      parameters:
+      - description: owned or initiated
+        in: query
+        name: scope
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page (max 100)
+        in: query
+        name: limit
+        type: integer
+      - description: Search title and summary
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/project.ProjectSummaryResponse'
+                  type: array
+                meta:
+                  $ref: '#/definitions/project.ProjectPaginationMeta'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List my projects
+      tags:
+      - Projects
+  /api/v1/projects/slug/{slug}:
+    get:
+      parameters:
+      - description: Project slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/project.ProjectDetailResponse'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get project by slug
+      tags:
+      - Projects
   /health:
     get:
       description: Check if the application is running and healthy

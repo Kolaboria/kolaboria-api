@@ -13,6 +13,7 @@ import (
 	"github.com/syahrulfahmi/kolaboria-api/internal/modules/health"
 	"github.com/syahrulfahmi/kolaboria-api/internal/modules/master"
 	"github.com/syahrulfahmi/kolaboria-api/internal/modules/profile"
+	"github.com/syahrulfahmi/kolaboria-api/internal/modules/project"
 )
 
 func NewRouter(
@@ -22,6 +23,7 @@ func NewRouter(
 	masterHandler *master.MasterHandler,
 	authHandler *auth.AuthHandler,
 	profileHandler *profile.ProfileHandler,
+	projectHandler *project.ProjectHandler,
 ) *gin.Engine {
 	if cfg.App.Env == "production" {
 		gin.SetMode(gin.ReleaseMode)
@@ -49,6 +51,9 @@ func NewRouter(
 	master.RegisterMasterRoutes(v1, masterHandler)
 	if profileHandler != nil {
 		profile.RegisterProfileRoutes(v1, profileHandler, middleware.Auth(jwtService))
+	}
+	if projectHandler != nil {
+		project.RegisterProjectRoutes(v1, projectHandler, jwtService)
 	}
 	r.NoRoute(func(c *gin.Context) { response.Error(c, 404, "Not Found") })
 	r.NoMethod(func(c *gin.Context) { response.Error(c, 405, "Method Not Allowed") })

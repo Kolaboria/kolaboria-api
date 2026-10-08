@@ -1625,6 +1625,491 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/projects": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "List public projects",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page (max 100)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search title and summary",
+                        "name": "q",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/project.ProjectSummaryResponse"
+                                            }
+                                        },
+                                        "meta": {
+                                            "$ref": "#/definitions/project.ProjectPaginationMeta"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Create project draft",
+                "parameters": [
+                    {
+                        "description": "Project draft",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/project.CreateProjectDraftRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/project.ProjectDetailResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/projects/my-projects": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "List my projects",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "owned or initiated",
+                        "name": "scope",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page (max 100)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search title and summary",
+                        "name": "q",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/project.ProjectSummaryResponse"
+                                            }
+                                        },
+                                        "meta": {
+                                            "$ref": "#/definitions/project.ProjectPaginationMeta"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/projects/slug/{slug}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Get project by slug",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project slug",
+                        "name": "slug",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/project.ProjectDetailResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/projects/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Get project by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/project.ProjectDetailResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Update project definition",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Project definition",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/project.UpdateProjectDefinitionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/project.ProjectDetailResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/projects/{id}/publish": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Publish project",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Current project version",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/project.PublishProjectRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/project.ProjectDetailResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/health": {
             "get": {
                 "description": "Check if the application is running and healthy",
@@ -2448,6 +2933,532 @@ const docTemplate = `{
                 },
                 "tool_id": {
                     "type": "string"
+                }
+            }
+        },
+        "project.CreateProjectDraftRequest": {
+            "type": "object",
+            "properties": {
+                "client_request_id": {
+                    "type": "string"
+                },
+                "definition": {
+                    "$ref": "#/definitions/project.ProjectDefinitionInput"
+                }
+            }
+        },
+        "project.CreationMode": {
+            "type": "string",
+            "enum": [
+                "personal",
+                "organization_initiated"
+            ],
+            "x-enum-varnames": [
+                "CreationModePersonal",
+                "CreationModeOrganizationInitiated"
+            ]
+        },
+        "project.ProjectCapabilitiesResponse": {
+            "type": "object",
+            "properties": {
+                "allowed_status_actions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "can_apply": {
+                    "type": "boolean"
+                },
+                "can_claim": {
+                    "type": "boolean"
+                },
+                "can_edit_definition": {
+                    "type": "boolean"
+                },
+                "can_manage_applications": {
+                    "type": "boolean"
+                },
+                "can_manage_workspace": {
+                    "type": "boolean"
+                },
+                "can_publish": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "project.ProjectDefinitionInput": {
+            "type": "object",
+            "properties": {
+                "availability": {
+                    "type": "string"
+                },
+                "client_acknowledgement": {
+                    "type": "boolean"
+                },
+                "collaboration_agreement": {
+                    "type": "boolean"
+                },
+                "contributor_outcome": {
+                    "type": "string"
+                },
+                "creation_mode": {
+                    "$ref": "#/definitions/project.CreationMode"
+                },
+                "deadline": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2026-10-08"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "hours_per_week": {
+                    "type": "integer"
+                },
+                "initiator_organization_id": {
+                    "type": "string"
+                },
+                "lead_expectations": {
+                    "type": "string"
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "owner_commitment": {
+                    "type": "string"
+                },
+                "owner_contribution_role_id": {
+                    "type": "string"
+                },
+                "project_category": {
+                    "type": "string"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/project.ProjectRoleWriteInput"
+                    }
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2026-10-08"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "visibility": {
+                    "type": "string"
+                },
+                "why_collaborative": {
+                    "type": "string"
+                }
+            }
+        },
+        "project.ProjectDetailResponse": {
+            "type": "object",
+            "properties": {
+                "availability": {
+                    "type": "string"
+                },
+                "capabilities": {
+                    "$ref": "#/definitions/project.ProjectCapabilitiesResponse"
+                },
+                "client_acknowledgement": {
+                    "type": "boolean"
+                },
+                "collaboration_agreement": {
+                    "type": "boolean"
+                },
+                "contributor_outcome": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "creation_mode": {
+                    "$ref": "#/definitions/project.CreationMode"
+                },
+                "deadline": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2026-10-08"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "hours_per_week": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "initiator_organization_id": {
+                    "type": "string"
+                },
+                "lead_expectations": {
+                    "type": "string"
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "owner_commitment": {
+                    "type": "string"
+                },
+                "owner_role": {
+                    "$ref": "#/definitions/project.ProjectOwnerRoleResponse"
+                },
+                "ownership": {
+                    "$ref": "#/definitions/project.ProjectOwnershipResponse"
+                },
+                "project_category": {
+                    "type": "string"
+                },
+                "published_at": {
+                    "type": "string"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/project.ProjectRoleResponse"
+                    }
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2026-10-08"
+                },
+                "status": {
+                    "$ref": "#/definitions/project.ProjectStatus"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                },
+                "visibility": {
+                    "type": "string"
+                },
+                "why_collaborative": {
+                    "type": "string"
+                }
+            }
+        },
+        "project.ProjectMasterResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "project.ProjectOrganizationResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "project.ProjectOwnerRoleResponse": {
+            "type": "object",
+            "properties": {
+                "contribution_role": {
+                    "$ref": "#/definitions/project.ProjectMasterResponse"
+                },
+                "contribution_role_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "project.ProjectOwnershipResponse": {
+            "type": "object",
+            "properties": {
+                "can_accept_contributors": {
+                    "type": "boolean"
+                },
+                "created_by_user_id": {
+                    "type": "string"
+                },
+                "initiator_organization": {
+                    "$ref": "#/definitions/project.ProjectOrganizationResponse"
+                },
+                "initiator_organization_id": {
+                    "type": "string"
+                },
+                "initiator_profile": {
+                    "$ref": "#/definitions/project.ProjectPublicProfileResponse"
+                },
+                "initiator_user_id": {
+                    "type": "string"
+                },
+                "owner_id": {
+                    "type": "string"
+                },
+                "owner_profile": {
+                    "$ref": "#/definitions/project.ProjectPublicProfileResponse"
+                },
+                "show_initiator": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "project.ProjectPaginationMeta": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "total_pages": {
+                    "type": "integer"
+                }
+            }
+        },
+        "project.ProjectPublicProfileResponse": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "headline": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_verified": {
+                    "type": "boolean"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "project.ProjectRoleResponse": {
+            "type": "object",
+            "properties": {
+                "capacity": {
+                    "type": "integer"
+                },
+                "contribution_role": {
+                    "$ref": "#/definitions/project.ProjectMasterResponse"
+                },
+                "contribution_role_id": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "filled_capacity": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "integer"
+                },
+                "remaining_capacity": {
+                    "type": "integer"
+                },
+                "skill_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "skills": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/project.ProjectMasterResponse"
+                    }
+                },
+                "status": {
+                    "type": "string"
+                },
+                "tool_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "tools": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/project.ProjectMasterResponse"
+                    }
+                }
+            }
+        },
+        "project.ProjectRoleWriteInput": {
+            "type": "object",
+            "properties": {
+                "capacity": {
+                    "type": "integer"
+                },
+                "contribution_role_id": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "skill_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "tool_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "project.ProjectStatus": {
+            "type": "string",
+            "enum": [
+                "draft",
+                "open",
+                "awaiting_owner",
+                "in_progress",
+                "completed",
+                "archived"
+            ],
+            "x-enum-varnames": [
+                "ProjectStatusDraft",
+                "ProjectStatusOpen",
+                "ProjectStatusAwaitingOwner",
+                "ProjectStatusInProgress",
+                "ProjectStatusCompleted",
+                "ProjectStatusArchived"
+            ]
+        },
+        "project.ProjectSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "deadline": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2026-10-08"
+                },
+                "filled_capacity": {
+                    "type": "integer"
+                },
+                "hours_per_week": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "initiator_organization": {
+                    "$ref": "#/definitions/project.ProjectOrganizationResponse"
+                },
+                "initiator_organization_id": {
+                    "type": "string"
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "owner_id": {
+                    "type": "string"
+                },
+                "owner_profile": {
+                    "$ref": "#/definitions/project.ProjectPublicProfileResponse"
+                },
+                "project_category": {
+                    "type": "string"
+                },
+                "skills": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/project.ProjectMasterResponse"
+                    }
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/project.ProjectStatus"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "tools": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/project.ProjectMasterResponse"
+                    }
+                },
+                "total_capacity": {
+                    "type": "integer"
+                }
+            }
+        },
+        "project.PublishProjectRequest": {
+            "type": "object",
+            "properties": {
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "project.UpdateProjectDefinitionRequest": {
+            "type": "object",
+            "properties": {
+                "definition": {
+                    "$ref": "#/definitions/project.ProjectDefinitionInput"
+                },
+                "version": {
+                    "type": "integer"
                 }
             }
         },
