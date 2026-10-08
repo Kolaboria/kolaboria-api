@@ -57,6 +57,7 @@ type UserResponse struct {
 	Email           string           `json:"email"`
 	EmailVerifiedAt *time.Time       `json:"email_verified_at"`
 	IsActive        bool             `json:"is_active"`
+	SystemRole      SystemRole       `json:"system_role"`
 	CreatedAt       time.Time        `json:"created_at"`
 	Profile         *ProfileResponse `json:"profile,omitempty"`
 }
@@ -83,6 +84,7 @@ type LoginResponse struct {
 	Name            string     `json:"name"`
 	Email           string     `json:"email"`
 	EmailVerifiedAt *time.Time `json:"email_verified_at"`
+	SystemRole      SystemRole `json:"system_role"`
 }
 
 type CurrentUserProfileResp struct {
@@ -96,10 +98,20 @@ type CurrentUserProfileResp struct {
 }
 
 type CurrentUserResponse struct {
-	Name            string                  `json:"name"`
-	Email           string                  `json:"email"`
-	EmailVerifiedAt *time.Time              `json:"email_verified_at"`
-	IsActive        bool                    `json:"is_active"`
-	CreatedAt       time.Time               `json:"created_at"`
-	Profile         *CurrentUserProfileResp `json:"profile,omitempty"`
+	ID                     uuid.UUID                       `json:"id"`
+	Username               string                          `json:"username"`
+	SystemRole             SystemRole                      `json:"system_role"`
+	InitiableOrganizations []InitiableOrganizationResponse `json:"initiable_organizations"`
+	Name                   string                          `json:"name"`
+	Email                  string                          `json:"email"`
+	EmailVerifiedAt        *time.Time                      `json:"email_verified_at"`
+	IsActive               bool                            `json:"is_active"`
+	CreatedAt              time.Time                       `json:"created_at"`
+	Profile                *CurrentUserProfileResp         `json:"profile,omitempty"`
+}
+
+type InitiableOrganizationResponse struct {
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
+	Slug string    `json:"slug"`
 }

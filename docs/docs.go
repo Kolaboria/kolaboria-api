@@ -248,7 +248,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get currently authenticated user details",
+                "description": "Get current account identity, system role, and authorized organization choices from persisted state\nLogin with POST /api/v1/auth/login, copy data.access_token, and set Swagger Authorize to Bearer \u003caccess_token\u003e. Then use Try it out on this GET endpoint; no request body is required.",
                 "produces": [
                     "application/json"
                 ],
@@ -277,6 +277,12 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -1696,6 +1702,15 @@ const docTemplate = `{
                 "email_verified_at": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "string"
+                },
+                "initiable_organizations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/auth.InitiableOrganizationResponse"
+                    }
+                },
                 "is_active": {
                     "type": "boolean"
                 },
@@ -1704,6 +1719,12 @@ const docTemplate = `{
                 },
                 "profile": {
                     "$ref": "#/definitions/auth.CurrentUserProfileResp"
+                },
+                "system_role": {
+                    "$ref": "#/definitions/auth.SystemRole"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         },
@@ -1725,6 +1746,20 @@ const docTemplate = `{
             ],
             "properties": {
                 "code": {
+                    "type": "string"
+                }
+            }
+        },
+        "auth.InitiableOrganizationResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
                     "type": "string"
                 }
             }
@@ -1761,6 +1796,9 @@ const docTemplate = `{
                 },
                 "refresh_token": {
                     "type": "string"
+                },
+                "system_role": {
+                    "$ref": "#/definitions/auth.SystemRole"
                 }
             }
         },
@@ -1851,6 +1889,9 @@ const docTemplate = `{
                 "profile": {
                     "$ref": "#/definitions/auth.ProfileResponse"
                 },
+                "system_role": {
+                    "$ref": "#/definitions/auth.SystemRole"
+                },
                 "username": {
                     "type": "string"
                 },
@@ -1890,6 +1931,17 @@ const docTemplate = `{
                 }
             }
         },
+        "auth.SystemRole": {
+            "type": "string",
+            "enum": [
+                "user",
+                "admin"
+            ],
+            "x-enum-varnames": [
+                "SystemRoleUser",
+                "SystemRoleAdmin"
+            ]
+        },
         "auth.UserResponse": {
             "type": "object",
             "properties": {
@@ -1913,6 +1965,9 @@ const docTemplate = `{
                 },
                 "profile": {
                     "$ref": "#/definitions/auth.ProfileResponse"
+                },
+                "system_role": {
+                    "$ref": "#/definitions/auth.SystemRole"
                 },
                 "username": {
                     "type": "string"
@@ -2430,6 +2485,14 @@ const docTemplate = `{
                     "type": "integer"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Login via POST /api/v1/auth/login, copy data.access_token, then enter Bearer \u003caccess_token\u003e here before calling protected endpoints.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

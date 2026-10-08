@@ -12,6 +12,7 @@ type AuthRepository interface {
 	CreateUser(ctx context.Context, user *User) error
 	FindUserByEmail(ctx context.Context, email string) (*User, error)
 	FindUserByID(ctx context.Context, id uuid.UUID) (*User, error)
+	ListInitiableOrganizations(ctx context.Context, userID uuid.UUID) ([]InitiableOrganizationResponse, error)
 	FindUserByGoogleID(ctx context.Context, googleID string) (*User, error)
 	FindUserByUsername(ctx context.Context, username string) (*User, error)
 	UpdateUser(ctx context.Context, user *User) error

@@ -21,6 +21,7 @@ type User struct {
 	PasswordHash    string         `gorm:"type:varchar(255);not null"`
 	EmailVerifiedAt *time.Time     `gorm:"type:timestamptz"`
 	IsActive        bool           `gorm:"type:boolean;not null;default:true"`
+	SystemRole      SystemRole     `gorm:"type:varchar(20);not null;default:user"`
 	GoogleID        *string        `gorm:"type:varchar(255);uniqueIndex"`
 	Provider        string         `gorm:"type:varchar(20);not null;default:'email'"`
 	CreatedAt       time.Time      `gorm:"type:timestamptz;not null;default:now()"`

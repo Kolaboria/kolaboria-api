@@ -41,7 +41,7 @@ func TestMasterDataRoutesAgainstPostgres(t *testing.T) {
 	}
 
 	handler := master.NewMasterHandler(master.NewMasterService(master.NewMasterRepository(db)))
-	router := httpapi.NewRouter(&config.Config{App: config.AppConfig{Env: "test"}}, health.NewHealthHandler(), jwt.NewJWTService(config.JWTConfig{}), handler, nil)
+	router := httpapi.NewRouter(&config.Config{App: config.AppConfig{Env: "test"}}, health.NewHealthHandler(), jwt.NewJWTService(config.JWTConfig{}), handler, nil, nil)
 	server := httptest.NewServer(router)
 	defer server.Close()
 	manifest := readMasterManifest(t)

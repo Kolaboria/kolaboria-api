@@ -36,12 +36,22 @@ definitions:
         type: string
       email_verified_at:
         type: string
+      id:
+        type: string
+      initiable_organizations:
+        items:
+          $ref: '#/definitions/auth.InitiableOrganizationResponse'
+        type: array
       is_active:
         type: boolean
       name:
         type: string
       profile:
         $ref: '#/definitions/auth.CurrentUserProfileResp'
+      system_role:
+        $ref: '#/definitions/auth.SystemRole'
+      username:
+        type: string
     type: object
   auth.ForgotPasswordRequest:
     properties:
@@ -56,6 +66,15 @@ definitions:
         type: string
     required:
     - code
+    type: object
+  auth.InitiableOrganizationResponse:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
     type: object
   auth.LoginRequest:
     properties:
@@ -79,6 +98,8 @@ definitions:
         type: string
       refresh_token:
         type: string
+      system_role:
+        $ref: '#/definitions/auth.SystemRole'
     type: object
   auth.ProfileResponse:
     properties:
@@ -139,6 +160,8 @@ definitions:
         type: string
       profile:
         $ref: '#/definitions/auth.ProfileResponse'
+      system_role:
+        $ref: '#/definitions/auth.SystemRole'
       username:
         type: string
       verification_resend_available_at:
@@ -165,6 +188,14 @@ definitions:
     - password
     - token
     type: object
+  auth.SystemRole:
+    enum:
+    - user
+    - admin
+    type: string
+    x-enum-varnames:
+    - SystemRoleUser
+    - SystemRoleAdmin
   auth.UserResponse:
     properties:
       created_at:
@@ -181,6 +212,8 @@ definitions:
         type: string
       profile:
         $ref: '#/definitions/auth.ProfileResponse'
+      system_role:
+        $ref: '#/definitions/auth.SystemRole'
       username:
         type: string
     type: object
@@ -677,7 +710,9 @@ paths:
       - auth
   /api/v1/auth/me:
     get:
-      description: Get currently authenticated user details
+      description: |-
+        Get current account identity, system role, and authorized organization choices from persisted state
+        Login with POST /api/v1/auth/login, copy data.access_token, and set Swagger Authorize to Bearer <access_token>. Then use Try it out on this GET endpoint; no request body is required.
       produces:
       - application/json
       responses:
@@ -692,6 +727,10 @@ paths:
               type: object
         "401":
           description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "404":
@@ -1534,4 +1573,11 @@ paths:
       summary: Health Check
       tags:
       - health
+securityDefinitions:
+  BearerAuth:
+    description: Login via POST /api/v1/auth/login, copy data.access_token, then enter
+      Bearer <access_token> here before calling protected endpoints.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

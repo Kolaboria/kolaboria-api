@@ -78,6 +78,7 @@ func (s *authService) Register(ctx context.Context, req RegisterRequest) (*Regis
 	// 4. Create user entity with associated profile
 	userID := uuid.New()
 	user := &User{
+		SystemRole:   SystemRoleUser,
 		ID:           userID,
 		Email:        req.Email,
 		PasswordHash: string(passwordHash),
@@ -150,7 +151,7 @@ func (s *authService) Login(ctx context.Context, req LoginRequest) (*LoginRespon
 	if user.Profile != nil {
 		username = user.Profile.Username
 	}
-	accessToken, err := s.jwtService.GenerateAccessToken(user.ID, user.Email, username, "user")
+	accessToken, err := s.jwtService.GenerateAccessToken(user.ID, user.Email, username, string(user.EffectiveSystemRole()))
 	if err != nil {
 		return nil, err
 	}
@@ -207,7 +208,7 @@ func (s *authService) RefreshToken(ctx context.Context, req RefreshTokenRequest)
 	if user.Profile != nil {
 		username = user.Profile.Username
 	}
-	newAccessToken, err := s.jwtService.GenerateAccessToken(user.ID, user.Email, username, "user")
+	newAccessToken, err := s.jwtService.GenerateAccessToken(user.ID, user.Email, username, string(user.EffectiveSystemRole()))
 	if err != nil {
 		return nil, err
 	}
@@ -405,7 +406,19 @@ func (s *authService) GetCurrentUser(ctx context.Context, userID uuid.UUID) (*Cu
 		return nil, err
 	}
 
+	if !user.IsActive {
+		return nil, sharedErrors.ErrAccountInactive
+	}
 	resp := ToCurrentUserResponse(user)
+	if user.EffectiveSystemRole() == SystemRoleAdmin {
+		organizations, err := s.repo.ListInitiableOrganizations(ctx, userID)
+		if err != nil {
+			return nil, err
+		}
+		if organizations != nil {
+			resp.InitiableOrganizations = organizations
+		}
+	}
 	return &resp, nil
 }
 
@@ -543,6 +556,7 @@ func (s *authService) GoogleLogin(ctx context.Context, req GoogleCallbackRequest
 		}
 
 		user = &User{
+			SystemRole:      SystemRoleUser,
 			ID:              userID,
 			Email:           googleUser.Email,
 			PasswordHash:    string(passwordHash),
@@ -582,7 +596,7 @@ func (s *authService) GoogleLogin(ctx context.Context, req GoogleCallbackRequest
 	if user.Profile != nil {
 		username = user.Profile.Username
 	}
-	accessToken, err := s.jwtService.GenerateAccessToken(user.ID, user.Email, username, "user")
+	accessToken, err := s.jwtService.GenerateAccessToken(user.ID, user.Email, username, string(user.EffectiveSystemRole()))
 	if err != nil {
 		return nil, err
 	}

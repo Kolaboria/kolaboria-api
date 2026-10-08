@@ -358,12 +358,14 @@ func (h *AuthHandler) GoogleLogin(c *gin.Context) {
 
 // Me retrieves the current authenticated user profile.
 // @Summary      Get Current User
-// @Description  Get currently authenticated user details
+// @Description  Get current account identity, system role, and authorized organization choices from persisted state
+// @Description  Login with POST /api/v1/auth/login, copy data.access_token, and set Swagger Authorize to Bearer <access_token>. Then use Try it out on this GET endpoint; no request body is required.
 // @Tags         auth
 // @Produce      json
 // @Security     BearerAuth
 // @Success      200  {object}  response.SuccessResponse{data=CurrentUserResponse}
 // @Failure      401  {object}  response.ErrorResponse
+// @Failure      403  {object}  response.ErrorResponse
 // @Failure      404  {object}  response.ErrorResponse
 // @Failure      500  {object}  response.ErrorResponse
 // @Router       /api/v1/auth/me [get]
@@ -382,11 +384,15 @@ func (h *AuthHandler) Me(c *gin.Context) {
 
 	resp, err := h.service.GetCurrentUser(c.Request.Context(), userID)
 	if err != nil {
+		if errors.Is(err, sharedErrors.ErrAccountInactive) {
+			response.Error(c, http.StatusForbidden, "Account is inactive")
+			return
+		}
 		if errors.Is(err, sharedErrors.ErrNotFound) {
 			response.Error(c, http.StatusNotFound, "User not found")
 			return
 		}
-		response.Error(c, http.StatusInternalServerError, err.Error())
+		response.Error(c, http.StatusInternalServerError, "Failed to retrieve account context")
 		return
 	}
 

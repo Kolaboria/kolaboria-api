@@ -26,6 +26,7 @@ func ToUserResponse(user *User) UserResponse {
 		Email:           user.Email,
 		EmailVerifiedAt: user.EmailVerifiedAt,
 		IsActive:        user.IsActive,
+		SystemRole:      user.EffectiveSystemRole(),
 		CreatedAt:       user.CreatedAt,
 		Profile:         ToProfileResponse(user.Profile),
 	}
@@ -42,6 +43,7 @@ func ToUserResponseWithoutProfile(user *User) UserResponse {
 		Email:           user.Email,
 		EmailVerifiedAt: user.EmailVerifiedAt,
 		IsActive:        user.IsActive,
+		SystemRole:      user.EffectiveSystemRole(),
 		CreatedAt:       user.CreatedAt,
 		Profile:         nil,
 	}
@@ -65,6 +67,7 @@ func ToLoginResponse(user *User, accessToken, refreshToken string) LoginResponse
 		Name:            user.GetFullName(),
 		Email:           user.Email,
 		EmailVerifiedAt: user.EmailVerifiedAt,
+		SystemRole:      user.EffectiveSystemRole(),
 	}
 }
 
@@ -88,11 +91,15 @@ func ToCurrentUserResponse(user *User) CurrentUserResponse {
 		return CurrentUserResponse{}
 	}
 	return CurrentUserResponse{
-		Name:            user.GetFullName(),
-		Email:           user.Email,
-		EmailVerifiedAt: user.EmailVerifiedAt,
-		IsActive:        user.IsActive,
-		CreatedAt:       user.CreatedAt,
-		Profile:         ToCurrentUserProfileResp(user.Profile),
+		ID:                     user.ID,
+		Username:               user.GetUsername(),
+		SystemRole:             user.EffectiveSystemRole(),
+		InitiableOrganizations: make([]InitiableOrganizationResponse, 0),
+		Name:                   user.GetFullName(),
+		Email:                  user.Email,
+		EmailVerifiedAt:        user.EmailVerifiedAt,
+		IsActive:               user.IsActive,
+		CreatedAt:              user.CreatedAt,
+		Profile:                ToCurrentUserProfileResp(user.Profile),
 	}
 }
