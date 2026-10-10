@@ -82,7 +82,6 @@ func (s *ProjectService) projectDetailForActor(ctx context.Context, actorID *uui
 	isPublic := aggregate.Visibility == "public" && aggregate.Status != ProjectStatusDraft && aggregate.Status != ProjectStatusArchived
 	canEdit := false
 	canRead := isPublic
-	var actor *ProjectActor
 	if actorID != nil && *actorID != uuid.Nil {
 		err := s.repository.WithTransaction(ctx, func(tx ProjectTx) error {
 			foundActor, err := tx.FindActor(ctx, *actorID)
@@ -95,7 +94,6 @@ func (s *ProjectService) projectDetailForActor(ctx context.Context, actorID *uui
 			if err := requireEligibleActor(foundActor); err != nil {
 				return nil
 			}
-			actor = foundActor
 			if isEditableStatus(aggregate.Status) {
 				editErr := requireProjectEditor(ctx, tx, *actorID, aggregate)
 				if editErr == nil {
@@ -118,8 +116,15 @@ func (s *ProjectService) projectDetailForActor(ctx context.Context, actorID *uui
 	if !canRead {
 		return nil, sharedErrors.ErrNotFound
 	}
-	canPublish := canEdit && actor != nil && canPublishActor(actor)
-	return mapProjectDetail(aggregate, uuid.Nil, canEdit, canPublish), nil
+	detail := mapProjectDetail(aggregate, uuid.Nil, false, false)
+	if actorID != nil && *actorID != uuid.Nil {
+		application, err := s.repository.FindViewerApplication(ctx, aggregate.ID, *actorID)
+		if err != nil {
+			return nil, err
+		}
+		detail.ViewerApplication = application
+	}
+	return detail, nil
 }
 
 func isEditableStatus(status ProjectStatus) bool {

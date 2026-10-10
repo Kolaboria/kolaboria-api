@@ -274,6 +274,103 @@ func (s *ProjectService) Publish(ctx context.Context, actorID, projectID uuid.UU
 	return response, nil
 }
 
+func (s *ProjectService) Apply(ctx context.Context, actorID, projectID uuid.UUID, request ApplyProjectRequest) (*ProjectApplicationResponse, error) {
+	if actorID == uuid.Nil || projectID == uuid.Nil || request.ProjectRoleID == uuid.Nil ||
+		len(strings.TrimSpace(request.Motivation)) < 10 || len(request.Motivation) > 5000 ||
+		len(request.ExpectedContributionOrEmpty()) > 5000 || len(request.PortfolioLinks) > 10 ||
+		(request.EstimatedHoursPerWeek != nil && (*request.EstimatedHoursPerWeek < 1 || *request.EstimatedHoursPerWeek > 168)) {
+		return nil, sharedErrors.ErrBadRequest
+	}
+	if request.Availability != "flexible" && request.Availability != "full_time" && request.Availability != "part_time" && request.Availability != "weekends_only" {
+		return nil, sharedErrors.ErrBadRequest
+	}
+	for _, link := range request.PortfolioLinks {
+		if strings.TrimSpace(link) == "" || len(link) > 2048 {
+			return nil, sharedErrors.ErrBadRequest
+		}
+	}
+
+	var response *ProjectApplicationResponse
+	err := s.repository.WithTransaction(ctx, func(tx ProjectTx) error {
+		actor, err := tx.FindActor(ctx, actorID)
+		if err != nil {
+			return actorError(err)
+		}
+		if err := requireEligibleActor(actor); err != nil {
+			return err
+		}
+		if actor.EmailVerifiedAt == nil {
+			return sharedErrors.ErrForbidden
+		}
+
+		aggregate, err := tx.LockProject(ctx, projectID)
+		if err != nil {
+			return projectLookupError(err)
+		}
+		if aggregate.Status != ProjectStatusOpen || aggregate.Visibility != "public" || aggregate.OwnerID == nil {
+			return sharedErrors.ErrConflict
+		}
+		if *aggregate.OwnerID == actorID {
+			return sharedErrors.ErrForbidden
+		}
+		if aggregate.CreationMode == CreationModeOrganizationInitiated && aggregate.InitiatorOrganizationID != nil {
+			if _, err := tx.FindInitiableOrganization(ctx, actorID, *aggregate.InitiatorOrganizationID); err == nil {
+				return sharedErrors.ErrForbidden
+			} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+				return err
+			}
+		}
+
+		role, err := tx.LockRole(ctx, projectID, request.ProjectRoleID)
+		if err != nil {
+			return projectLookupError(err)
+		}
+		usage, err := tx.CountRoleUsage(ctx, role.ID)
+		if err != nil {
+			return err
+		}
+		if role.Capacity-usage.ActiveContributors <= 0 {
+			return sharedErrors.ErrConflict
+		}
+		activeApplication, err := tx.FindActiveApplication(ctx, projectID, actorID)
+		if err != nil {
+			return err
+		}
+		if activeApplication != nil {
+			return sharedErrors.ErrConflict
+		}
+
+		now := time.Now().UTC()
+		portfolioLinks := request.PortfolioLinks
+		if portfolioLinks == nil {
+			portfolioLinks = []string{}
+		}
+		application := &ProjectApplication{
+			ID: uuid.New(), ProjectID: projectID, ProjectRoleID: role.ID, ApplicantUserID: actorID,
+			Motivation: strings.TrimSpace(request.Motivation), ExpectedContribution: request.ExpectedContribution,
+			PortfolioLinks: portfolioLinks, Availability: request.Availability,
+			EstimatedHoursPerWeek: request.EstimatedHoursPerWeek, Status: "pending", AppliedAt: now,
+			CreatedAt: now, UpdatedAt: now,
+		}
+		if err := tx.CreateApplication(ctx, application); err != nil {
+			return mapPersistenceError(err)
+		}
+		response = &ProjectApplicationResponse{ID: application.ID, Status: application.Status, AppliedAt: application.AppliedAt}
+		return nil
+	})
+	if err != nil {
+		return nil, mapPersistenceError(err)
+	}
+	return response, nil
+}
+
+func (request ApplyProjectRequest) ExpectedContributionOrEmpty() string {
+	if request.ExpectedContribution == nil {
+		return ""
+	}
+	return *request.ExpectedContribution
+}
+
 func requireEligibleActor(actor *ProjectActor) error {
 	if actor == nil || !actor.IsActive || actor.DeletedAt != nil {
 		return sharedErrors.ErrForbidden

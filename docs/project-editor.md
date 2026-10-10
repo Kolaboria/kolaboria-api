@@ -9,6 +9,7 @@ The editor API stores drafts, validates the first publish, and returns the persi
 | `POST` | `/api/v1/projects` | Authenticated, active, onboarded actor | Creates a draft (`201`); an identical idempotent retry returns the same project (`200`). |
 | `PUT` | `/api/v1/projects/:id` | Project definition editor | Replaces the complete definition; requires the current `version`. |
 | `POST` | `/api/v1/projects/:id/publish` | Verified, onboarded project editor | Publishes a complete draft. Personal projects become `open`; organization projects become `awaiting_owner`. |
+| `POST` | `/api/v1/projects/:id/apply` | Authenticated, verified, onboarded non-owner | Applies to an open public role with remaining capacity (`201`). |
 | `GET` | `/api/v1/projects/:id` | Optional authentication | Returns a visible project by UUID. |
 | `GET` | `/api/v1/projects/slug/:slug` | Optional authentication | Returns a visible project by canonical slug. |
 | `GET` | `/api/v1/projects` | Public | Lists public published projects. |
@@ -26,11 +27,11 @@ Role UUIDs survive edits. Existing role IDs must belong to the project. Omitted 
 
 Concurrent writes use `version`; stale PUT and publish requests return `409` without mutation. Draft creation is idempotent per actor and `client_request_id`: an identical body returns the original project, while a different body with the same key conflicts. The backend derives all permissions from persisted user, organization, and membership state.
 
-Draft and invite-only reads are hidden from outsiders. Discovery includes public published projects only. Operational application, claim, workspace, and status-transition actions are not part of this API milestone; capabilities for them are returned as `false`.
+Draft and invite-only reads are hidden from outsiders. Discovery includes public published projects only. Project detail responses expose the persisted owner and organization context, role capacity, and `viewer_application` (`null` for guests or viewers without an active application; otherwise the viewer's pending or accepted application). The client derives owner, organization-initiator, and apply states from those fields and the signed-in account's `initiable_organizations`; the response no longer includes a generic `capabilities` object. The API remains authoritative when an application is submitted: the project must be `open` and `public`, have an owner, the selected role must have remaining contributor capacity, the applicant cannot be the owner or an authorized initiator for that organization, and the applicant cannot already have a pending or accepted application. Project membership checks are deferred. Claim, workspace, and status-transition actions remain outside this API scope.
 
 ## Migration and verification
 
-Migration `000009_create_project_editor_tables` adds the project, role, role-skill, role-tool, and membership tables. It references the active master catalog and organization context migrations and does not alter or replay deprecated API schema.
+Migration `000009_create_project_editor_tables` adds the project, role, role-skill, role-tool, and membership tables. Migration `000010_create_project_applications` adds role applications and prevents duplicate pending or accepted applications by the same user for a project. These migrations reference the active master catalog and organization context migrations and do not alter or replay deprecated API schema.
 
 For a database explicitly created for this test, run:
 
@@ -38,4 +39,4 @@ For a database explicitly created for this test, run:
 .\scripts\verify-project-editor.ps1 -TestEnvFile .\tmp\project-editor-test.env
 ```
 
-The verifier accepts only a loopback database named `project_editor_test_*` using the `project_editor_test` user. It applies pending migrations, tests aggregate persistence and rollback, rolls back only `000009`, and reapplies it. Do not point it at an application database.
+The verifier accepts only a loopback database named `project_editor_test_*` using the `project_editor_test` user. It applies pending migrations, tests aggregate persistence and rollback, rolls back only `000010` and `000009`, then reapplies both. Do not point it at an application database.

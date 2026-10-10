@@ -15,4 +15,5 @@ func RegisterProjectRoutes(v1 gin.IRouter, handler *ProjectHandler, jwtService j
 	group.POST("", middleware.Auth(jwtService), handler.CreateDraft)
 	group.PUT("/:id", middleware.Auth(jwtService), handler.UpdateDefinition)
 	group.POST("/:id/publish", middleware.Auth(jwtService), handler.Publish)
+	group.POST("/:id/apply", middleware.Auth(jwtService), handler.Apply)
 }

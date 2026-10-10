@@ -537,6 +537,23 @@ definitions:
       tool_id:
         type: string
     type: object
+  project.ApplyProjectRequest:
+    properties:
+      availability:
+        type: string
+      estimated_hours_per_week:
+        type: integer
+      expected_contribution:
+        type: string
+      motivation:
+        type: string
+      portfolio_links:
+        items:
+          type: string
+        type: array
+      project_role_id:
+        type: string
+    type: object
   project.CreateProjectDraftRequest:
     properties:
       client_request_id:
@@ -552,24 +569,14 @@ definitions:
     x-enum-varnames:
     - CreationModePersonal
     - CreationModeOrganizationInitiated
-  project.ProjectCapabilitiesResponse:
+  project.ProjectApplicationResponse:
     properties:
-      allowed_status_actions:
-        items:
-          type: string
-        type: array
-      can_apply:
-        type: boolean
-      can_claim:
-        type: boolean
-      can_edit_definition:
-        type: boolean
-      can_manage_applications:
-        type: boolean
-      can_manage_workspace:
-        type: boolean
-      can_publish:
-        type: boolean
+      applied_at:
+        type: string
+      id:
+        type: string
+      status:
+        type: string
     type: object
   project.ProjectDefinitionInput:
     properties:
@@ -626,8 +633,6 @@ definitions:
     properties:
       availability:
         type: string
-      capabilities:
-        $ref: '#/definitions/project.ProjectCapabilitiesResponse'
       client_acknowledgement:
         type: boolean
       collaboration_agreement:
@@ -684,6 +689,8 @@ definitions:
         type: string
       version:
         type: integer
+      viewer_application:
+        $ref: '#/definitions/project.ViewerApplicationResponse'
       visibility:
         type: string
       why_collaborative:
@@ -889,6 +896,15 @@ definitions:
         $ref: '#/definitions/project.ProjectDefinitionInput'
       version:
         type: integer
+    type: object
+  project.ViewerApplicationResponse:
+    properties:
+      applied_at:
+        type: string
+      id:
+        type: string
+      status:
+        type: string
     type: object
   response.ErrorData:
     properties:
@@ -2075,6 +2091,59 @@ paths:
       security:
       - BearerAuth: []
       summary: Update project definition
+      tags:
+      - Projects
+  /api/v1/projects/{id}/apply:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Project UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Project application
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/project.ApplyProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/project.ProjectApplicationResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Apply to project
       tags:
       - Projects
   /api/v1/projects/{id}/publish:

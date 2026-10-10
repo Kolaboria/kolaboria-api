@@ -51,17 +51,9 @@ func mapProjectDetail(aggregate *ProjectAggregate, actorID uuid.UUID, canEdit, c
 			ContributionRole:   ProjectMasterResponse{ID: aggregate.OwnerRole.ID, Name: aggregate.OwnerRole.Name, Slug: aggregate.OwnerRole.Slug},
 		}
 	}
-	allowedActions := make([]string, 0)
 	canAcceptContributors := aggregate.Status == ProjectStatusOpen && aggregate.Visibility == "public"
-	capabilities := ProjectCapabilitiesResponse{
-		CanEditDefinition:     canEdit,
-		CanPublish:            canPublish && aggregate.Status == ProjectStatusDraft,
-		AllowedStatusActions:  allowedActions,
-		CanApply:              false,
-		CanClaim:              false,
-		CanManageApplications: false,
-		CanManageWorkspace:    false,
-	}
+	_ = canEdit
+	_ = canPublish
 	return &ProjectDetailResponse{
 		ID: aggregate.ID, Slug: aggregate.Slug, Status: aggregate.Status, Version: aggregate.Version,
 		CreatedAt: aggregate.CreatedAt, UpdatedAt: aggregate.UpdatedAt, PublishedAt: aggregate.PublishedAt,
@@ -85,7 +77,7 @@ func mapProjectDetail(aggregate *ProjectAggregate, actorID uuid.UUID, canEdit, c
 			ShowInitiator:           aggregate.InitiatorOrganizationID != nil,
 			CanAcceptContributors:   canAcceptContributors,
 		},
-		OwnerRole: ownerRole, Roles: roles, Capabilities: capabilities,
+		OwnerRole: ownerRole, Roles: roles,
 		created: false,
 	}
 }

@@ -15,6 +15,7 @@ type ProjectRepository interface {
 	WithTransaction(ctx context.Context, fn func(ProjectTx) error) error
 	FindByID(ctx context.Context, id uuid.UUID) (*ProjectAggregate, error)
 	FindBySlug(ctx context.Context, slug string) (*ProjectAggregate, error)
+	FindViewerApplication(ctx context.Context, projectID, applicantID uuid.UUID) (*ViewerApplicationResponse, error)
 	ListPublic(ctx context.Context, filter ProjectListFilter) ([]ProjectAggregate, int64, error)
 	ListMine(ctx context.Context, actorID uuid.UUID, filter ProjectListFilter) ([]ProjectAggregate, int64, error)
 }
@@ -29,6 +30,8 @@ type ProjectTx interface {
 	IsActiveProjectMember(ctx context.Context, projectID, userID uuid.UUID) (bool, error)
 	FindMasterReferences(ctx context.Context, catalog string, ids []uuid.UUID) ([]MasterReference, error)
 	CountRoleUsage(ctx context.Context, roleID uuid.UUID) (RoleUsage, error)
+	FindActiveApplication(ctx context.Context, projectID, applicantID uuid.UUID) (*ProjectApplication, error)
+	CreateApplication(ctx context.Context, application *ProjectApplication) error
 	SaveAggregate(ctx context.Context, aggregate *ProjectAggregate, create bool) error
 	UpdateStatus(ctx context.Context, projectID uuid.UUID, status ProjectStatus, publishedAt *time.Time, agreementAt *time.Time, version int64) error
 }
@@ -151,6 +154,24 @@ func (tx *gormProjectTx) CountRoleUsage(ctx context.Context, roleID uuid.UUID) (
 	usage.ActiveContributors = int(activeCount)
 	// Applications are not part of the active schema yet.
 	return usage, nil
+}
+
+func (tx *gormProjectTx) FindActiveApplication(ctx context.Context, projectID, applicantID uuid.UUID) (*ProjectApplication, error) {
+	var application ProjectApplication
+	err := tx.db.WithContext(ctx).
+		Where("project_id = ? AND applicant_user_id = ? AND status IN ?", projectID, applicantID, []string{"pending", "accepted"}).
+		Take(&application).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &application, nil
+}
+
+func (tx *gormProjectTx) CreateApplication(ctx context.Context, application *ProjectApplication) error {
+	return tx.db.WithContext(ctx).Create(application).Error
 }
 
 func (tx *gormProjectTx) SaveAggregate(ctx context.Context, aggregate *ProjectAggregate, create bool) error {

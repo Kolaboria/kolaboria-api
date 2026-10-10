@@ -133,6 +133,45 @@ func (h *ProjectHandler) Publish(c *gin.Context) {
 	response.OK(c, "Project published", result)
 }
 
+// Apply submits an application to an available project role.
+// @Summary Apply to project
+// @Tags Projects
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "Project UUID"
+// @Param request body ApplyProjectRequest true "Project application"
+// @Success 201 {object} response.SuccessResponse{data=ProjectApplicationResponse}
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 409 {object} response.ErrorResponse
+// @Router /api/v1/projects/{id}/apply [post]
+func (h *ProjectHandler) Apply(c *gin.Context) {
+	actorID, ok := requiredActorID(c)
+	if !ok {
+		response.Error(c, http.StatusUnauthorized, "Authentication is required")
+		return
+	}
+	projectID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		response.Error(c, http.StatusBadRequest, "Invalid project identifier")
+		return
+	}
+	var request ApplyProjectRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		response.Error(c, http.StatusBadRequest, "Invalid application request")
+		return
+	}
+	result, err := h.service.Apply(c.Request.Context(), actorID, projectID, request)
+	if err != nil {
+		writeProjectError(c, err)
+		return
+	}
+	response.Success(c, http.StatusCreated, "Application submitted", result)
+}
+
 // GetByID retrieves a project visible to the current actor or public discovery.
 // @Summary Get project by ID
 // @Tags Projects

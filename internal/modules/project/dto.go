@@ -222,47 +222,58 @@ type ProjectOwnershipResponse struct {
 	CanAcceptContributors   bool                          `json:"can_accept_contributors"`
 }
 
-type ProjectCapabilitiesResponse struct {
-	CanEditDefinition     bool     `json:"can_edit_definition"`
-	CanPublish            bool     `json:"can_publish"`
-	AllowedStatusActions  []string `json:"allowed_status_actions"`
-	CanApply              bool     `json:"can_apply"`
-	CanClaim              bool     `json:"can_claim"`
-	CanManageApplications bool     `json:"can_manage_applications"`
-	CanManageWorkspace    bool     `json:"can_manage_workspace"`
+type ViewerApplicationResponse struct {
+	ID        uuid.UUID `json:"id"`
+	Status    string    `json:"status"`
+	AppliedAt time.Time `json:"applied_at"`
 }
 
 type ProjectDetailResponse struct {
-	ID                      uuid.UUID                   `json:"id"`
-	Slug                    string                      `json:"slug"`
-	Status                  ProjectStatus               `json:"status"`
-	Version                 int64                       `json:"version"`
-	CreatedAt               time.Time                   `json:"created_at"`
-	UpdatedAt               time.Time                   `json:"updated_at"`
-	PublishedAt             *time.Time                  `json:"published_at"`
-	CreationMode            CreationMode                `json:"creation_mode"`
-	InitiatorOrganizationID *uuid.UUID                  `json:"initiator_organization_id"`
-	Title                   string                      `json:"title"`
-	Summary                 string                      `json:"summary"`
-	Description             string                      `json:"description"`
-	ProjectCategory         string                      `json:"project_category"`
-	Visibility              string                      `json:"visibility"`
-	Origin                  string                      `json:"origin"`
-	WhyCollaborative        string                      `json:"why_collaborative"`
-	ContributorOutcome      string                      `json:"contributor_outcome"`
-	OwnerCommitment         string                      `json:"owner_commitment"`
-	LeadExpectations        string                      `json:"lead_expectations"`
-	ClientAcknowledgement   bool                        `json:"client_acknowledgement"`
-	StartDate               *ProjectDate                `json:"start_date" swaggertype:"string" format:"date" example:"2026-10-08"`
-	Deadline                *ProjectDate                `json:"deadline" swaggertype:"string" format:"date" example:"2026-10-08"`
-	Availability            string                      `json:"availability"`
-	HoursPerWeek            int                         `json:"hours_per_week"`
-	CollaborationAgreement  bool                        `json:"collaboration_agreement"`
-	Ownership               ProjectOwnershipResponse    `json:"ownership"`
-	OwnerRole               *ProjectOwnerRoleResponse   `json:"owner_role"`
-	Roles                   []ProjectRoleResponse       `json:"roles"`
-	Capabilities            ProjectCapabilitiesResponse `json:"capabilities"`
+	ID                      uuid.UUID                  `json:"id"`
+	Slug                    string                     `json:"slug"`
+	Status                  ProjectStatus              `json:"status"`
+	Version                 int64                      `json:"version"`
+	CreatedAt               time.Time                  `json:"created_at"`
+	UpdatedAt               time.Time                  `json:"updated_at"`
+	PublishedAt             *time.Time                 `json:"published_at"`
+	CreationMode            CreationMode               `json:"creation_mode"`
+	InitiatorOrganizationID *uuid.UUID                 `json:"initiator_organization_id"`
+	Title                   string                     `json:"title"`
+	Summary                 string                     `json:"summary"`
+	Description             string                     `json:"description"`
+	ProjectCategory         string                     `json:"project_category"`
+	Visibility              string                     `json:"visibility"`
+	Origin                  string                     `json:"origin"`
+	WhyCollaborative        string                     `json:"why_collaborative"`
+	ContributorOutcome      string                     `json:"contributor_outcome"`
+	OwnerCommitment         string                     `json:"owner_commitment"`
+	LeadExpectations        string                     `json:"lead_expectations"`
+	ClientAcknowledgement   bool                       `json:"client_acknowledgement"`
+	StartDate               *ProjectDate               `json:"start_date" swaggertype:"string" format:"date" example:"2026-10-08"`
+	Deadline                *ProjectDate               `json:"deadline" swaggertype:"string" format:"date" example:"2026-10-08"`
+	Availability            string                     `json:"availability"`
+	HoursPerWeek            int                        `json:"hours_per_week"`
+	CollaborationAgreement  bool                       `json:"collaboration_agreement"`
+	Ownership               ProjectOwnershipResponse   `json:"ownership"`
+	OwnerRole               *ProjectOwnerRoleResponse  `json:"owner_role"`
+	Roles                   []ProjectRoleResponse      `json:"roles"`
+	ViewerApplication       *ViewerApplicationResponse `json:"viewer_application"`
 	created                 bool
+}
+
+type ApplyProjectRequest struct {
+	ProjectRoleID         uuid.UUID `json:"project_role_id"`
+	Motivation            string    `json:"motivation"`
+	ExpectedContribution  *string   `json:"expected_contribution"`
+	PortfolioLinks        []string  `json:"portfolio_links"`
+	Availability          string    `json:"availability"`
+	EstimatedHoursPerWeek *int      `json:"estimated_hours_per_week"`
+}
+
+type ProjectApplicationResponse struct {
+	ID        uuid.UUID `json:"id"`
+	Status    string    `json:"status"`
+	AppliedAt time.Time `json:"applied_at"`
 }
 
 type ProjectSummaryResponse struct {

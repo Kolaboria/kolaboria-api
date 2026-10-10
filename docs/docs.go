@@ -2023,6 +2023,93 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/projects/{id}/apply": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Apply to project",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Project application",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/project.ApplyProjectRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/project.ProjectApplicationResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/projects/{id}/publish": {
             "post": {
                 "security": [
@@ -2936,6 +3023,32 @@ const docTemplate = `{
                 }
             }
         },
+        "project.ApplyProjectRequest": {
+            "type": "object",
+            "properties": {
+                "availability": {
+                    "type": "string"
+                },
+                "estimated_hours_per_week": {
+                    "type": "integer"
+                },
+                "expected_contribution": {
+                    "type": "string"
+                },
+                "motivation": {
+                    "type": "string"
+                },
+                "portfolio_links": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "project_role_id": {
+                    "type": "string"
+                }
+            }
+        },
         "project.CreateProjectDraftRequest": {
             "type": "object",
             "properties": {
@@ -2958,32 +3071,17 @@ const docTemplate = `{
                 "CreationModeOrganizationInitiated"
             ]
         },
-        "project.ProjectCapabilitiesResponse": {
+        "project.ProjectApplicationResponse": {
             "type": "object",
             "properties": {
-                "allowed_status_actions": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                "applied_at": {
+                    "type": "string"
                 },
-                "can_apply": {
-                    "type": "boolean"
+                "id": {
+                    "type": "string"
                 },
-                "can_claim": {
-                    "type": "boolean"
-                },
-                "can_edit_definition": {
-                    "type": "boolean"
-                },
-                "can_manage_applications": {
-                    "type": "boolean"
-                },
-                "can_manage_workspace": {
-                    "type": "boolean"
-                },
-                "can_publish": {
-                    "type": "boolean"
+                "status": {
+                    "type": "string"
                 }
             }
         },
@@ -3068,9 +3166,6 @@ const docTemplate = `{
                 "availability": {
                     "type": "string"
                 },
-                "capabilities": {
-                    "$ref": "#/definitions/project.ProjectCapabilitiesResponse"
-                },
                 "client_acknowledgement": {
                     "type": "boolean"
                 },
@@ -3152,6 +3247,9 @@ const docTemplate = `{
                 },
                 "version": {
                     "type": "integer"
+                },
+                "viewer_application": {
+                    "$ref": "#/definitions/project.ViewerApplicationResponse"
                 },
                 "visibility": {
                     "type": "string"
@@ -3459,6 +3557,20 @@ const docTemplate = `{
                 },
                 "version": {
                     "type": "integer"
+                }
+            }
+        },
+        "project.ViewerApplicationResponse": {
+            "type": "object",
+            "properties": {
+                "applied_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
                 }
             }
         },

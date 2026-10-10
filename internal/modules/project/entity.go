@@ -106,6 +106,24 @@ type ProjectMember struct {
 
 func (ProjectMember) TableName() string { return "project_members" }
 
+type ProjectApplication struct {
+	ID                    uuid.UUID `gorm:"column:id;type:uuid;primaryKey"`
+	ProjectID             uuid.UUID `gorm:"column:project_id;type:uuid;not null"`
+	ProjectRoleID         uuid.UUID `gorm:"column:project_role_id;type:uuid;not null"`
+	ApplicantUserID       uuid.UUID `gorm:"column:applicant_user_id;type:uuid;not null"`
+	Motivation            string    `gorm:"column:motivation;not null"`
+	ExpectedContribution  *string   `gorm:"column:expected_contribution"`
+	PortfolioLinks        []string  `gorm:"column:portfolio_links;serializer:json;type:jsonb;not null"`
+	Availability          string    `gorm:"column:availability;not null"`
+	EstimatedHoursPerWeek *int      `gorm:"column:estimated_hours_per_week"`
+	Status                string    `gorm:"column:status;not null"`
+	AppliedAt             time.Time `gorm:"column:applied_at;not null"`
+	CreatedAt             time.Time `gorm:"column:created_at;not null"`
+	UpdatedAt             time.Time `gorm:"column:updated_at;not null"`
+}
+
+func (ProjectApplication) TableName() string { return "project_applications" }
+
 type ProjectActor struct {
 	ID              uuid.UUID  `gorm:"column:id"`
 	IsActive        bool       `gorm:"column:is_active"`

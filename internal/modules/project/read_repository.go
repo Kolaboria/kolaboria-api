@@ -81,6 +81,21 @@ func (r *gormProjectRepository) FindBySlug(ctx context.Context, slug string) (*P
 	return loadProjectAggregate(r.db.WithContext(ctx), "projects.slug = ?", slug)
 }
 
+func (r *gormProjectRepository) FindViewerApplication(ctx context.Context, projectID, applicantID uuid.UUID) (*ViewerApplicationResponse, error) {
+	var application ViewerApplicationResponse
+	err := r.db.WithContext(ctx).Table("project_applications").
+		Select("id, status, applied_at").
+		Where("project_id = ? AND applicant_user_id = ? AND status IN ?", projectID, applicantID, []string{"pending", "accepted"}).
+		Order("applied_at DESC").Take(&application).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &application, nil
+}
+
 func loadProjectAggregate(db *gorm.DB, query string, args ...any) (*ProjectAggregate, error) {
 	var aggregate ProjectAggregate
 	if err := db.Model(&Project{}).Where(query, args...).Take(&aggregate.Project).Error; err != nil {
@@ -172,8 +187,9 @@ func loadProjectAggregate(db *gorm.DB, query string, args ...any) (*ProjectAggre
 func loadPublicProfile(db *gorm.DB, userID uuid.UUID) (*ProjectPublicProfileResponse, error) {
 	var profile ProjectPublicProfileResponse
 	err := db.Table("profiles").
-		Select("id, username, full_name, headline, avatar, is_verified").
-		Where("id = ?", userID).Take(&profile).Error
+		Select("profiles.id, profiles.username, profiles.full_name, profiles.headline, profiles.avatar, (users.email_verified_at IS NOT NULL) AS is_verified").
+		Joins("JOIN users ON users.id = profiles.id").
+		Where("profiles.id = ?", userID).Take(&profile).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
