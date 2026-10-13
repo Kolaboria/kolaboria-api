@@ -241,11 +241,11 @@ func (h *ProjectHandler) ListPublic(c *gin.Context) {
 // @Tags Projects
 // @Produce json
 // @Security BearerAuth
-// @Param scope query string false "owned or initiated"
+// @Param scope query string false "all, owned, or initiated" default(all)
 // @Param page query int false "Page number"
 // @Param limit query int false "Items per page (max 100)"
 // @Param q query string false "Search title and summary"
-// @Success 200 {object} response.SuccessResponse{data=[]ProjectSummaryResponse,meta=ProjectPaginationMeta}
+// @Success 200 {object} response.SuccessResponse{data=[]MyProjectSummaryResponse,meta=ProjectPaginationMeta}
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
 // @Router /api/v1/projects/my-projects [get]

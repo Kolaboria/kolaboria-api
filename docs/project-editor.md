@@ -13,9 +13,9 @@ The editor API stores drafts, validates the first publish, and returns the persi
 | `GET` | `/api/v1/projects/:id` | Optional authentication | Returns a visible project by UUID. |
 | `GET` | `/api/v1/projects/slug/:slug` | Optional authentication | Returns a visible project by canonical slug. |
 | `GET` | `/api/v1/projects` | Public | Lists public published projects. |
-| `GET` | `/api/v1/projects/my-projects` | Authenticated | Lists projects in `owned` or `initiated` scope. |
+| `GET` | `/api/v1/projects/my-projects` | Authenticated | Lists owned and organization-initiated projects in one response. |
 
-`GET` list routes accept `page` (default `1`), `limit` (default `20`, maximum `100`), and `q`. The my-projects route also accepts `scope=owned|initiated` (default `owned`). Empty lists return `data: []`, `total: 0`, and `total_pages: 0`.
+`GET` list routes accept `page` (default `1`), `limit` (default `20`, maximum `100`), and `q`. The my-projects route accepts `scope=all|owned|initiated` (default `all`); its summaries include `my_scope` and card role summaries. `pending_application_count` is included only when the current user owns that project. Empty lists return `data: []`, `total: 0`, and `total_pages: 0`.
 
 ## Write behavior
 

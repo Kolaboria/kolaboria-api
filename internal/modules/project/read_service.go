@@ -43,7 +43,7 @@ func (s *ProjectService) ListPublic(ctx context.Context, filter ProjectListFilte
 	return items, paginationMeta(filter, total), nil
 }
 
-func (s *ProjectService) ListMine(ctx context.Context, actorID uuid.UUID, filter ProjectListFilter) ([]ProjectSummaryResponse, ProjectPaginationMeta, error) {
+func (s *ProjectService) ListMine(ctx context.Context, actorID uuid.UUID, filter ProjectListFilter) ([]MyProjectSummaryResponse, ProjectPaginationMeta, error) {
 	if actorID == uuid.Nil {
 		return nil, ProjectPaginationMeta{}, sharedErrors.ErrUnauthorized
 	}
@@ -52,9 +52,9 @@ func (s *ProjectService) ListMine(ctx context.Context, actorID uuid.UUID, filter
 		return nil, ProjectPaginationMeta{}, err
 	}
 	if filter.Scope == "" {
-		filter.Scope = "owned"
+		filter.Scope = "all"
 	}
-	if filter.Scope != "owned" && filter.Scope != "initiated" {
+	if filter.Scope != "owned" && filter.Scope != "initiated" && filter.Scope != "all" {
 		return nil, ProjectPaginationMeta{}, sharedErrors.ErrBadRequest
 	}
 	err = s.repository.WithTransaction(ctx, func(tx ProjectTx) error {
@@ -71,11 +71,31 @@ func (s *ProjectService) ListMine(ctx context.Context, actorID uuid.UUID, filter
 	if err != nil {
 		return nil, ProjectPaginationMeta{}, err
 	}
-	items := make([]ProjectSummaryResponse, 0, len(projects))
+	items := make([]MyProjectSummaryResponse, 0, len(projects))
 	for i := range projects {
-		items = append(items, mapProjectSummary(&projects[i]))
+		items = append(items, mapMyProjectSummary(&projects[i]))
 	}
 	return items, paginationMeta(filter, total), nil
+}
+
+func mapMyProjectSummary(aggregate *ProjectAggregate) MyProjectSummaryResponse {
+	roles := make([]MyProjectRoleSummaryResponse, 0, len(aggregate.Roles))
+	for _, role := range aggregate.Roles {
+		if role.ArchivedAt != nil {
+			continue
+		}
+		name := "Kontributor"
+		if role.ContributionRole != nil && strings.TrimSpace(role.ContributionRole.Name) != "" {
+			name = role.ContributionRole.Name
+		}
+		roles = append(roles, MyProjectRoleSummaryResponse{Name: name, Capacity: role.Capacity})
+	}
+	return MyProjectSummaryResponse{
+		ProjectSummaryResponse:  mapProjectSummary(aggregate),
+		MyScope:                 aggregate.MyScope,
+		Roles:                   roles,
+		PendingApplicationCount: aggregate.PendingApplicationCount,
+	}
 }
 
 func (s *ProjectService) projectDetailForActor(ctx context.Context, actorID *uuid.UUID, aggregate *ProjectAggregate) (*ProjectDetailResponse, error) {

@@ -569,6 +569,66 @@ definitions:
     x-enum-varnames:
     - CreationModePersonal
     - CreationModeOrganizationInitiated
+  project.MyProjectRoleSummaryResponse:
+    properties:
+      capacity:
+        type: integer
+      name:
+        type: string
+    type: object
+  project.MyProjectSummaryResponse:
+    properties:
+      created_at:
+        type: string
+      deadline:
+        example: "2026-10-08"
+        format: date
+        type: string
+      filled_capacity:
+        type: integer
+      hours_per_week:
+        type: integer
+      id:
+        type: string
+      initiator_organization:
+        $ref: '#/definitions/project.ProjectOrganizationResponse'
+      initiator_organization_id:
+        type: string
+      my_scope:
+        type: string
+      origin:
+        type: string
+      owner_id:
+        type: string
+      owner_profile:
+        $ref: '#/definitions/project.ProjectPublicProfileResponse'
+      pending_application_count:
+        type: integer
+      project_category:
+        type: string
+      roles:
+        items:
+          $ref: '#/definitions/project.MyProjectRoleSummaryResponse'
+        type: array
+      skills:
+        items:
+          $ref: '#/definitions/project.ProjectMasterResponse'
+        type: array
+      slug:
+        type: string
+      status:
+        $ref: '#/definitions/project.ProjectStatus'
+      summary:
+        type: string
+      title:
+        type: string
+      tools:
+        items:
+          $ref: '#/definitions/project.ProjectMasterResponse'
+        type: array
+      total_capacity:
+        type: integer
+    type: object
   project.ProjectApplicationResponse:
     properties:
       applied_at:
@@ -2202,7 +2262,8 @@ paths:
   /api/v1/projects/my-projects:
     get:
       parameters:
-      - description: owned or initiated
+      - default: all
+        description: all, owned, or initiated
         in: query
         name: scope
         type: string
@@ -2229,7 +2290,7 @@ paths:
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/project.ProjectSummaryResponse'
+                    $ref: '#/definitions/project.MyProjectSummaryResponse'
                   type: array
                 meta:
                   $ref: '#/definitions/project.ProjectPaginationMeta'

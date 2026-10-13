@@ -1777,7 +1777,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "owned or initiated",
+                        "default": "all",
+                        "description": "all, owned, or initiated",
                         "name": "scope",
                         "in": "query"
                     },
@@ -1814,7 +1815,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/project.ProjectSummaryResponse"
+                                                "$ref": "#/definitions/project.MyProjectSummaryResponse"
                                             }
                                         },
                                         "meta": {
@@ -3070,6 +3071,96 @@ const docTemplate = `{
                 "CreationModePersonal",
                 "CreationModeOrganizationInitiated"
             ]
+        },
+        "project.MyProjectRoleSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "capacity": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "project.MyProjectSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "deadline": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2026-10-08"
+                },
+                "filled_capacity": {
+                    "type": "integer"
+                },
+                "hours_per_week": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "initiator_organization": {
+                    "$ref": "#/definitions/project.ProjectOrganizationResponse"
+                },
+                "initiator_organization_id": {
+                    "type": "string"
+                },
+                "my_scope": {
+                    "type": "string"
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "owner_id": {
+                    "type": "string"
+                },
+                "owner_profile": {
+                    "$ref": "#/definitions/project.ProjectPublicProfileResponse"
+                },
+                "pending_application_count": {
+                    "type": "integer"
+                },
+                "project_category": {
+                    "type": "string"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/project.MyProjectRoleSummaryResponse"
+                    }
+                },
+                "skills": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/project.ProjectMasterResponse"
+                    }
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/project.ProjectStatus"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "tools": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/project.ProjectMasterResponse"
+                    }
+                },
+                "total_capacity": {
+                    "type": "integer"
+                }
+            }
         },
         "project.ProjectApplicationResponse": {
             "type": "object",

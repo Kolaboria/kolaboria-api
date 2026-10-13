@@ -29,11 +29,8 @@ func (r *gormProjectRepository) ListPublic(ctx context.Context, filter ProjectLi
 
 func (r *gormProjectRepository) ListMine(ctx context.Context, actorID uuid.UUID, filter ProjectListFilter) ([]ProjectAggregate, int64, error) {
 	query := r.db.WithContext(ctx).Model(&Project{})
-	switch filter.Scope {
-	case "owned":
-		query = query.Where("(projects.owner_id = ? OR EXISTS (SELECT 1 FROM project_members pm WHERE pm.project_id = projects.id AND pm.user_id = ? AND pm.status = 'active'))", actorID, actorID)
-	case "initiated":
-		query = query.Where(`projects.creation_mode = 'organization_initiated'
+	ownedScope := "(projects.owner_id = ? OR EXISTS (SELECT 1 FROM project_members pm WHERE pm.project_id = projects.id AND pm.user_id = ? AND pm.status = 'active'))"
+	initiatedScope := `projects.creation_mode = 'organization_initiated'
 			AND projects.created_by_user_id = ?
 			AND EXISTS (
 				SELECT 1 FROM organizations o
@@ -42,7 +39,14 @@ func (r *gormProjectRepository) ListMine(ctx context.Context, actorID uuid.UUID,
 				WHERE o.id = projects.initiator_organization_id AND o.is_active = true
 				AND om.user_id = ? AND om.is_active = true AND om.can_initiate_projects = true
 				AND u.is_active = true AND u.deleted_at IS NULL AND u.system_role = 'admin'
-			)`, actorID, actorID)
+			)`
+	switch filter.Scope {
+	case "owned":
+		query = query.Where(ownedScope, actorID, actorID)
+	case "initiated":
+		query = query.Where(initiatedScope, actorID, actorID)
+	case "all":
+		query = query.Where("(("+ownedScope+") OR ("+initiatedScope+"))", actorID, actorID, actorID, actorID)
 	default:
 		return nil, 0, gorm.ErrInvalidData
 	}
@@ -58,7 +62,89 @@ func (r *gormProjectRepository) ListMine(ctx context.Context, actorID uuid.UUID,
 	if err := query.Order("projects.updated_at DESC, projects.id ASC").Offset((filter.Page - 1) * filter.Limit).Limit(filter.Limit).Find(&projects).Error; err != nil {
 		return nil, 0, err
 	}
-	return loadProjectPage(r.db.WithContext(ctx), projects, total)
+	aggregates, total, err := loadProjectPage(r.db.WithContext(ctx), projects, total)
+	if err != nil {
+		return nil, 0, err
+	}
+	if err := enrichMyProjectPage(r.db.WithContext(ctx), aggregates, actorID, filter.Scope, ownedScope); err != nil {
+		return nil, 0, err
+	}
+	return aggregates, total, nil
+}
+
+func enrichMyProjectPage(db *gorm.DB, projects []ProjectAggregate, actorID uuid.UUID, scope, ownedScope string) error {
+	if len(projects) == 0 {
+		return nil
+	}
+	projectIDs := make([]uuid.UUID, 0, len(projects))
+	for _, project := range projects {
+		projectIDs = append(projectIDs, project.ID)
+	}
+
+	ownedIDs := make(map[uuid.UUID]struct{}, len(projects))
+	if scope == "owned" {
+		for _, project := range projects {
+			ownedIDs[project.ID] = struct{}{}
+		}
+	} else if scope == "all" {
+		var ids []uuid.UUID
+		if err := db.Model(&Project{}).Select("projects.id").
+			Where("projects.id IN ? AND "+ownedScope, projectIDs, actorID, actorID).
+			Pluck("projects.id", &ids).Error; err != nil {
+			return err
+		}
+		for _, id := range ids {
+			ownedIDs[id] = struct{}{}
+		}
+	}
+
+	for i := range projects {
+		_, isOwned := ownedIDs[projects[i].ID]
+		if scope == "initiated" {
+			projects[i].MyScope = "initiated"
+		} else if isOwned {
+			projects[i].MyScope = "owned"
+		} else {
+			projects[i].MyScope = "initiated"
+		}
+	}
+	ownerProjectIDs := pendingApplicationProjectIDs(projects, actorID)
+	if len(ownerProjectIDs) == 0 {
+		return nil
+	}
+
+	type pendingCountRow struct {
+		ProjectID uuid.UUID `gorm:"column:project_id"`
+		Count     int       `gorm:"column:count"`
+	}
+	var rows []pendingCountRow
+	if err := db.Table("project_applications").Select("project_id, COUNT(*) AS count").
+		Where("project_id IN ? AND status = 'pending'", ownerProjectIDs).
+		Group("project_id").Scan(&rows).Error; err != nil {
+		return err
+	}
+	counts := make(map[uuid.UUID]int, len(rows))
+	for _, row := range rows {
+		counts[row.ProjectID] = row.Count
+	}
+	for i := range projects {
+		if projects[i].OwnerID == nil || *projects[i].OwnerID != actorID {
+			continue
+		}
+		count := counts[projects[i].ID]
+		projects[i].PendingApplicationCount = &count
+	}
+	return nil
+}
+
+func pendingApplicationProjectIDs(projects []ProjectAggregate, actorID uuid.UUID) []uuid.UUID {
+	ids := make([]uuid.UUID, 0, len(projects))
+	for _, project := range projects {
+		if project.OwnerID != nil && *project.OwnerID == actorID {
+			ids = append(ids, project.ID)
+		}
+	}
+	return ids
 }
 
 func loadProjectPage(db *gorm.DB, projects []Project, total int64) ([]ProjectAggregate, int64, error) {

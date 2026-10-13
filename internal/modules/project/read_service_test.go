@@ -50,3 +50,52 @@ func TestProjectReadDTOsExposePublicOwnerAndInitiatorProjections(t *testing.T) {
 		t.Errorf("summary response omitted public owner/organization labels: %s", summaryBytes)
 	}
 }
+
+func TestMyProjectSummaryIncludesRoleAndOwnerPrivateApplicationCount(t *testing.T) {
+	count := 2
+	aggregate := &ProjectAggregate{
+		Project: Project{ID: uuid.New(), Slug: "project-summary", Title: "Project"},
+		MyScope: "owned", PendingApplicationCount: &count,
+		Roles: []ProjectRoleAggregate{{
+			ProjectRole:      ProjectRole{Capacity: 3},
+			ContributionRole: &MasterReference{Name: "Frontend Developer"},
+		}},
+	}
+
+	payload, err := json.Marshal(mapMyProjectSummary(aggregate))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, expected := range []string{`"my_scope":"owned"`, `"roles":[{"name":"Frontend Developer","capacity":3}]`, `"pending_application_count":2`} {
+		if !strings.Contains(string(payload), expected) {
+			t.Errorf("my-project summary omitted %s: %s", expected, payload)
+		}
+	}
+	if strings.Contains(string(payload), "pendingApplicationCount") {
+		t.Errorf("my-project summary must use snake_case: %s", payload)
+	}
+
+	aggregate.PendingApplicationCount = nil
+	payload, err = json.Marshal(mapMyProjectSummary(aggregate))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(payload), `"pending_application_count"`) {
+		t.Errorf("private application count should be omitted when unavailable: %s", payload)
+	}
+}
+
+func TestPendingApplicationCountsAreLoadedOnlyForProjectsOwnedByActor(t *testing.T) {
+	actorID := uuid.New()
+	otherOwnerID := uuid.New()
+	ownedProjectID := uuid.New()
+	projectIDs := pendingApplicationProjectIDs([]ProjectAggregate{
+		{Project: Project{ID: ownedProjectID, OwnerID: &actorID}},
+		{Project: Project{ID: uuid.New(), OwnerID: &otherOwnerID}},
+		{Project: Project{ID: uuid.New()}},
+	}, actorID)
+
+	if len(projectIDs) != 1 || projectIDs[0] != ownedProjectID {
+		t.Fatalf("pending application counts must be scoped to owned projects, got %v", projectIDs)
+	}
+}

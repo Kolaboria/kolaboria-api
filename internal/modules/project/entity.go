@@ -155,12 +155,14 @@ type ProjectRoleAggregate struct {
 
 type ProjectAggregate struct {
 	Project
-	Roles                 []ProjectRoleAggregate
-	OwnerMember           *ProjectMember
-	OwnerRole             *MasterReference
-	OwnerProfile          *ProjectPublicProfileResponse
-	InitiatorProfile      *ProjectPublicProfileResponse
-	InitiatorOrganization *ProjectOrganizationResponse
+	Roles                   []ProjectRoleAggregate
+	OwnerMember             *ProjectMember
+	OwnerRole               *MasterReference
+	OwnerProfile            *ProjectPublicProfileResponse
+	InitiatorProfile        *ProjectPublicProfileResponse
+	InitiatorOrganization   *ProjectOrganizationResponse
+	MyScope                 string
+	PendingApplicationCount *int
 }
 
 type RoleUsage struct {

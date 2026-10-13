@@ -297,6 +297,18 @@ type ProjectSummaryResponse struct {
 	CreatedAt               time.Time                     `json:"created_at"`
 }
 
+type MyProjectRoleSummaryResponse struct {
+	Name     string `json:"name"`
+	Capacity int    `json:"capacity"`
+}
+
+type MyProjectSummaryResponse struct {
+	ProjectSummaryResponse
+	MyScope                 string                         `json:"my_scope"`
+	Roles                   []MyProjectRoleSummaryResponse `json:"roles"`
+	PendingApplicationCount *int                           `json:"pending_application_count,omitempty"`
+}
+
 type ProjectListFilter struct {
 	Page   int
 	Limit  int
