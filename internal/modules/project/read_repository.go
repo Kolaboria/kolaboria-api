@@ -168,18 +168,33 @@ func (r *gormProjectRepository) FindBySlug(ctx context.Context, slug string) (*P
 }
 
 func (r *gormProjectRepository) FindViewerApplication(ctx context.Context, projectID, applicantID uuid.UUID) (*ViewerApplicationResponse, error) {
-	var application ViewerApplicationResponse
-	err := r.db.WithContext(ctx).Table("project_applications").
-		Select("id, status, applied_at").
-		Where("project_id = ? AND applicant_user_id = ? AND status IN ?", projectID, applicantID, []string{"pending", "accepted"}).
-		Order("applied_at DESC").Take(&application).Error
+	var record ProjectApplication
+	err := r.db.WithContext(ctx).Where("project_id = ? AND applicant_user_id = ? AND status IN ?", projectID, applicantID, []string{"pending", "accepted"}).
+		Order("applied_at DESC, id ASC").Take(&record).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		err = r.db.WithContext(ctx).Where("project_id = ? AND applicant_user_id = ?", projectID, applicantID).
+			Order("applied_at DESC, id ASC").Take(&record).Error
+	}
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
 	if err != nil {
 		return nil, err
 	}
-	return &application, nil
+	application := &ViewerApplicationResponse{ID: record.ID, Status: record.Status, AppliedAt: record.AppliedAt, ReviewedAt: cloneTimePointer(record.ReviewedAt), WithdrawnAt: cloneTimePointer(record.WithdrawnAt)}
+	var latestRejected ProjectApplication
+	err = r.db.WithContext(ctx).Where("project_id = ? AND applicant_user_id = ? AND status = 'rejected'", projectID, applicantID).
+		Order("applied_at DESC, id ASC").Take(&latestRejected).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return application, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	retryAfter, estimated := rejectionRetryAfter(latestRejected)
+	application.RetryAfter = &retryAfter
+	application.RetryAfterEstimated = estimated
+	return application, nil
 }
 
 func loadProjectAggregate(db *gorm.DB, query string, args ...any) (*ProjectAggregate, error) {

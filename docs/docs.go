@@ -15,6 +15,371 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/applications/my-applications": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "List my applications",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page (max 100; default 6)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search project, role, author, and submission",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "CSV: pending,accepted,rejected,withdrawn",
+                        "name": "statuses",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "CSV: personal,community,experiment,client",
+                        "name": "origins",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "newest or oldest",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/project.MyApplicationListItemResponse"
+                                            }
+                                        },
+                                        "meta": {
+                                            "$ref": "#/definitions/project.ProjectPaginationMeta"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/applications/my-applications/summary": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Get my application summary",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/project.MyApplicationSummaryResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/applications/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Get application detail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Application UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/project.ApplicationDetailResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/applications/{id}/review": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Review application",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Application UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Decision and optional applicant-visible note",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/project.ReviewApplicationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/project.ApplicationDetailResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/applications/{id}/withdraw": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Withdraw application",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Application UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/project.ApplicationDetailResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/auth/forgot-password": {
             "post": {
                 "description": "Send password reset link to user email",
@@ -1650,7 +2015,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Search title and summary",
-                        "name": "q",
+                        "name": "search",
                         "in": "query"
                     }
                 ],
@@ -1797,7 +2162,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Search title and summary",
-                        "name": "q",
+                        "name": "search",
                         "in": "query"
                     }
                 ],
@@ -2022,6 +2387,253 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Delete project draft",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Current project version",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/project.DeleteProjectDraftRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/projects/{id}/applicants": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "List project applicants",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page (max 100; default 5)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search application and role data",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "CSV: pending,accepted,rejected,withdrawn",
+                        "name": "statuses",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "CSV project role UUIDs",
+                        "name": "project_role_ids",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "newest or oldest",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/project.ApplicantListItemResponse"
+                                            }
+                                        },
+                                        "meta": {
+                                            "$ref": "#/definitions/project.ProjectPaginationMeta"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/projects/{id}/applicants/summary": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Get applicant management summary",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/project.ApplicantSummaryResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/api/v1/projects/{id}/apply": {
@@ -2143,6 +2755,93 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/project.PublishProjectRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/project.ProjectDetailResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/projects/{id}/status": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Change project status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Current version and target draft or archived",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/project.ChangeProjectStatusRequest"
                         }
                     }
                 ],
@@ -3024,6 +3723,343 @@ const docTemplate = `{
                 }
             }
         },
+        "project.ApplicantCapacityResponse": {
+            "type": "object",
+            "properties": {
+                "filled_capacity": {
+                    "type": "integer"
+                },
+                "remaining_capacity": {
+                    "type": "integer"
+                },
+                "total_capacity": {
+                    "type": "integer"
+                }
+            }
+        },
+        "project.ApplicantListItemResponse": {
+            "type": "object",
+            "properties": {
+                "applicant_profile": {
+                    "$ref": "#/definitions/project.ApplicationProfileResponse"
+                },
+                "applicant_user_id": {
+                    "type": "string"
+                },
+                "applied_at": {
+                    "type": "string"
+                },
+                "availability": {
+                    "type": "string"
+                },
+                "estimated_hours_per_week": {
+                    "type": "integer"
+                },
+                "expected_contribution": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "motivation": {
+                    "type": "string"
+                },
+                "project_id": {
+                    "type": "string"
+                },
+                "project_role": {
+                    "$ref": "#/definitions/project.ApplicationRoleResponse"
+                },
+                "project_role_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/project.ApplicationStatus"
+                }
+            }
+        },
+        "project.ApplicantRoleSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "capacity": {
+                    "type": "integer"
+                },
+                "filled_capacity": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_archived": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "remaining_capacity": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "project.ApplicantStatsResponse": {
+            "type": "object",
+            "properties": {
+                "accepted": {
+                    "type": "integer"
+                },
+                "pending": {
+                    "type": "integer"
+                },
+                "rejected": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "withdrawn": {
+                    "type": "integer"
+                }
+            }
+        },
+        "project.ApplicantSummaryPermissionsResponse": {
+            "type": "object",
+            "properties": {
+                "can_review_applications": {
+                    "type": "boolean"
+                },
+                "review_block_reason": {
+                    "type": "string"
+                }
+            }
+        },
+        "project.ApplicantSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "capacity": {
+                    "$ref": "#/definitions/project.ApplicantCapacityResponse"
+                },
+                "permissions": {
+                    "$ref": "#/definitions/project.ApplicantSummaryPermissionsResponse"
+                },
+                "project": {
+                    "$ref": "#/definitions/project.ApplicationProjectResponse"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/project.ApplicantRoleSummaryResponse"
+                    }
+                },
+                "stats": {
+                    "$ref": "#/definitions/project.ApplicantStatsResponse"
+                }
+            }
+        },
+        "project.ApplicationDetailResponse": {
+            "type": "object",
+            "properties": {
+                "applicant_profile": {
+                    "$ref": "#/definitions/project.ApplicationProfileResponse"
+                },
+                "applicant_user_id": {
+                    "type": "string"
+                },
+                "applied_at": {
+                    "type": "string"
+                },
+                "availability": {
+                    "type": "string"
+                },
+                "estimated_hours_per_week": {
+                    "type": "integer"
+                },
+                "expected_contribution": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "motivation": {
+                    "type": "string"
+                },
+                "permissions": {
+                    "$ref": "#/definitions/project.ApplicationPermissionsResponse"
+                },
+                "portfolio_links": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "project": {
+                    "$ref": "#/definitions/project.ApplicationProjectResponse"
+                },
+                "project_id": {
+                    "type": "string"
+                },
+                "project_role": {
+                    "$ref": "#/definitions/project.ApplicationRoleResponse"
+                },
+                "project_role_id": {
+                    "type": "string"
+                },
+                "reapply_block_reason": {
+                    "type": "string"
+                },
+                "retry_after": {
+                    "type": "string"
+                },
+                "retry_after_estimated": {
+                    "type": "boolean"
+                },
+                "reviewed_at": {
+                    "type": "string"
+                },
+                "reviewed_by": {
+                    "type": "string"
+                },
+                "reviewer_note": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/project.ApplicationStatus"
+                },
+                "withdrawn_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "project.ApplicationPermissionsResponse": {
+            "type": "object",
+            "properties": {
+                "accept_block_reason": {
+                    "type": "string"
+                },
+                "can_accept": {
+                    "type": "boolean"
+                },
+                "can_reject": {
+                    "type": "boolean"
+                },
+                "reject_block_reason": {
+                    "type": "string"
+                }
+            }
+        },
+        "project.ApplicationProfileResponse": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "headline": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "project.ApplicationProjectResponse": {
+            "type": "object",
+            "properties": {
+                "creation_mode": {
+                    "$ref": "#/definitions/project.CreationMode"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "initiator_organization": {
+                    "$ref": "#/definitions/project.ProjectOrganizationResponse"
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "owner_profile": {
+                    "$ref": "#/definitions/project.ApplicationProfileResponse"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/project.ProjectStatus"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "project.ApplicationRoleResponse": {
+            "type": "object",
+            "properties": {
+                "capacity": {
+                    "type": "integer"
+                },
+                "contribution_role": {
+                    "$ref": "#/definitions/project.ProjectMasterResponse"
+                },
+                "contribution_role_id": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "filled_capacity": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_archived": {
+                    "type": "boolean"
+                },
+                "remaining_capacity": {
+                    "type": "integer"
+                },
+                "skills": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/project.ProjectMasterResponse"
+                    }
+                },
+                "status": {
+                    "type": "string"
+                },
+                "tools": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/project.ProjectMasterResponse"
+                    }
+                }
+            }
+        },
+        "project.ApplicationStatus": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "accepted",
+                "rejected",
+                "withdrawn"
+            ],
+            "x-enum-varnames": [
+                "ApplicationStatusPending",
+                "ApplicationStatusAccepted",
+                "ApplicationStatusRejected",
+                "ApplicationStatusWithdrawn"
+            ]
+        },
         "project.ApplyProjectRequest": {
             "type": "object",
             "properties": {
@@ -3050,6 +4086,17 @@ const docTemplate = `{
                 }
             }
         },
+        "project.ChangeProjectStatusRequest": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "$ref": "#/definitions/project.ProjectStatus"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
         "project.CreateProjectDraftRequest": {
             "type": "object",
             "properties": {
@@ -3071,6 +4118,84 @@ const docTemplate = `{
                 "CreationModePersonal",
                 "CreationModeOrganizationInitiated"
             ]
+        },
+        "project.DeleteProjectDraftRequest": {
+            "type": "object",
+            "properties": {
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "project.MyApplicationListItemResponse": {
+            "type": "object",
+            "properties": {
+                "applicant_profile": {
+                    "$ref": "#/definitions/project.ApplicationProfileResponse"
+                },
+                "applicant_user_id": {
+                    "type": "string"
+                },
+                "applied_at": {
+                    "type": "string"
+                },
+                "availability": {
+                    "type": "string"
+                },
+                "estimated_hours_per_week": {
+                    "type": "integer"
+                },
+                "expected_contribution": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "motivation": {
+                    "type": "string"
+                },
+                "project": {
+                    "$ref": "#/definitions/project.ApplicationProjectResponse"
+                },
+                "project_id": {
+                    "type": "string"
+                },
+                "project_role": {
+                    "$ref": "#/definitions/project.ApplicationRoleResponse"
+                },
+                "project_role_id": {
+                    "type": "string"
+                },
+                "reapply_block_reason": {
+                    "type": "string"
+                },
+                "retry_after": {
+                    "type": "string"
+                },
+                "retry_after_estimated": {
+                    "type": "boolean"
+                },
+                "reviewed_at": {
+                    "type": "string"
+                },
+                "reviewer_note": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/project.ApplicationStatus"
+                },
+                "withdrawn_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "project.MyApplicationSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "stats": {
+                    "$ref": "#/definitions/project.ApplicantStatsResponse"
+                }
+            }
         },
         "project.MyProjectRoleSummaryResponse": {
             "type": "object",
@@ -3158,6 +4283,9 @@ const docTemplate = `{
                     }
                 },
                 "total_capacity": {
+                    "type": "integer"
+                },
+                "version": {
                     "type": "integer"
                 }
             }
@@ -3640,6 +4768,17 @@ const docTemplate = `{
                 }
             }
         },
+        "project.ReviewApplicationRequest": {
+            "type": "object",
+            "properties": {
+                "reviewer_note": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/project.ApplicationStatus"
+                }
+            }
+        },
         "project.UpdateProjectDefinitionRequest": {
             "type": "object",
             "properties": {
@@ -3660,7 +4799,22 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "reapply_block_reason": {
+                    "type": "string"
+                },
+                "retry_after": {
+                    "type": "string"
+                },
+                "retry_after_estimated": {
+                    "type": "boolean"
+                },
+                "reviewed_at": {
+                    "type": "string"
+                },
                 "status": {
+                    "type": "string"
+                },
+                "withdrawn_at": {
                     "type": "string"
                 }
             }

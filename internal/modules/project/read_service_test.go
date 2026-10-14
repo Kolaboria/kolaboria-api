@@ -54,7 +54,7 @@ func TestProjectReadDTOsExposePublicOwnerAndInitiatorProjections(t *testing.T) {
 func TestMyProjectSummaryIncludesRoleAndOwnerPrivateApplicationCount(t *testing.T) {
 	count := 2
 	aggregate := &ProjectAggregate{
-		Project: Project{ID: uuid.New(), Slug: "project-summary", Title: "Project"},
+		Project: Project{ID: uuid.New(), Slug: "project-summary", Title: "Project", Version: 3},
 		MyScope: "owned", PendingApplicationCount: &count,
 		Roles: []ProjectRoleAggregate{{
 			ProjectRole:      ProjectRole{Capacity: 3},
@@ -66,7 +66,7 @@ func TestMyProjectSummaryIncludesRoleAndOwnerPrivateApplicationCount(t *testing.
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, expected := range []string{`"my_scope":"owned"`, `"roles":[{"name":"Frontend Developer","capacity":3}]`, `"pending_application_count":2`} {
+	for _, expected := range []string{`"version":3`, `"my_scope":"owned"`, `"roles":[{"name":"Frontend Developer","capacity":3}]`, `"pending_application_count":2`} {
 		if !strings.Contains(string(payload), expected) {
 			t.Errorf("my-project summary omitted %s: %s", expected, payload)
 		}

@@ -47,7 +47,7 @@ task migrate:down
 
 `task seed` aliases `task migrate:up`. Choose one of them; both apply every pending migration, including schema and seed. `task migrate:down` rolls back one migration. The command wrapper never offers `force`; it does not run automatically during API startup. For a different environment file, set `DB_ENV_FILE` in the process environment before running the task.
 
-Migration `000009_create_project_editor_tables` adds the active project editor schema. Project role skills and tools are master-data join tables; create projects are always public. See [Project editor API](docs/project-editor.md) for write/read behavior and its disposable PostgreSQL verifier.
+Migration `000009_create_project_editor_tables` adds the active project editor schema, `000010_create_project_applications` adds persisted applications, and `000011_application_review_and_claimed_owner` adds private review/withdraw metadata and organization-claim owner compatibility. Project role skills and tools use master-data join tables; project applicants are accessible only to the applicant and persisted project owner. See [Project editor API](docs/project-editor.md) and [Applicants API requirements](docs/applicants-api-requirements.md) for access rules and behavior. The guarded project-editor verifier now recognizes migration 000011 and is restricted to its documented disposable loopback database; it has not been run for this change.
 
 ## Swagger and Apidog
 

@@ -109,7 +109,7 @@ func definitionFromAggregate(aggregate *ProjectAggregate) ProjectDefinitionInput
 		Availability: aggregate.Availability, HoursPerWeek: aggregate.HoursPerWeek,
 		CollaborationAgreement: aggregate.CollaborationAgreement, Roles: make([]ProjectRoleWriteInput, 0, len(aggregate.Roles)),
 	}
-	if aggregate.OwnerMember != nil {
+	if aggregate.CreationMode == CreationModePersonal && aggregate.OwnerMember != nil {
 		definition.OwnerContributionRoleID = cloneUUIDPointer(aggregate.OwnerMember.ContributionRoleID)
 	}
 	for _, item := range aggregate.Roles {

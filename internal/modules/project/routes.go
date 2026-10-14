@@ -14,6 +14,11 @@ func RegisterProjectRoutes(v1 gin.IRouter, handler *ProjectHandler, jwtService j
 	group.GET("/:id", middleware.OptionalAuth(jwtService), handler.GetByID)
 	group.POST("", middleware.Auth(jwtService), handler.CreateDraft)
 	group.PUT("/:id", middleware.Auth(jwtService), handler.UpdateDefinition)
+	group.PATCH("/:id/status", middleware.Auth(jwtService), handler.ChangeStatus)
+	group.DELETE("/:id", middleware.Auth(jwtService), handler.DeleteDraft)
 	group.POST("/:id/publish", middleware.Auth(jwtService), handler.Publish)
 	group.POST("/:id/apply", middleware.Auth(jwtService), handler.Apply)
+	if handler.applications != nil {
+		RegisterApplicationRoutes(v1, handler.applications, jwtService)
+	}
 }

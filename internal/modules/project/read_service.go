@@ -92,6 +92,7 @@ func mapMyProjectSummary(aggregate *ProjectAggregate) MyProjectSummaryResponse {
 	}
 	return MyProjectSummaryResponse{
 		ProjectSummaryResponse:  mapProjectSummary(aggregate),
+		Version:                 aggregate.Version,
 		MyScope:                 aggregate.MyScope,
 		Roles:                   roles,
 		PendingApplicationCount: aggregate.PendingApplicationCount,
@@ -113,6 +114,9 @@ func (s *ProjectService) projectDetailForActor(ctx context.Context, actorID *uui
 			}
 			if err := requireEligibleActor(foundActor); err != nil {
 				return nil
+			}
+			if aggregate.OwnerID != nil && *aggregate.OwnerID == *actorID {
+				canRead = true
 			}
 			if isEditableStatus(aggregate.Status) {
 				editErr := requireProjectEditor(ctx, tx, *actorID, aggregate)

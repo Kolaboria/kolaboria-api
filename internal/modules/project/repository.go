@@ -31,9 +31,12 @@ type ProjectTx interface {
 	FindMasterReferences(ctx context.Context, catalog string, ids []uuid.UUID) ([]MasterReference, error)
 	CountRoleUsage(ctx context.Context, roleID uuid.UUID) (RoleUsage, error)
 	FindActiveApplication(ctx context.Context, projectID, applicantID uuid.UUID) (*ProjectApplication, error)
+	FindLatestRejectedApplication(ctx context.Context, projectID, applicantID uuid.UUID) (*ProjectApplication, error)
 	CreateApplication(ctx context.Context, application *ProjectApplication) error
 	SaveAggregate(ctx context.Context, aggregate *ProjectAggregate, create bool) error
 	UpdateStatus(ctx context.Context, projectID uuid.UUID, status ProjectStatus, publishedAt *time.Time, agreementAt *time.Time, version int64) error
+	HasProjectHistory(ctx context.Context, projectID uuid.UUID) (bool, error)
+	DeleteDraftProject(ctx context.Context, projectID uuid.UUID, version int64) error
 }
 
 type gormProjectRepository struct{ db *gorm.DB }
@@ -51,16 +54,48 @@ func (r *gormProjectRepository) WithTransaction(ctx context.Context, fn func(Pro
 type gormProjectTx struct{ db *gorm.DB }
 
 func (tx *gormProjectTx) FindActor(ctx context.Context, actorID uuid.UUID) (*ProjectActor, error) {
-	var actor ProjectActor
-	err := tx.db.WithContext(ctx).Table("users AS u").
-		Select("u.id, u.is_active, u.deleted_at, u.email_verified_at, p.account_type, u.system_role").
-		Joins("LEFT JOIN profiles AS p ON p.id = u.id").
-		Clauses(clause.Locking{Strength: "UPDATE", Table: clause.Table{Name: "u"}}).
-		Where("u.id = ?", actorID).Take(&actor).Error
+	return findApplicationActor(tx.db.WithContext(ctx), actorID, true)
+}
+
+func (tx *gormProjectTx) FindActorForRead(ctx context.Context, actorID uuid.UUID) (*ProjectActor, error) {
+	return findApplicationActor(tx.db.WithContext(ctx), actorID, false)
+}
+
+func (tx *gormProjectTx) LockProjectState(ctx context.Context, projectID uuid.UUID) (*Project, error) {
+	var project Project
+	err := tx.db.WithContext(ctx).Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", projectID).Take(&project).Error
 	if err != nil {
 		return nil, err
 	}
-	return &actor, nil
+	return &project, nil
+}
+
+func (tx *gormProjectTx) LockRoleForApplication(ctx context.Context, projectID, roleID uuid.UUID) (*ProjectRole, error) {
+	var role ProjectRole
+	err := tx.db.WithContext(ctx).Clauses(clause.Locking{Strength: "UPDATE"}).Where("project_id = ? AND id = ?", projectID, roleID).Take(&role).Error
+	if err != nil {
+		return nil, err
+	}
+	return &role, nil
+}
+
+func (tx *gormProjectTx) LockApplication(ctx context.Context, applicationID uuid.UUID) (*ProjectApplication, error) {
+	var application ProjectApplication
+	err := tx.db.WithContext(ctx).Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", applicationID).Take(&application).Error
+	if err != nil {
+		return nil, err
+	}
+	return &application, nil
+}
+
+func (tx *gormProjectTx) IsAuthorizedOrganizationInitiator(ctx context.Context, userID, organizationID uuid.UUID) (bool, error) {
+	var count int64
+	err := tx.db.WithContext(ctx).Table("organization_members AS m").
+		Joins("JOIN organizations o ON o.id = m.organization_id").
+		Joins("JOIN users u ON u.id = m.user_id").
+		Where("o.id = ? AND o.is_active = true AND m.user_id = ? AND m.is_active = true AND m.can_initiate_projects = true AND u.is_active = true AND u.deleted_at IS NULL AND u.system_role = 'admin'", organizationID, userID).
+		Count(&count).Error
+	return count > 0, err
 }
 
 func (tx *gormProjectTx) FindInitiableOrganization(ctx context.Context, actorID, organizationID uuid.UUID) (*ProjectOrganization, error) {
@@ -152,7 +187,11 @@ func (tx *gormProjectTx) CountRoleUsage(ctx context.Context, roleID uuid.UUID) (
 		return RoleUsage{}, err
 	}
 	usage.ActiveContributors = int(activeCount)
-	// Applications are not part of the active schema yet.
+	var pendingCount int64
+	if err := tx.db.WithContext(ctx).Model(&ProjectApplication{}).Where("project_role_id = ? AND status = 'pending'", roleID).Count(&pendingCount).Error; err != nil {
+		return RoleUsage{}, err
+	}
+	usage.PendingApplications = int(pendingCount)
 	return usage, nil
 }
 
@@ -168,6 +207,48 @@ func (tx *gormProjectTx) FindActiveApplication(ctx context.Context, projectID, a
 		return nil, err
 	}
 	return &application, nil
+}
+
+func (tx *gormProjectTx) FindLatestRejectedApplication(ctx context.Context, projectID, applicantID uuid.UUID) (*ProjectApplication, error) {
+	var application ProjectApplication
+	err := tx.db.WithContext(ctx).Where("project_id = ? AND applicant_user_id = ? AND status = 'rejected'", projectID, applicantID).
+		Order("applied_at DESC, id ASC").Take(&application).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &application, nil
+}
+
+func (tx *gormProjectTx) CreateContributor(ctx context.Context, member *ProjectMember) error {
+	return tx.db.WithContext(ctx).Create(member).Error
+}
+
+func (tx *gormProjectTx) UpdateApplication(ctx context.Context, application *ProjectApplication, from ApplicationStatus) error {
+	result := tx.db.WithContext(ctx).Model(&ProjectApplication{}).Where("id = ? AND status = ?", application.ID, string(from)).Updates(map[string]any{
+		"status": application.Status, "reviewer_note": application.ReviewerNote, "reviewed_by": application.ReviewedBy,
+		"reviewed_at": application.ReviewedAt, "withdrawn_at": application.WithdrawnAt, "updated_at": application.UpdatedAt,
+	})
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected != 1 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
+}
+
+func (tx *gormProjectTx) BumpProjectVersion(ctx context.Context, projectID uuid.UUID, updatedAt time.Time) error {
+	result := tx.db.WithContext(ctx).Model(&Project{}).Where("id = ?", projectID).Updates(map[string]any{"version": gorm.Expr("version + 1"), "updated_at": updatedAt})
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected != 1 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }
 
 func (tx *gormProjectTx) CreateApplication(ctx context.Context, application *ProjectApplication) error {
@@ -239,6 +320,36 @@ func (tx *gormProjectTx) UpdateStatus(ctx context.Context, projectID uuid.UUID, 
 		"status": status, "published_at": publishedAt, "agreement_at": agreementAt,
 		"version": version, "updated_at": time.Now().UTC(),
 	}).Error
+}
+
+func (tx *gormProjectTx) HasProjectHistory(ctx context.Context, projectID uuid.UUID) (bool, error) {
+	var applications, contributors int64
+	if err := tx.db.WithContext(ctx).Model(&ProjectApplication{}).Where("project_id = ?", projectID).Count(&applications).Error; err != nil {
+		return false, err
+	}
+	if applications > 0 {
+		return true, nil
+	}
+	if err := tx.db.WithContext(ctx).Model(&ProjectMember{}).Where("project_id = ? AND membership_role <> 'owner'", projectID).Count(&contributors).Error; err != nil {
+		return false, err
+	}
+	return contributors > 0, nil
+}
+
+func (tx *gormProjectTx) DeleteDraftProject(ctx context.Context, projectID uuid.UUID, version int64) error {
+	// Owner memberships may reference a role through a restrictive foreign key.
+	// Remove them first; the surrounding transaction rolls back on any failure.
+	if err := tx.db.WithContext(ctx).Where("project_id = ? AND membership_role = 'owner'", projectID).Delete(&ProjectMember{}).Error; err != nil {
+		return err
+	}
+	result := tx.db.WithContext(ctx).Where("id = ? AND status = ? AND version = ?", projectID, ProjectStatusDraft, version).Delete(&Project{})
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected != 1 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }
 
 func projectDefinitionUpdates(project *Project) map[string]any {
