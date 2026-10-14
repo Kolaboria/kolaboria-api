@@ -537,6 +537,229 @@ definitions:
       tool_id:
         type: string
     type: object
+  project.ApplicantCapacityResponse:
+    properties:
+      filled_capacity:
+        type: integer
+      remaining_capacity:
+        type: integer
+      total_capacity:
+        type: integer
+    type: object
+  project.ApplicantListItemResponse:
+    properties:
+      applicant_profile:
+        $ref: '#/definitions/project.ApplicationProfileResponse'
+      applicant_user_id:
+        type: string
+      applied_at:
+        type: string
+      availability:
+        type: string
+      estimated_hours_per_week:
+        type: integer
+      expected_contribution:
+        type: string
+      id:
+        type: string
+      motivation:
+        type: string
+      project_id:
+        type: string
+      project_role:
+        $ref: '#/definitions/project.ApplicationRoleResponse'
+      project_role_id:
+        type: string
+      status:
+        $ref: '#/definitions/project.ApplicationStatus'
+    type: object
+  project.ApplicantRoleSummaryResponse:
+    properties:
+      capacity:
+        type: integer
+      filled_capacity:
+        type: integer
+      id:
+        type: string
+      is_archived:
+        type: boolean
+      name:
+        type: string
+      remaining_capacity:
+        type: integer
+      status:
+        type: string
+    type: object
+  project.ApplicantStatsResponse:
+    properties:
+      accepted:
+        type: integer
+      pending:
+        type: integer
+      rejected:
+        type: integer
+      total:
+        type: integer
+      withdrawn:
+        type: integer
+    type: object
+  project.ApplicantSummaryPermissionsResponse:
+    properties:
+      can_review_applications:
+        type: boolean
+      review_block_reason:
+        type: string
+    type: object
+  project.ApplicantSummaryResponse:
+    properties:
+      capacity:
+        $ref: '#/definitions/project.ApplicantCapacityResponse'
+      permissions:
+        $ref: '#/definitions/project.ApplicantSummaryPermissionsResponse'
+      project:
+        $ref: '#/definitions/project.ApplicationProjectResponse'
+      roles:
+        items:
+          $ref: '#/definitions/project.ApplicantRoleSummaryResponse'
+        type: array
+      stats:
+        $ref: '#/definitions/project.ApplicantStatsResponse'
+    type: object
+  project.ApplicationDetailResponse:
+    properties:
+      applicant_profile:
+        $ref: '#/definitions/project.ApplicationProfileResponse'
+      applicant_user_id:
+        type: string
+      applied_at:
+        type: string
+      availability:
+        type: string
+      estimated_hours_per_week:
+        type: integer
+      expected_contribution:
+        type: string
+      id:
+        type: string
+      motivation:
+        type: string
+      permissions:
+        $ref: '#/definitions/project.ApplicationPermissionsResponse'
+      portfolio_links:
+        items:
+          type: string
+        type: array
+      project:
+        $ref: '#/definitions/project.ApplicationProjectResponse'
+      project_id:
+        type: string
+      project_role:
+        $ref: '#/definitions/project.ApplicationRoleResponse'
+      project_role_id:
+        type: string
+      reapply_block_reason:
+        type: string
+      retry_after:
+        type: string
+      retry_after_estimated:
+        type: boolean
+      reviewed_at:
+        type: string
+      reviewed_by:
+        type: string
+      reviewer_note:
+        type: string
+      status:
+        $ref: '#/definitions/project.ApplicationStatus'
+      withdrawn_at:
+        type: string
+    type: object
+  project.ApplicationPermissionsResponse:
+    properties:
+      accept_block_reason:
+        type: string
+      can_accept:
+        type: boolean
+      can_reject:
+        type: boolean
+      reject_block_reason:
+        type: string
+    type: object
+  project.ApplicationProfileResponse:
+    properties:
+      avatar:
+        type: string
+      full_name:
+        type: string
+      headline:
+        type: string
+      id:
+        type: string
+      username:
+        type: string
+    type: object
+  project.ApplicationProjectResponse:
+    properties:
+      creation_mode:
+        $ref: '#/definitions/project.CreationMode'
+      id:
+        type: string
+      initiator_organization:
+        $ref: '#/definitions/project.ProjectOrganizationResponse'
+      origin:
+        type: string
+      owner_profile:
+        $ref: '#/definitions/project.ApplicationProfileResponse'
+      slug:
+        type: string
+      status:
+        $ref: '#/definitions/project.ProjectStatus'
+      summary:
+        type: string
+      title:
+        type: string
+    type: object
+  project.ApplicationRoleResponse:
+    properties:
+      capacity:
+        type: integer
+      contribution_role:
+        $ref: '#/definitions/project.ProjectMasterResponse'
+      contribution_role_id:
+        type: string
+      description:
+        type: string
+      filled_capacity:
+        type: integer
+      id:
+        type: string
+      is_archived:
+        type: boolean
+      remaining_capacity:
+        type: integer
+      skills:
+        items:
+          $ref: '#/definitions/project.ProjectMasterResponse'
+        type: array
+      status:
+        type: string
+      tools:
+        items:
+          $ref: '#/definitions/project.ProjectMasterResponse'
+        type: array
+    type: object
+  project.ApplicationStatus:
+    enum:
+    - pending
+    - accepted
+    - rejected
+    - withdrawn
+    type: string
+    x-enum-varnames:
+    - ApplicationStatusPending
+    - ApplicationStatusAccepted
+    - ApplicationStatusRejected
+    - ApplicationStatusWithdrawn
   project.ApplyProjectRequest:
     properties:
       availability:
@@ -554,6 +777,13 @@ definitions:
       project_role_id:
         type: string
     type: object
+  project.ChangeProjectStatusRequest:
+    properties:
+      status:
+        $ref: '#/definitions/project.ProjectStatus'
+      version:
+        type: integer
+    type: object
   project.CreateProjectDraftRequest:
     properties:
       client_request_id:
@@ -569,6 +799,57 @@ definitions:
     x-enum-varnames:
     - CreationModePersonal
     - CreationModeOrganizationInitiated
+  project.DeleteProjectDraftRequest:
+    properties:
+      version:
+        type: integer
+    type: object
+  project.MyApplicationListItemResponse:
+    properties:
+      applicant_profile:
+        $ref: '#/definitions/project.ApplicationProfileResponse'
+      applicant_user_id:
+        type: string
+      applied_at:
+        type: string
+      availability:
+        type: string
+      estimated_hours_per_week:
+        type: integer
+      expected_contribution:
+        type: string
+      id:
+        type: string
+      motivation:
+        type: string
+      project:
+        $ref: '#/definitions/project.ApplicationProjectResponse'
+      project_id:
+        type: string
+      project_role:
+        $ref: '#/definitions/project.ApplicationRoleResponse'
+      project_role_id:
+        type: string
+      reapply_block_reason:
+        type: string
+      retry_after:
+        type: string
+      retry_after_estimated:
+        type: boolean
+      reviewed_at:
+        type: string
+      reviewer_note:
+        type: string
+      status:
+        $ref: '#/definitions/project.ApplicationStatus'
+      withdrawn_at:
+        type: string
+    type: object
+  project.MyApplicationSummaryResponse:
+    properties:
+      stats:
+        $ref: '#/definitions/project.ApplicantStatsResponse'
+    type: object
   project.MyProjectRoleSummaryResponse:
     properties:
       capacity:
@@ -627,6 +908,8 @@ definitions:
           $ref: '#/definitions/project.ProjectMasterResponse'
         type: array
       total_capacity:
+        type: integer
+      version:
         type: integer
     type: object
   project.ProjectApplicationResponse:
@@ -950,6 +1233,13 @@ definitions:
       version:
         type: integer
     type: object
+  project.ReviewApplicationRequest:
+    properties:
+      reviewer_note:
+        type: string
+      status:
+        $ref: '#/definitions/project.ApplicationStatus'
+    type: object
   project.UpdateProjectDefinitionRequest:
     properties:
       definition:
@@ -963,7 +1253,17 @@ definitions:
         type: string
       id:
         type: string
+      reapply_block_reason:
+        type: string
+      retry_after:
+        type: string
+      retry_after_estimated:
+        type: boolean
+      reviewed_at:
+        type: string
       status:
+        type: string
+      withdrawn_at:
         type: string
     type: object
   response.ErrorData:
@@ -995,6 +1295,224 @@ info:
   title: Kolaboria API
   version: "1.0"
 paths:
+  /api/v1/applications/{id}:
+    get:
+      parameters:
+      - description: Application UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/project.ApplicationDetailResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get application detail
+      tags:
+      - Applications
+  /api/v1/applications/{id}/review:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Application UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Decision and optional applicant-visible note
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/project.ReviewApplicationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/project.ApplicationDetailResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Review application
+      tags:
+      - Applications
+  /api/v1/applications/{id}/withdraw:
+    post:
+      parameters:
+      - description: Application UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/project.ApplicationDetailResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Withdraw application
+      tags:
+      - Applications
+  /api/v1/applications/my-applications:
+    get:
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page (max 100; default 6)
+        in: query
+        name: limit
+        type: integer
+      - description: Search project, role, author, and submission
+        in: query
+        name: search
+        type: string
+      - description: 'CSV: pending,accepted,rejected,withdrawn'
+        in: query
+        name: statuses
+        type: string
+      - description: 'CSV: personal,community,experiment,client'
+        in: query
+        name: origins
+        type: string
+      - description: newest or oldest
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/project.MyApplicationListItemResponse'
+                  type: array
+                meta:
+                  $ref: '#/definitions/project.ProjectPaginationMeta'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List my applications
+      tags:
+      - Applications
+  /api/v1/applications/my-applications/summary:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/project.MyApplicationSummaryResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get my application summary
+      tags:
+      - Applications
   /api/v1/auth/forgot-password:
     post:
       consumes:
@@ -2002,7 +2520,7 @@ paths:
         type: integer
       - description: Search title and summary
         in: query
-        name: q
+        name: search
         type: string
       produces:
       - application/json
@@ -2071,6 +2589,53 @@ paths:
       tags:
       - Projects
   /api/v1/projects/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Project UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Current project version
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/project.DeleteProjectDraftRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete project draft
+      tags:
+      - Projects
     get:
       parameters:
       - description: Project UUID
@@ -2153,6 +2718,112 @@ paths:
       summary: Update project definition
       tags:
       - Projects
+  /api/v1/projects/{id}/applicants:
+    get:
+      parameters:
+      - description: Project UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page (max 100; default 5)
+        in: query
+        name: limit
+        type: integer
+      - description: Search application and role data
+        in: query
+        name: search
+        type: string
+      - description: 'CSV: pending,accepted,rejected,withdrawn'
+        in: query
+        name: statuses
+        type: string
+      - description: CSV project role UUIDs
+        in: query
+        name: project_role_ids
+        type: string
+      - description: newest or oldest
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/project.ApplicantListItemResponse'
+                  type: array
+                meta:
+                  $ref: '#/definitions/project.ProjectPaginationMeta'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List project applicants
+      tags:
+      - Applications
+  /api/v1/projects/{id}/applicants/summary:
+    get:
+      parameters:
+      - description: Project UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/project.ApplicantSummaryResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get applicant management summary
+      tags:
+      - Applications
   /api/v1/projects/{id}/apply:
     post:
       consumes:
@@ -2259,6 +2930,59 @@ paths:
       summary: Publish project
       tags:
       - Projects
+  /api/v1/projects/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Project UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Current version and target draft or archived
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/project.ChangeProjectStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/project.ProjectDetailResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Change project status
+      tags:
+      - Projects
   /api/v1/projects/my-projects:
     get:
       parameters:
@@ -2277,7 +3001,7 @@ paths:
         type: integer
       - description: Search title and summary
         in: query
-        name: q
+        name: search
         type: string
       produces:
       - application/json

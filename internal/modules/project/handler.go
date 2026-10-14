@@ -11,10 +11,17 @@ import (
 	sharedErrors "github.com/syahrulfahmi/kolaboria-api/internal/shared/errors"
 )
 
-type ProjectHandler struct{ service *ProjectService }
+type ProjectHandler struct {
+	service      *ProjectService
+	applications *ApplicationHandler
+}
 
-func NewProjectHandler(service *ProjectService) *ProjectHandler {
-	return &ProjectHandler{service: service}
+func NewProjectHandler(service *ProjectService, applications ...*ApplicationHandler) *ProjectHandler {
+	handler := &ProjectHandler{service: service}
+	if len(applications) > 0 {
+		handler.applications = applications[0]
+	}
+	return handler
 }
 
 // CreateDraft creates a persisted project draft.
@@ -218,7 +225,7 @@ func (h *ProjectHandler) GetBySlug(c *gin.Context) {
 // @Produce json
 // @Param page query int false "Page number"
 // @Param limit query int false "Items per page (max 100)"
-// @Param q query string false "Search title and summary"
+// @Param search query string false "Search title and summary"
 // @Success 200 {object} response.SuccessResponse{data=[]ProjectSummaryResponse,meta=ProjectPaginationMeta}
 // @Failure 400 {object} response.ErrorResponse
 // @Router /api/v1/projects [get]
@@ -244,7 +251,7 @@ func (h *ProjectHandler) ListPublic(c *gin.Context) {
 // @Param scope query string false "all, owned, or initiated" default(all)
 // @Param page query int false "Page number"
 // @Param limit query int false "Items per page (max 100)"
-// @Param q query string false "Search title and summary"
+// @Param search query string false "Search title and summary"
 // @Success 200 {object} response.SuccessResponse{data=[]MyProjectSummaryResponse,meta=ProjectPaginationMeta}
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
@@ -270,7 +277,10 @@ func (h *ProjectHandler) ListMine(c *gin.Context) {
 }
 
 func parseProjectListFilter(c *gin.Context) (ProjectListFilter, bool) {
-	filter := ProjectListFilter{Page: 1, Limit: 20, Search: c.Query("q")}
+	if _, legacyQuery := c.Request.URL.Query()["q"]; legacyQuery {
+		return ProjectListFilter{}, false
+	}
+	filter := ProjectListFilter{Page: 1, Limit: 20, Search: c.Query("search")}
 	if raw := c.Query("page"); raw != "" {
 		page, err := strconv.Atoi(raw)
 		if err != nil {
@@ -303,6 +313,14 @@ func optionalActorID(c *gin.Context) *uuid.UUID {
 
 func writeProjectError(c *gin.Context, err error) {
 	switch {
+	case errors.Is(err, ErrProjectHasHistory):
+		response.Error(c, http.StatusConflict, "Proyek dengan riwayat lamaran atau kontributor tidak dapat dikembalikan ke draft atau dihapus. Gunakan arsip untuk mempertahankan riwayat.")
+	case errors.Is(err, ErrProjectNotDraft):
+		response.Error(c, http.StatusConflict, "Hanya proyek draft yang dapat dihapus.")
+	case errors.Is(err, ErrProjectStatusTransition):
+		response.Error(c, http.StatusConflict, "Hanya proyek open yang dapat dikembalikan ke draft atau diarsipkan.")
+	case errors.Is(err, ErrProjectStaleVersion):
+		response.Error(c, http.StatusConflict, "Proyek telah berubah. Muat ulang sebelum mencoba lagi.")
 	case errors.Is(err, sharedErrors.ErrUnauthorized):
 		response.Error(c, http.StatusUnauthorized, "Authentication is required")
 	case errors.Is(err, sharedErrors.ErrForbidden):

@@ -30,6 +30,8 @@ func TestNewRouterRegistersProjectEditorEndpoints(t *testing.T) {
 	for _, endpoint := range []string{
 		"POST /api/v1/projects",
 		"PUT /api/v1/projects/:id",
+		"PATCH /api/v1/projects/:id/status",
+		"DELETE /api/v1/projects/:id",
 		"POST /api/v1/projects/:id/publish",
 		"GET /api/v1/projects/:id",
 		"GET /api/v1/projects/slug/:slug",
@@ -52,6 +54,7 @@ func TestProjectSwaggerDocumentsRegisteredAPIPaths(t *testing.T) {
 		"/api/v1/projects:",
 		"/api/v1/projects/{id}:",
 		"/api/v1/projects/{id}/publish:",
+		"/api/v1/projects/{id}/status:",
 		"/api/v1/projects/slug/{slug}:",
 		"/api/v1/projects/my-projects:",
 	} {

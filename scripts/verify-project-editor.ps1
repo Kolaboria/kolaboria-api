@@ -64,11 +64,15 @@ try {
     $env:KOLABORIA_TEST_DATABASE_URL = $testDatabaseURL
 
     Invoke-Checked $task.Source @('migrate:up', '--', '--timeout=60s')
-    if ((Get-CurrentMigrationVersion) -ne 10) {
-        throw 'Expected migration 000010 after applying pending migrations to the disposable test database.'
+    if ((Get-CurrentMigrationVersion) -ne 11) {
+        throw 'Expected migration 000011 after applying pending migrations to the disposable test database.'
     }
     Invoke-Checked $go.Source @('test', './test', '-run', '^TestProjectEditorAggregateTransactionsAgainstPostgres$', '-count=1')
 
+    Invoke-Checked $task.Source @('migrate:down', '--', '--timeout=60s')
+    if ((Get-CurrentMigrationVersion) -ne 10) {
+        throw 'Expected the applicants migration to roll back before project-editor migrations.'
+    }
     Invoke-Checked $task.Source @('migrate:down', '--', '--timeout=60s')
     if ((Get-CurrentMigrationVersion) -ne 9) {
         throw 'Expected rollback of migration 000010; schema version 000009 must remain.'
@@ -78,8 +82,8 @@ try {
         throw 'Expected rollback of migration 000009; the earlier schema version must remain 000008.'
     }
     Invoke-Checked $task.Source @('migrate:up', '--', '--timeout=60s')
-    if ((Get-CurrentMigrationVersion) -ne 10) {
-        throw 'Expected migrations 000009 and 000010 to replay cleanly on the disposable test database.'
+    if ((Get-CurrentMigrationVersion) -ne 11) {
+        throw 'Expected migrations 000009–000011 to replay cleanly on the disposable test database.'
     }
     Invoke-Checked $go.Source @('test', './test', '-run', '^TestProjectEditorAggregateTransactionsAgainstPostgres$', '-count=1')
     Write-Output 'Project editor schema replay and aggregate integration checks passed on the disposable test database.'

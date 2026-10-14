@@ -42,11 +42,13 @@ docs/apidog/*
 !docs/apidog/README.md
 !docs/master-data.md
 !docs/project-editor.md
+!docs/applicants-api-requirements.md
 !docs/superpowers/
 docs/superpowers/*
-docs/superpowers/plans/
+!docs/superpowers/plans/
 docs/superpowers/plans/*
 !docs/superpowers/plans/2026-10-03-master-data-current-boilerplate.md
+!docs/superpowers/plans/2026-10-13-applicants-api-and-client.md
 
 # Air temporary build directory
 tmp/

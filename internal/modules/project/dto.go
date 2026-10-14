@@ -223,9 +223,14 @@ type ProjectOwnershipResponse struct {
 }
 
 type ViewerApplicationResponse struct {
-	ID        uuid.UUID `json:"id"`
-	Status    string    `json:"status"`
-	AppliedAt time.Time `json:"applied_at"`
+	ID                  uuid.UUID  `json:"id"`
+	Status              string     `json:"status"`
+	AppliedAt           time.Time  `json:"applied_at"`
+	ReviewedAt          *time.Time `json:"reviewed_at"`
+	WithdrawnAt         *time.Time `json:"withdrawn_at"`
+	RetryAfter          *time.Time `json:"retry_after"`
+	RetryAfterEstimated bool       `json:"retry_after_estimated"`
+	ReapplyBlockReason  *string    `json:"reapply_block_reason"`
 }
 
 type ProjectDetailResponse struct {
@@ -304,6 +309,7 @@ type MyProjectRoleSummaryResponse struct {
 
 type MyProjectSummaryResponse struct {
 	ProjectSummaryResponse
+	Version                 int64                          `json:"version"`
 	MyScope                 string                         `json:"my_scope"`
 	Roles                   []MyProjectRoleSummaryResponse `json:"roles"`
 	PendingApplicationCount *int                           `json:"pending_application_count,omitempty"`

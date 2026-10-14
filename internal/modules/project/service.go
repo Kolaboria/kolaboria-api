@@ -17,10 +17,27 @@ import (
 	"gorm.io/gorm"
 )
 
-type ProjectService struct{ repository ProjectRepository }
+type ProjectService struct {
+	repository ProjectRepository
+	now        func() time.Time
+}
 
-func NewProjectService(repository ProjectRepository) *ProjectService {
-	return &ProjectService{repository: repository}
+type ProjectServiceOption func(*ProjectService)
+
+func WithProjectClock(now func() time.Time) ProjectServiceOption {
+	return func(service *ProjectService) {
+		if now != nil {
+			service.now = now
+		}
+	}
+}
+
+func NewProjectService(repository ProjectRepository, options ...ProjectServiceOption) *ProjectService {
+	service := &ProjectService{repository: repository, now: time.Now}
+	for _, option := range options {
+		option(service)
+	}
+	return service
 }
 
 func (s *ProjectService) CreateDraft(ctx context.Context, actorID uuid.UUID, request CreateProjectDraftRequest) (*ProjectDetailResponse, error) {
@@ -219,7 +236,7 @@ func (s *ProjectService) Publish(ctx context.Context, actorID, projectID uuid.UU
 			return err
 		}
 		target := ProjectStatusOpen
-		if aggregate.CreationMode == CreationModeOrganizationInitiated {
+		if aggregate.CreationMode == CreationModeOrganizationInitiated && aggregate.OwnerID == nil {
 			target = ProjectStatusAwaitingOwner
 		}
 		if aggregate.Version != request.Version {
@@ -276,18 +293,16 @@ func (s *ProjectService) Publish(ctx context.Context, actorID, projectID uuid.UU
 
 func (s *ProjectService) Apply(ctx context.Context, actorID, projectID uuid.UUID, request ApplyProjectRequest) (*ProjectApplicationResponse, error) {
 	if actorID == uuid.Nil || projectID == uuid.Nil || request.ProjectRoleID == uuid.Nil ||
-		len(strings.TrimSpace(request.Motivation)) < 10 || len(request.Motivation) > 5000 ||
-		len(request.ExpectedContributionOrEmpty()) > 5000 || len(request.PortfolioLinks) > 10 ||
+		runeLength(strings.TrimSpace(request.Motivation)) < 10 || runeLength(request.Motivation) > 5000 ||
+		runeLength(request.ExpectedContributionOrEmpty()) > 5000 ||
 		(request.EstimatedHoursPerWeek != nil && (*request.EstimatedHoursPerWeek < 1 || *request.EstimatedHoursPerWeek > 168)) {
 		return nil, sharedErrors.ErrBadRequest
 	}
 	if request.Availability != "flexible" && request.Availability != "full_time" && request.Availability != "part_time" && request.Availability != "weekends_only" {
 		return nil, sharedErrors.ErrBadRequest
 	}
-	for _, link := range request.PortfolioLinks {
-		if strings.TrimSpace(link) == "" || len(link) > 2048 {
-			return nil, sharedErrors.ErrBadRequest
-		}
+	if err := validateApplicationPortfolio(request.PortfolioLinks); err != nil {
+		return nil, err
 	}
 
 	var response *ProjectApplicationResponse
@@ -296,11 +311,8 @@ func (s *ProjectService) Apply(ctx context.Context, actorID, projectID uuid.UUID
 		if err != nil {
 			return actorError(err)
 		}
-		if err := requireEligibleActor(actor); err != nil {
+		if err := requireApplicationWriter(actor); err != nil {
 			return err
-		}
-		if actor.EmailVerifiedAt == nil {
-			return sharedErrors.ErrForbidden
 		}
 
 		aggregate, err := tx.LockProject(ctx, projectID)
@@ -312,6 +324,13 @@ func (s *ProjectService) Apply(ctx context.Context, actorID, projectID uuid.UUID
 		}
 		if *aggregate.OwnerID == actorID {
 			return sharedErrors.ErrForbidden
+		}
+		isMember, err := tx.IsActiveProjectMember(ctx, projectID, actorID)
+		if err != nil {
+			return err
+		}
+		if isMember {
+			return sharedErrors.ErrConflict
 		}
 		if aggregate.CreationMode == CreationModeOrganizationInitiated && aggregate.InitiatorOrganizationID != nil {
 			if _, err := tx.FindInitiableOrganization(ctx, actorID, *aggregate.InitiatorOrganizationID); err == nil {
@@ -339,15 +358,33 @@ func (s *ProjectService) Apply(ctx context.Context, actorID, projectID uuid.UUID
 		if activeApplication != nil {
 			return sharedErrors.ErrConflict
 		}
+		latestRejected, err := tx.FindLatestRejectedApplication(ctx, projectID, actorID)
+		if err != nil {
+			return err
+		}
+		if latestRejected != nil {
+			if rejectionCooldownActive(*latestRejected, s.now().UTC()) {
+				return sharedErrors.ErrConflict
+			}
+		}
 
-		now := time.Now().UTC()
-		portfolioLinks := request.PortfolioLinks
-		if portfolioLinks == nil {
-			portfolioLinks = []string{}
+		now := s.now().UTC()
+		portfolioLinks := make([]string, 0, len(request.PortfolioLinks))
+		for _, link := range request.PortfolioLinks {
+			portfolioLinks = append(portfolioLinks, strings.TrimSpace(link))
+		}
+		expectedContribution := cloneStringPointer(request.ExpectedContribution)
+		if expectedContribution != nil {
+			trimmed := strings.TrimSpace(*expectedContribution)
+			if trimmed == "" {
+				expectedContribution = nil
+			} else {
+				expectedContribution = &trimmed
+			}
 		}
 		application := &ProjectApplication{
 			ID: uuid.New(), ProjectID: projectID, ProjectRoleID: role.ID, ApplicantUserID: actorID,
-			Motivation: strings.TrimSpace(request.Motivation), ExpectedContribution: request.ExpectedContribution,
+			Motivation: strings.TrimSpace(request.Motivation), ExpectedContribution: expectedContribution,
 			PortfolioLinks: portfolioLinks, Availability: request.Availability,
 			EstimatedHoursPerWeek: request.EstimatedHoursPerWeek, Status: "pending", AppliedAt: now,
 			CreatedAt: now, UpdatedAt: now,
@@ -386,11 +423,14 @@ func canPublishActor(actor *ProjectActor) bool {
 }
 
 func requireProjectEditor(ctx context.Context, tx ProjectTx, actorID uuid.UUID, aggregate *ProjectAggregate) error {
-	if aggregate.CreationMode == CreationModePersonal {
-		if aggregate.OwnerID == nil || *aggregate.OwnerID != actorID {
+	if aggregate.OwnerID != nil {
+		if *aggregate.OwnerID != actorID {
 			return sharedErrors.ErrNotFound
 		}
 		return nil
+	}
+	if aggregate.CreationMode == CreationModePersonal {
+		return sharedErrors.ErrNotFound
 	}
 	if aggregate.CreatedByUserID != actorID || aggregate.InitiatorOrganizationID == nil {
 		return sharedErrors.ErrNotFound

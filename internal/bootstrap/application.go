@@ -56,7 +56,10 @@ func New() *Application {
 	profileHandler := profile.NewProfileHandler(profileService)
 	projectRepository := project.NewProjectRepository(db)
 	projectService := project.NewProjectService(projectRepository)
-	projectHandler := project.NewProjectHandler(projectService)
+	applicationRepository := project.NewApplicationRepository(db)
+	applicationService := project.NewApplicationService(applicationRepository, nil)
+	applicationHandler := project.NewApplicationHandler(applicationService)
+	projectHandler := project.NewProjectHandler(projectService, applicationHandler)
 
 	jwtService := jwt.NewJWTService(cfg.JWT)
 	mailer := mail.NewSMTPMailer(cfg.Mail, cfg.App.FrontendURL)

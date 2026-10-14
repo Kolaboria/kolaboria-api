@@ -142,6 +142,9 @@ func validatePublishDefinition(input ProjectDefinitionInput) error {
 }
 
 func ValidateRoleChange(existing ProjectRole, input ProjectRoleWriteInput, usage RoleUsage) error {
+	if usage.PendingApplications > 0 && !sameUUIDPointer(existing.ContributionRoleID, input.ContributionRoleID) {
+		return sharedErrors.ErrConflict
+	}
 	if usage.ActiveContributors > 0 {
 		if !sameUUIDPointer(existing.ContributionRoleID, input.ContributionRoleID) || input.Capacity < usage.ActiveContributors {
 			return sharedErrors.ErrConflict
