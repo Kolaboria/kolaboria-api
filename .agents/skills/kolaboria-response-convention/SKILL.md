@@ -71,6 +71,7 @@ Setiap response HTTP yang dikirimkan ke client wajib menggunakan envelope yang t
   "status": 400,
   "message": "Invalid query parameters",
   "data": {
+    "err_message": "invalid query parameters: unexpected field",
     "trace_id": "c043419c-3c26-4a6d-a6a9-8c406efc21f1"
   }
 }
@@ -78,7 +79,7 @@ Setiap response HTTP yang dikirimkan ke client wajib menggunakan envelope yang t
 
 - `status`: integer sama dengan HTTP status code.
 - `message`: string pesan error yang aman bagi client (hindari membocorkan detail raw database/SQL).
-- `data`: objek yang selalu berisi `trace_id` untuk menghubungkan error di client dengan server log.
+- `data`: objek yang berisi `err_message` (exception/error yang tersedia, atau pesan error sebagai fallback) dan `trace_id` untuk menghubungkan error dengan server log. Pesan top-level tetap aman bagi client; jangan menaruh stacktrace penuh atau rahasia konfigurasi pada payload production.
 
 ---
 

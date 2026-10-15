@@ -237,7 +237,7 @@ definitions:
         items:
           $ref: '#/definitions/master.ItemResponse'
         type: array
-      message:
+      err_message:
         type: string
       meta:
         $ref: '#/definitions/master.PaginationMeta'
@@ -1268,6 +1268,8 @@ definitions:
     type: object
   response.ErrorData:
     properties:
+      err_message:
+        type: string
       trace_id:
         type: string
     type: object
@@ -2940,7 +2942,7 @@ paths:
         name: id
         required: true
         type: string
-      - description: Current version and target draft or archived
+      - description: Current version and target draft, in_progress, or archived
         in: body
         name: request
         required: true

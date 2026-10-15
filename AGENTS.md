@@ -22,6 +22,7 @@ Seluruh output response HTTP dari backend Kolaboria WAJIB mematuhi format snake_
     "status": 400,
     "message": "[Error Message]",
     "data": {
+      "err_message": "[Exception or error details]",
       "trace_id": "[Trace ID UUID]"
     }
   }

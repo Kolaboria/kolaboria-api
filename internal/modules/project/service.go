@@ -134,6 +134,158 @@ func (s *ProjectService) CreateDraft(ctx context.Context, actorID uuid.UUID, req
 	return response, nil
 }
 
+// CreateAndPublish atomically creates a complete project in its first published
+// state. The client request ID makes retries safe if the response is lost.
+func (s *ProjectService) CreateAndPublish(ctx context.Context, actorID uuid.UUID, request PublishNewProjectRequest) (*ProjectDetailResponse, error) {
+	if actorID == uuid.Nil || request.ClientRequestID == uuid.Nil {
+		return nil, sharedErrors.ErrBadRequest
+	}
+	if err := validateDefinition(&request.Definition, true); err != nil {
+		return nil, err
+	}
+	if err := validatePublishDefinition(request.Definition); err != nil {
+		return nil, err
+	}
+	if request.Definition.Visibility != "public" {
+		return nil, sharedErrors.ErrBadRequest
+	}
+	body, err := json.Marshal(request.Definition)
+	if err != nil {
+		return nil, fmt.Errorf("encode project publish request: %w", err)
+	}
+	hash := sha256.Sum256(body)
+	hashValue := hex.EncodeToString(hash[:])
+	target := firstPublishedStatus(request.Definition)
+
+	var result *ProjectDetailResponse
+	err = s.repository.WithTransaction(ctx, func(tx ProjectTx) error {
+		actor, err := tx.FindActor(ctx, actorID)
+		if err != nil {
+			return actorError(err)
+		}
+		if err := requireEligibleActor(actor); err != nil {
+			return err
+		}
+		if !canPublishActor(actor) {
+			return sharedErrors.ErrForbidden
+		}
+		if request.Definition.CreationMode == CreationModeOrganizationInitiated {
+			if _, err := tx.FindInitiableOrganization(ctx, actorID, *request.Definition.InitiatorOrganizationID); err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return sharedErrors.ErrForbidden
+				}
+				return err
+			}
+		}
+		roleRefs, skillRefs, toolRefs, err := validateMasterReferences(tx, ctx, request.Definition)
+		if err != nil {
+			return err
+		}
+		if existing, err := tx.FindByClientRequest(ctx, actorID, request.ClientRequestID); err == nil {
+			if existing.CreateRequestHash != hashValue {
+				return sharedErrors.ErrConflict
+			}
+			aggregate, err := tx.LockProject(ctx, existing.ID)
+			if err != nil {
+				return err
+			}
+			if aggregate.Status == target {
+				result = mapProjectDetail(aggregate, actorID, true, true)
+				return nil
+			}
+			if aggregate.Status != ProjectStatusDraft {
+				return sharedErrors.ErrConflict
+			}
+			for _, role := range aggregate.Roles {
+				if _, err := tx.LockRole(ctx, aggregate.ID, role.ID); err != nil {
+					return err
+				}
+				usage, err := tx.CountRoleUsage(ctx, role.ID)
+				if err != nil {
+					return err
+				}
+				if role.Capacity < usage.ActiveContributors {
+					return sharedErrors.ErrConflict
+				}
+			}
+			now := s.now().UTC()
+			agreementAt := aggregate.AgreementAt
+			if agreementAt == nil {
+				agreementAt = &now
+			}
+			if err := tx.UpdateStatus(ctx, aggregate.ID, target, &now, agreementAt, aggregate.Version+1); err != nil {
+				return mapPersistenceError(err)
+			}
+			published, err := tx.LockProject(ctx, aggregate.ID)
+			if err != nil {
+				return err
+			}
+			result = mapProjectDetail(published, actorID, true, true)
+			return nil
+		} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
+
+		projectID := uuid.New()
+		slug, err := resolveCreateSlug(tx, ctx, request.Definition.Slug, request.Definition.Title, projectID)
+		if err != nil {
+			return err
+		}
+		now := s.now().UTC()
+		projectRecord := projectFromDefinition(request.Definition)
+		projectRecord.ID = projectID
+		projectRecord.Slug = slug
+		projectRecord.CreatedByUserID = actorID
+		projectRecord.Visibility = "public"
+		projectRecord.Status = target
+		projectRecord.Version = 1
+		projectRecord.ClientRequestID = request.ClientRequestID
+		projectRecord.CreateRequestHash = hashValue
+		projectRecord.PublishedAt = &now
+		projectRecord.AgreementAt = &now
+		projectRecord.CreatedAt = now
+		projectRecord.UpdatedAt = now
+		if request.Definition.CreationMode == CreationModePersonal {
+			projectRecord.InitiatorUserID = uuidPointer(actorID)
+			projectRecord.OwnerID = uuidPointer(actorID)
+		} else {
+			projectRecord.InitiatorOrganizationID = cloneUUIDPointer(request.Definition.InitiatorOrganizationID)
+		}
+		aggregate := &ProjectAggregate{
+			Project: projectRecord,
+			Roles:   buildRoleAggregates(request.Definition.Roles, roleRefs, skillRefs, toolRefs),
+		}
+		if projectRecord.OwnerID != nil {
+			aggregate.OwnerMember = &ProjectMember{
+				ID: uuid.New(), ProjectID: projectID, UserID: actorID, MembershipRole: "owner", Status: "active",
+				ContributionRoleID: cloneUUIDPointer(request.Definition.OwnerContributionRoleID),
+				JoinedAt:           now, CreatedAt: now, UpdatedAt: now,
+			}
+		}
+		if err := tx.SaveAggregate(ctx, aggregate, true); err != nil {
+			return mapPersistenceError(err)
+		}
+		stored, err := tx.LockProject(ctx, projectID)
+		if err != nil {
+			return err
+		}
+		result = mapProjectDetail(stored, actorID, true, canPublishActor(actor))
+		result.created = true
+		return nil
+	})
+	if err != nil {
+		return nil, mapPersistenceError(err)
+	}
+	return result, nil
+}
+
+func firstPublishedStatus(definition ProjectDefinitionInput) ProjectStatus {
+	if definition.CreationMode == CreationModeOrganizationInitiated {
+		return ProjectStatusAwaitingOwner
+	}
+	return ProjectStatusOpen
+}
+
 func (s *ProjectService) UpdateDefinition(ctx context.Context, actorID, projectID uuid.UUID, request UpdateProjectDefinitionRequest) (*ProjectDetailResponse, error) {
 	if actorID == uuid.Nil || projectID == uuid.Nil || request.Version < 1 {
 		return nil, sharedErrors.ErrBadRequest

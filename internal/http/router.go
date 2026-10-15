@@ -14,6 +14,7 @@ import (
 	"github.com/syahrulfahmi/kolaboria-api/internal/modules/master"
 	"github.com/syahrulfahmi/kolaboria-api/internal/modules/profile"
 	"github.com/syahrulfahmi/kolaboria-api/internal/modules/project"
+	"github.com/syahrulfahmi/kolaboria-api/internal/modules/workspace"
 )
 
 func NewRouter(
@@ -24,6 +25,7 @@ func NewRouter(
 	authHandler *auth.AuthHandler,
 	profileHandler *profile.ProfileHandler,
 	projectHandler *project.ProjectHandler,
+	workspaceHandlers ...*workspace.Handler,
 ) *gin.Engine {
 	if cfg.App.Env == "production" {
 		gin.SetMode(gin.ReleaseMode)
@@ -54,6 +56,9 @@ func NewRouter(
 	}
 	if projectHandler != nil {
 		project.RegisterProjectRoutes(v1, projectHandler, jwtService)
+	}
+	if len(workspaceHandlers) > 0 && workspaceHandlers[0] != nil {
+		workspace.RegisterRoutes(v1, workspaceHandlers[0], jwtService)
 	}
 	r.NoRoute(func(c *gin.Context) { response.Error(c, 404, "Not Found") })
 	r.NoMethod(func(c *gin.Context) { response.Error(c, 405, "Method Not Allowed") })

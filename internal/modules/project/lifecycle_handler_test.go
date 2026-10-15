@@ -1,6 +1,7 @@
 package project
 
 import (
+	"encoding/json"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -8,6 +9,41 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
+
+func TestChangeProjectStatusRequestAcceptsUnderfilledAcknowledgement(t *testing.T) {
+	var request ChangeProjectStatusRequest
+	if err := json.Unmarshal([]byte(`{"version":3,"status":"in_progress","confirm_underfilled_positions":true}`), &request); err != nil {
+		t.Fatalf("expected acknowledgement field to be accepted: %v", err)
+	}
+	if !request.ConfirmUnderfilledPositions {
+		t.Fatal("expected explicit underfilled acknowledgement to be decoded")
+	}
+}
+
+func TestUnderfilledStartErrorIncludesExceptionInErrMessage(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	service, tx := lifecycleFixture(ProjectStatusOpen)
+	tx.project.Roles = []ProjectRoleAggregate{{
+		ProjectRole:    ProjectRole{ID: uuid.New(), Capacity: 3},
+		FilledCapacity: 2,
+	}}
+	router := gin.New()
+	router.Use(func(c *gin.Context) {
+		c.Set("user_id", tx.actor.ID.String())
+		c.Next()
+	})
+	router.PATCH("/projects/:id/status", NewProjectHandler(service).ChangeStatus)
+	request := httptest.NewRequest("PATCH", "/projects/"+tx.project.ID.String()+"/status", strings.NewReader(`{"version":3,"status":"in_progress"}`))
+	request.Header.Set("Content-Type", "application/json")
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+	if recorder.Code != 409 || !strings.Contains(recorder.Body.String(), `"err_message":"underfilled project positions require explicit confirmation: conflict"`) {
+		t.Fatalf("expected exception diagnostic in error data: %d %s", recorder.Code, recorder.Body.String())
+	}
+	if !strings.Contains(recorder.Body.String(), `"message":"Ada kuota posisi yang belum terpenuhi.`) || tx.updated {
+		t.Fatalf("expected safe public message and unchanged project: %s", recorder.Body.String())
+	}
+}
 
 func TestProjectLifecycleHTTPContract(t *testing.T) {
 	gin.SetMode(gin.TestMode)
@@ -18,6 +54,7 @@ func TestProjectLifecycleHTTPContract(t *testing.T) {
 		expected                         int
 	}{
 		{"archive", "PATCH", `{"version":3,"status":"archived"}`, ProjectStatusOpen, true, false, true, 200},
+		{"start project", "PATCH", `{"version":3,"status":"in_progress"}`, ProjectStatusOpen, true, false, false, 200},
 		{"draft with history", "PATCH", `{"version":3,"status":"draft"}`, ProjectStatusOpen, true, false, true, 409},
 		{"guest", "PATCH", `{"version":3,"status":"draft"}`, ProjectStatusOpen, false, false, false, 401},
 		{"outsider", "DELETE", `{"version":3}`, ProjectStatusDraft, true, true, false, 404},
