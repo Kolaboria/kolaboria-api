@@ -2836,7 +2836,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Current version and target draft or archived",
+                        "description": "Current version and target draft, in_progress, or archived",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -3277,7 +3277,7 @@ const docTemplate = `{
                         "$ref": "#/definitions/master.ItemResponse"
                     }
                 },
-                "message": {
+                "err_message": {
                     "type": "string"
                 },
                 "meta": {
@@ -4822,6 +4822,9 @@ const docTemplate = `{
         "response.ErrorData": {
             "type": "object",
             "properties": {
+                "err_message": {
+                    "type": "string"
+                },
                 "trace_id": {
                     "type": "string"
                 }

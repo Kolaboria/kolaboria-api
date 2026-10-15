@@ -12,19 +12,21 @@ import (
 )
 
 var (
-	ErrProjectHasHistory       = fmt.Errorf("%w: project has collaboration history", sharedErrors.ErrConflict)
-	ErrProjectNotDraft         = fmt.Errorf("%w: project is not a draft", sharedErrors.ErrConflict)
-	ErrProjectStatusTransition = fmt.Errorf("%w: unsupported project transition", sharedErrors.ErrConflict)
-	ErrProjectStaleVersion     = fmt.Errorf("%w: stale project version", sharedErrors.ErrConflict)
+	ErrProjectHasHistory                               = fmt.Errorf("%w: project has collaboration history", sharedErrors.ErrConflict)
+	ErrProjectNotDraft                                 = fmt.Errorf("%w: project is not a draft", sharedErrors.ErrConflict)
+	ErrProjectStatusTransition                         = fmt.Errorf("%w: unsupported project transition", sharedErrors.ErrConflict)
+	ErrProjectStaleVersion                             = fmt.Errorf("%w: stale project version", sharedErrors.ErrConflict)
+	ErrProjectUnderfilledPositionsConfirmationRequired = fmt.Errorf("underfilled project positions require explicit confirmation: %w", sharedErrors.ErrConflict)
 )
 
 type ChangeProjectStatusRequest struct {
-	Version int64         `json:"version"`
-	Status  ProjectStatus `json:"status"`
+	Version                     int64         `json:"version"`
+	Status                      ProjectStatus `json:"status"`
+	ConfirmUnderfilledPositions bool          `json:"confirm_underfilled_positions,omitempty"`
 }
 
 func (request *ChangeProjectStatusRequest) UnmarshalJSON(data []byte) error {
-	if _, err := strictObject(data, []string{"version", "status"}, nil); err != nil {
+	if _, err := strictObject(data, []string{"version", "status"}, nil, "confirm_underfilled_positions"); err != nil {
 		return err
 	}
 	type plain ChangeProjectStatusRequest
@@ -57,7 +59,7 @@ func (request *DeleteProjectDraftRequest) UnmarshalJSON(data []byte) error {
 // allowed before any application or non-owner membership has been recorded.
 func (s *ProjectService) ChangeStatus(ctx context.Context, actorID, projectID uuid.UUID, request ChangeProjectStatusRequest) (*ProjectDetailResponse, error) {
 	if actorID == uuid.Nil || projectID == uuid.Nil || request.Version < 1 ||
-		(request.Status != ProjectStatusDraft && request.Status != ProjectStatusArchived) {
+		(request.Status != ProjectStatusDraft && request.Status != ProjectStatusInProgress && request.Status != ProjectStatusArchived) {
 		return nil, sharedErrors.ErrBadRequest
 	}
 	var result *ProjectDetailResponse
@@ -68,6 +70,20 @@ func (s *ProjectService) ChangeStatus(ctx context.Context, actorID, projectID uu
 		}
 		if aggregate.Status != ProjectStatusOpen {
 			return ErrProjectStatusTransition
+		}
+		if request.Status == ProjectStatusInProgress {
+			for _, role := range aggregate.Roles {
+				if role.ArchivedAt != nil {
+					continue
+				}
+				_, readiness, err := EvaluatePositionCapacity(role.Capacity, role.FilledCapacity)
+				if err != nil {
+					return err
+				}
+				if readiness == PositionReadinessToFill && !request.ConfirmUnderfilledPositions {
+					return ErrProjectUnderfilledPositionsConfirmationRequired
+				}
+			}
 		}
 		if request.Status == ProjectStatusDraft {
 			history, err := tx.HasProjectHistory(ctx, projectID)

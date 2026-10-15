@@ -15,7 +15,7 @@ import (
 // @Produce json
 // @Security BearerAuth
 // @Param id path string true "Project UUID"
-// @Param request body ChangeProjectStatusRequest true "Current version and target draft or archived"
+// @Param request body ChangeProjectStatusRequest true "Current version and target draft, in_progress, or archived"
 // @Success 200 {object} response.SuccessResponse{data=ProjectDetailResponse}
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse

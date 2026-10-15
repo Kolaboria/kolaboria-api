@@ -18,9 +18,10 @@ type SuccessResponse struct {
 	Meta    any    `json:"meta,omitempty"`
 }
 
-// ErrorData represents the data payload of an error response containing trace_id.
+// ErrorData carries a trace identifier and the underlying exception message.
 type ErrorData struct {
-	TraceID string `json:"trace_id"`
+	TraceID    *string `json:"trace_id"`
+	ErrMessage *string `json:"err_message"`
 }
 
 // ErrorResponse represents the standardized error response envelope.
@@ -84,14 +85,26 @@ func SuccessWithMeta(c *gin.Context, statusCode int, message string, data any, m
 	})
 }
 
-// Error writes a standard error JSON response containing the trace_id in data.
+// Error writes a standard error JSON response. When only a public message is
+// available, it is also used as err_message.
 func Error(c *gin.Context, statusCode int, message string) {
+	ErrorWithException(c, statusCode, message, nil)
+}
+
+// ErrorWithException preserves a safe client-facing message while returning
+// the underlying exception text in data.err_message for diagnosis.
+func ErrorWithException(c *gin.Context, statusCode int, message string, exception error) {
 	traceID := GetTraceID(c)
+	errMessage := message
+	if exception != nil {
+		errMessage = exception.Error()
+	}
 	c.JSON(statusCode, ErrorResponse{
 		Status:  statusCode,
 		Message: message,
 		Data: ErrorData{
-			TraceID: traceID,
+			TraceID:    &traceID,
+			ErrMessage: &errMessage,
 		},
 	})
 }
@@ -104,9 +117,7 @@ func ErrorWithTraceID(c *gin.Context, statusCode int, message string, traceID st
 	c.JSON(statusCode, ErrorResponse{
 		Status:  statusCode,
 		Message: message,
-		Data: ErrorData{
-			TraceID: traceID,
-		},
+		Data:    ErrorData{TraceID: &traceID, ErrMessage: &message},
 	})
 }
 

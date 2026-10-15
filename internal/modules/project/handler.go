@@ -62,6 +62,42 @@ func (h *ProjectHandler) CreateDraft(c *gin.Context) {
 	response.Success(c, status, message, result)
 }
 
+// CreateAndPublish creates a complete project directly in its first published state.
+// @Summary Create and publish project
+// @Tags Projects
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body PublishNewProjectRequest true "Project definition to publish"
+// @Success 201 {object} response.SuccessResponse{data=ProjectDetailResponse}
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 409 {object} response.ErrorResponse
+// @Router /api/v1/projects/publish [post]
+func (h *ProjectHandler) CreateAndPublish(c *gin.Context) {
+	actorID, ok := requiredActorID(c)
+	if !ok {
+		response.Error(c, http.StatusUnauthorized, "Authentication is required")
+		return
+	}
+	var request PublishNewProjectRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		response.Error(c, http.StatusBadRequest, "Invalid project request")
+		return
+	}
+	result, err := h.service.CreateAndPublish(c.Request.Context(), actorID, request)
+	if err != nil {
+		writeProjectError(c, err)
+		return
+	}
+	if result.created {
+		response.Success(c, http.StatusCreated, "Project published", result)
+		return
+	}
+	response.OK(c, "Project published", result)
+}
+
 // UpdateDefinition replaces the editable project definition with optimistic version checking.
 // @Summary Update project definition
 // @Tags Projects
@@ -313,25 +349,27 @@ func optionalActorID(c *gin.Context) *uuid.UUID {
 
 func writeProjectError(c *gin.Context, err error) {
 	switch {
+	case errors.Is(err, ErrProjectUnderfilledPositionsConfirmationRequired):
+		response.ErrorWithException(c, http.StatusConflict, "Ada kuota posisi yang belum terpenuhi. Muat ulang informasi proyek dan konfirmasi kembali untuk melanjutkan.", err)
 	case errors.Is(err, ErrProjectHasHistory):
-		response.Error(c, http.StatusConflict, "Proyek dengan riwayat lamaran atau kontributor tidak dapat dikembalikan ke draft atau dihapus. Gunakan arsip untuk mempertahankan riwayat.")
+		response.ErrorWithException(c, http.StatusConflict, "Proyek dengan riwayat lamaran atau kontributor tidak dapat dikembalikan ke draft atau dihapus. Gunakan arsip untuk mempertahankan riwayat.", err)
 	case errors.Is(err, ErrProjectNotDraft):
-		response.Error(c, http.StatusConflict, "Hanya proyek draft yang dapat dihapus.")
+		response.ErrorWithException(c, http.StatusConflict, "Hanya proyek draft yang dapat dihapus.", err)
 	case errors.Is(err, ErrProjectStatusTransition):
-		response.Error(c, http.StatusConflict, "Hanya proyek open yang dapat dikembalikan ke draft atau diarsipkan.")
+		response.ErrorWithException(c, http.StatusConflict, "Hanya proyek open yang dapat diubah ke draft, in progress, atau archived.", err)
 	case errors.Is(err, ErrProjectStaleVersion):
-		response.Error(c, http.StatusConflict, "Proyek telah berubah. Muat ulang sebelum mencoba lagi.")
+		response.ErrorWithException(c, http.StatusConflict, "Proyek telah berubah. Muat ulang sebelum mencoba lagi.", err)
 	case errors.Is(err, sharedErrors.ErrUnauthorized):
-		response.Error(c, http.StatusUnauthorized, "Authentication is required")
+		response.ErrorWithException(c, http.StatusUnauthorized, "Authentication is required", err)
 	case errors.Is(err, sharedErrors.ErrForbidden):
-		response.Error(c, http.StatusForbidden, "You are not allowed to perform this project action")
+		response.ErrorWithException(c, http.StatusForbidden, "You are not allowed to perform this project action", err)
 	case errors.Is(err, sharedErrors.ErrNotFound):
-		response.Error(c, http.StatusNotFound, "Project not found")
+		response.ErrorWithException(c, http.StatusNotFound, "Project not found", err)
 	case errors.Is(err, sharedErrors.ErrBadRequest):
-		response.Error(c, http.StatusBadRequest, "Project data is invalid")
+		response.ErrorWithException(c, http.StatusBadRequest, "Project data is invalid", err)
 	case errors.Is(err, sharedErrors.ErrConflict), errors.Is(err, sharedErrors.ErrSlugConflict):
-		response.Error(c, http.StatusConflict, "Project changed or conflicts with existing data")
+		response.ErrorWithException(c, http.StatusConflict, "Project changed or conflicts with existing data", err)
 	default:
-		response.Error(c, http.StatusInternalServerError, "Unable to process project request")
+		response.ErrorWithException(c, http.StatusInternalServerError, "Unable to process project request", err)
 	}
 }

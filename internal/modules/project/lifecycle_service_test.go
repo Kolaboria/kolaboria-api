@@ -61,7 +61,7 @@ func lifecycleFixture(status ProjectStatus) (*ProjectService, *lifecycleTx) {
 }
 
 func TestProjectLifecycleTransitions(t *testing.T) {
-	for _, target := range []ProjectStatus{ProjectStatusDraft, ProjectStatusArchived} {
+	for _, target := range []ProjectStatus{ProjectStatusDraft, ProjectStatusArchived, ProjectStatusInProgress} {
 		t.Run(string(target), func(t *testing.T) {
 			service, tx := lifecycleFixture(ProjectStatusOpen)
 			tx.hasHistory = target == ProjectStatusArchived
@@ -75,10 +75,49 @@ func TestProjectLifecycleTransitions(t *testing.T) {
 			if target == ProjectStatusArchived && result.PublishedAt == nil {
 				t.Fatal("archive must retain publication timestamp")
 			}
+			if target == ProjectStatusInProgress && result.PublishedAt == nil {
+				t.Fatal("starting a project must retain publication timestamp")
+			}
 			if tx.deleted {
 				t.Fatal("status transition must retain project history")
 			}
 		})
+	}
+}
+
+func TestStartingUnderfilledProjectRequiresExplicitAcknowledgement(t *testing.T) {
+	service, tx := lifecycleFixture(ProjectStatusOpen)
+	tx.project.Roles = []ProjectRoleAggregate{{
+		ProjectRole:    ProjectRole{ID: uuid.New(), Capacity: 3},
+		FilledCapacity: 2,
+	}}
+
+	_, err := service.ChangeStatus(context.Background(), tx.actor.ID, tx.project.ID, ChangeProjectStatusRequest{
+		Version: 3,
+		Status:  ProjectStatusInProgress,
+	})
+	if !errors.Is(err, sharedErrors.ErrConflict) {
+		t.Fatalf("expected conflict when underfilled positions are not acknowledged, got %v", err)
+	}
+	if tx.updated {
+		t.Fatal("project status must not change without underfilled acknowledgement")
+	}
+}
+
+func TestStartingUnderfilledProjectAfterAcknowledgement(t *testing.T) {
+	service, tx := lifecycleFixture(ProjectStatusOpen)
+	tx.project.Roles = []ProjectRoleAggregate{{
+		ProjectRole:    ProjectRole{ID: uuid.New(), Capacity: 3},
+		FilledCapacity: 2,
+	}}
+
+	result, err := service.ChangeStatus(context.Background(), tx.actor.ID, tx.project.ID, ChangeProjectStatusRequest{
+		Version:                     3,
+		Status:                      ProjectStatusInProgress,
+		ConfirmUnderfilledPositions: true,
+	})
+	if err != nil || !tx.updated || result.Status != ProjectStatusInProgress {
+		t.Fatalf("expected acknowledged underfilled project to start, got %#v, %v", result, err)
 	}
 }
 

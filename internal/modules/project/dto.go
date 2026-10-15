@@ -96,6 +96,8 @@ type CreateProjectDraftRequest struct {
 	Definition      ProjectDefinitionInput `json:"definition"`
 }
 
+type PublishNewProjectRequest = CreateProjectDraftRequest
+
 func (request *CreateProjectDraftRequest) UnmarshalJSON(data []byte) error {
 	if _, err := strictObject(data, []string{"client_request_id", "definition"}, nil); err != nil {
 		return err
@@ -144,7 +146,7 @@ func (request *PublishProjectRequest) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func strictObject(data []byte, required []string, nullable map[string]bool) (map[string]json.RawMessage, error) {
+func strictObject(data []byte, required []string, nullable map[string]bool, optional ...string) (map[string]json.RawMessage, error) {
 	var fields map[string]json.RawMessage
 	if err := json.Unmarshal(data, &fields); err != nil || fields == nil {
 		return nil, fmt.Errorf("request must be a JSON object")
@@ -159,6 +161,9 @@ func strictObject(data []byte, required []string, nullable map[string]bool) (map
 		if !nullable[key] && bytes.Equal(bytes.TrimSpace(value), []byte("null")) {
 			return nil, fmt.Errorf("field %q cannot be null", key)
 		}
+	}
+	for _, key := range optional {
+		allowed[key] = struct{}{}
 	}
 	for key := range fields {
 		if _, exists := allowed[key]; !exists {
