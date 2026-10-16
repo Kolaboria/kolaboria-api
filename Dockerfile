@@ -12,7 +12,7 @@ RUN CGO_ENABLED=0 GOOS=linux \
 
 FROM alpine:3.22
 
-RUN apk add --no-cache ca-certificates curl \
+RUN apk add --no-cache ca-certificates curl tzdata \
     && addgroup -S app \
     && adduser -S app -G app
 
