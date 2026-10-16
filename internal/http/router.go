@@ -46,7 +46,7 @@ func NewRouter(
 
 	// Register routes
 	health.RegisterHealthRoutes(r, healthHandler)
-	v1 := r.Group("/api/v1")
+	v1 := r.Group("/v1")
 	if authHandler != nil {
 		auth.RegisterAuthRoutes(v1, authHandler, middleware.Auth(jwtService))
 	}

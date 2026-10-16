@@ -19,7 +19,7 @@ import (
 // @Success 200 {object} response.SuccessResponse{data=MyProfileDetailResponse}
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
-// @Router /api/v1/profiles/me [get]
+// @Router /v1/profiles/me [get]
 func (h *ProfileHandler) GetMyProfile(c *gin.Context) {
 	userID, ok := authenticatedProfileUserID(c)
 	if !ok {
@@ -46,7 +46,7 @@ func (h *ProfileHandler) GetMyProfile(c *gin.Context) {
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
 // @Failure 409 {object} response.ErrorResponse
-// @Router /api/v1/profiles/me [patch]
+// @Router /v1/profiles/me [patch]
 func (h *ProfileHandler) UpdateMyProfile(c *gin.Context) {
 	userID, ok := authenticatedProfileUserID(c)
 	if !ok {
@@ -72,7 +72,7 @@ func (h *ProfileHandler) UpdateMyProfile(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Success 200 {object} response.SuccessResponse{data=[]UserSkillResponse}
-// @Router /api/v1/profiles/me/skills [get]
+// @Router /v1/profiles/me/skills [get]
 func (h *ProfileHandler) ListMySkills(c *gin.Context) {
 	userID, ok := authenticatedProfileUserID(c)
 	if !ok {
@@ -95,7 +95,7 @@ func (h *ProfileHandler) ListMySkills(c *gin.Context) {
 // @Security BearerAuth
 // @Param request body AddSkillRequest true "Skill selection"
 // @Success 201 {object} response.SuccessResponse{data=UserSkillResponse}
-// @Router /api/v1/profiles/me/skills [post]
+// @Router /v1/profiles/me/skills [post]
 func (h *ProfileHandler) AddMySkill(c *gin.Context) {
 	userID, ok := authenticatedProfileUserID(c)
 	if !ok {
@@ -122,7 +122,7 @@ func (h *ProfileHandler) AddMySkill(c *gin.Context) {
 // @Security BearerAuth
 // @Param id path string true "User skill ID"
 // @Success 200 {object} response.SuccessResponse
-// @Router /api/v1/profiles/me/skills/{id} [delete]
+// @Router /v1/profiles/me/skills/{id} [delete]
 func (h *ProfileHandler) RemoveMySkill(c *gin.Context) {
 	userID, id, ok := authenticatedProfilePathID(c)
 	if !ok {
@@ -142,7 +142,7 @@ func (h *ProfileHandler) RemoveMySkill(c *gin.Context) {
 // @Security BearerAuth
 // @Param id path string true "User skill ID"
 // @Success 200 {object} response.SuccessResponse
-// @Router /api/v1/profiles/me/skills/{id}/primary [patch]
+// @Router /v1/profiles/me/skills/{id}/primary [patch]
 func (h *ProfileHandler) SetPrimaryMySkill(c *gin.Context) {
 	userID, id, ok := authenticatedProfilePathID(c)
 	if !ok {
@@ -161,7 +161,7 @@ func (h *ProfileHandler) SetPrimaryMySkill(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Success 200 {object} response.SuccessResponse{data=[]UserToolResponse}
-// @Router /api/v1/profiles/me/tools [get]
+// @Router /v1/profiles/me/tools [get]
 func (h *ProfileHandler) ListMyTools(c *gin.Context) {
 	userID, ok := authenticatedProfileUserID(c)
 	if !ok {
@@ -184,7 +184,7 @@ func (h *ProfileHandler) ListMyTools(c *gin.Context) {
 // @Security BearerAuth
 // @Param request body AddToolRequest true "Tool selection"
 // @Success 201 {object} response.SuccessResponse{data=UserToolResponse}
-// @Router /api/v1/profiles/me/tools [post]
+// @Router /v1/profiles/me/tools [post]
 func (h *ProfileHandler) AddMyTool(c *gin.Context) {
 	userID, ok := authenticatedProfileUserID(c)
 	if !ok {
@@ -211,7 +211,7 @@ func (h *ProfileHandler) AddMyTool(c *gin.Context) {
 // @Security BearerAuth
 // @Param id path string true "User tool ID"
 // @Success 200 {object} response.SuccessResponse
-// @Router /api/v1/profiles/me/tools/{id} [delete]
+// @Router /v1/profiles/me/tools/{id} [delete]
 func (h *ProfileHandler) RemoveMyTool(c *gin.Context) {
 	userID, id, ok := authenticatedProfilePathID(c)
 	if !ok {
@@ -230,7 +230,7 @@ func (h *ProfileHandler) RemoveMyTool(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Success 200 {object} response.SuccessResponse{data=[]CareerHistoryResponse}
-// @Router /api/v1/profiles/me/careers [get]
+// @Router /v1/profiles/me/careers [get]
 func (h *ProfileHandler) ListMyCareers(c *gin.Context) {
 	userID, ok := authenticatedProfileUserID(c)
 	if !ok {
@@ -253,7 +253,7 @@ func (h *ProfileHandler) ListMyCareers(c *gin.Context) {
 // @Security BearerAuth
 // @Param request body CareerHistoryRequest true "Career history"
 // @Success 201 {object} response.SuccessResponse{data=CareerHistoryResponse}
-// @Router /api/v1/profiles/me/careers [post]
+// @Router /v1/profiles/me/careers [post]
 func (h *ProfileHandler) CreateMyCareer(c *gin.Context) {
 	userID, ok := authenticatedProfileUserID(c)
 	if !ok {
@@ -282,7 +282,7 @@ func (h *ProfileHandler) CreateMyCareer(c *gin.Context) {
 // @Param id path string true "Career history ID"
 // @Param request body CareerHistoryRequest true "Career history"
 // @Success 200 {object} response.SuccessResponse{data=CareerHistoryResponse}
-// @Router /api/v1/profiles/me/careers/{id} [put]
+// @Router /v1/profiles/me/careers/{id} [put]
 func (h *ProfileHandler) UpdateMyCareer(c *gin.Context) {
 	userID, id, ok := authenticatedProfilePathID(c)
 	if !ok {
@@ -308,7 +308,7 @@ func (h *ProfileHandler) UpdateMyCareer(c *gin.Context) {
 // @Security BearerAuth
 // @Param id path string true "Career history ID"
 // @Success 200 {object} response.SuccessResponse
-// @Router /api/v1/profiles/me/careers/{id} [delete]
+// @Router /v1/profiles/me/careers/{id} [delete]
 func (h *ProfileHandler) DeleteMyCareer(c *gin.Context) {
 	userID, id, ok := authenticatedProfilePathID(c)
 	if !ok {

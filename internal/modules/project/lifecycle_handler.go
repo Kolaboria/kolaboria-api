@@ -22,7 +22,7 @@ import (
 // @Failure 403 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
 // @Failure 409 {object} response.ErrorResponse
-// @Router /api/v1/projects/{id}/status [patch]
+// @Router /v1/projects/{id}/status [patch]
 func (h *ProjectHandler) ChangeStatus(c *gin.Context) {
 	actorID, ok := requiredActorID(c)
 	if !ok {
@@ -61,7 +61,7 @@ func (h *ProjectHandler) ChangeStatus(c *gin.Context) {
 // @Failure 403 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
 // @Failure 409 {object} response.ErrorResponse
-// @Router /api/v1/projects/{id} [delete]
+// @Router /v1/projects/{id} [delete]
 func (h *ProjectHandler) DeleteDraft(c *gin.Context) {
 	actorID, ok := requiredActorID(c)
 	if !ok {

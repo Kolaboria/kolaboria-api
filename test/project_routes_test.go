@@ -28,15 +28,15 @@ func TestNewRouterRegistersProjectEditorEndpoints(t *testing.T) {
 		registered[route.Method+" "+route.Path] = true
 	}
 	for _, endpoint := range []string{
-		"POST /api/v1/projects",
-		"PUT /api/v1/projects/:id",
-		"PATCH /api/v1/projects/:id/status",
-		"DELETE /api/v1/projects/:id",
-		"POST /api/v1/projects/:id/publish",
-		"GET /api/v1/projects/:id",
-		"GET /api/v1/projects/slug/:slug",
-		"GET /api/v1/projects/my-projects",
-		"GET /api/v1/projects",
+		"POST /v1/projects",
+		"PUT /v1/projects/:id",
+		"PATCH /v1/projects/:id/status",
+		"DELETE /v1/projects/:id",
+		"POST /v1/projects/:id/publish",
+		"GET /v1/projects/:id",
+		"GET /v1/projects/slug/:slug",
+		"GET /v1/projects/my-projects",
+		"GET /v1/projects",
 	} {
 		if !registered[endpoint] {
 			t.Errorf("router did not register %s", endpoint)
@@ -51,18 +51,18 @@ func TestProjectSwaggerDocumentsRegisteredAPIPaths(t *testing.T) {
 	}
 	document := string(swagger)
 	for _, endpoint := range []string{
-		"/api/v1/projects:",
-		"/api/v1/projects/{id}:",
-		"/api/v1/projects/{id}/publish:",
-		"/api/v1/projects/{id}/status:",
-		"/api/v1/projects/slug/{slug}:",
-		"/api/v1/projects/my-projects:",
+		"/v1/projects:",
+		"/v1/projects/{id}:",
+		"/v1/projects/{id}/publish:",
+		"/v1/projects/{id}/status:",
+		"/v1/projects/slug/{slug}:",
+		"/v1/projects/my-projects:",
 	} {
 		if !strings.Contains(document, endpoint) {
 			t.Errorf("generated Swagger is missing registered API path %s", endpoint)
 		}
 	}
 	if strings.Contains(document, "\n  /projects:") {
-		t.Error("generated Swagger exposes project routes without the registered /api/v1 prefix")
+		t.Error("generated Swagger exposes project routes without the registered /v1 prefix")
 	}
 }

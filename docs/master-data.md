@@ -4,9 +4,9 @@ Ketiga katalog hanya menyediakan endpoint baca publik:
 
 | Katalog | Endpoint | Nilai awal |
 | --- | --- | ---: |
-| Peran kontribusi | `GET /api/v1/master-data/contribution-roles` | 30 |
-| Skills | `GET /api/v1/master-data/skills` | 50 |
-| Tools | `GET /api/v1/master-data/tools` | 80 |
+| Peran kontribusi | `GET /v1/master-data/contribution-roles` | 30 |
+| Skills | `GET /v1/master-data/skills` | 50 |
+| Tools | `GET /v1/master-data/tools` | 80 |
 
 Query `page` default `1`; `limit` default `50` dan maksimum `100`; `q` adalah pencarian substring literal, case-insensitive, setelah trim, maksimum 100 karakter Unicode. Parameter yang dikenal tidak boleh muncul lebih dari sekali. Hasil kosong tetap mengembalikan array kosong.
 

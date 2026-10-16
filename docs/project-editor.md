@@ -6,23 +6,23 @@ The editor API stores drafts, validates the first publish, and returns the persi
 
 | Method | Route | Access | Result |
 | --- | --- | --- | --- |
-| `POST` | `/api/v1/projects` | Authenticated, active, onboarded actor | Creates a draft (`201`); an identical idempotent retry returns the same project (`200`). |
-| `PUT` | `/api/v1/projects/:id` | Project definition editor | Replaces the complete definition; requires the current `version`. |
-| `PATCH` | `/api/v1/projects/:id/status` | Current project owner | Changes `open` to `draft` or `archived`; requires the current `version`. |
-| `DELETE` | `/api/v1/projects/:id` | Draft owner or authorized initiator of an unclaimed organization draft | Permanently deletes a draft without collaboration history; requires the current `version`. |
-| `POST` | `/api/v1/projects/:id/publish` | Verified, onboarded project editor | Publishes a complete draft. Personal projects become `open`; organization projects become `awaiting_owner`. |
-| `POST` | `/api/v1/projects/:id/apply` | Authenticated, verified, onboarded non-owner | Applies to an open public role with remaining capacity (`201`). |
-| `GET` | `/api/v1/projects/:id/applicants/summary` | Authenticated project owner | Returns private status totals, role capacity, and review availability. |
-| `GET` | `/api/v1/projects/:id/applicants` | Authenticated project owner | Returns a private, filterable page of applications and applicant profile data. |
-| `GET` | `/api/v1/applications/:id` | Applicant or that project's owner | Returns private application details, portfolio links, and review metadata. |
-| `PATCH` | `/api/v1/applications/:id/review` | Verified project owner | Accepts or rejects one pending application and stores an optional private review note. |
-| `GET` | `/api/v1/applications/my-applications` | Authenticated eligible applicant | Returns the actor's paginated application history and private review notes. |
-| `GET` | `/api/v1/applications/my-applications/summary` | Authenticated eligible applicant | Returns global application totals for the actor. |
-| `POST` | `/api/v1/applications/:id/withdraw` | Applicant who owns a pending application | Withdraws a pending application. |
-| `GET` | `/api/v1/projects/:id` | Optional authentication | Returns a visible project by UUID. |
-| `GET` | `/api/v1/projects/slug/:slug` | Optional authentication | Returns a visible project by canonical slug. |
-| `GET` | `/api/v1/projects` | Public | Lists public published projects. |
-| `GET` | `/api/v1/projects/my-projects` | Authenticated | Lists owned and organization-initiated projects in one response. |
+| `POST` | `/v1/projects` | Authenticated, active, onboarded actor | Creates a draft (`201`); an identical idempotent retry returns the same project (`200`). |
+| `PUT` | `/v1/projects/:id` | Project definition editor | Replaces the complete definition; requires the current `version`. |
+| `PATCH` | `/v1/projects/:id/status` | Current project owner | Changes `open` to `draft` or `archived`; requires the current `version`. |
+| `DELETE` | `/v1/projects/:id` | Draft owner or authorized initiator of an unclaimed organization draft | Permanently deletes a draft without collaboration history; requires the current `version`. |
+| `POST` | `/v1/projects/:id/publish` | Verified, onboarded project editor | Publishes a complete draft. Personal projects become `open`; organization projects become `awaiting_owner`. |
+| `POST` | `/v1/projects/:id/apply` | Authenticated, verified, onboarded non-owner | Applies to an open public role with remaining capacity (`201`). |
+| `GET` | `/v1/projects/:id/applicants/summary` | Authenticated project owner | Returns private status totals, role capacity, and review availability. |
+| `GET` | `/v1/projects/:id/applicants` | Authenticated project owner | Returns a private, filterable page of applications and applicant profile data. |
+| `GET` | `/v1/applications/:id` | Applicant or that project's owner | Returns private application details, portfolio links, and review metadata. |
+| `PATCH` | `/v1/applications/:id/review` | Verified project owner | Accepts or rejects one pending application and stores an optional private review note. |
+| `GET` | `/v1/applications/my-applications` | Authenticated eligible applicant | Returns the actor's paginated application history and private review notes. |
+| `GET` | `/v1/applications/my-applications/summary` | Authenticated eligible applicant | Returns global application totals for the actor. |
+| `POST` | `/v1/applications/:id/withdraw` | Applicant who owns a pending application | Withdraws a pending application. |
+| `GET` | `/v1/projects/:id` | Optional authentication | Returns a visible project by UUID. |
+| `GET` | `/v1/projects/slug/:slug` | Optional authentication | Returns a visible project by canonical slug. |
+| `GET` | `/v1/projects` | Public | Lists public published projects. |
+| `GET` | `/v1/projects/my-projects` | Authenticated | Lists owned and organization-initiated projects in one response. |
 
 `GET` list routes accept `page` (default `1`), `limit` (default `20`, maximum `100`), and `search`. The my-projects route accepts `scope=all|owned|initiated` (default `all`); its summaries include `my_scope` and card role summaries. `pending_application_count` is included only when the current user owns that project. Empty lists return `data: []`, `total: 0`, and `total_pages: 0`.
 

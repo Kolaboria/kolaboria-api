@@ -19,7 +19,7 @@ The test fixture `test/testdata/master_data.json` is generated from the approved
 
 Apply `000008_user_organization_context` before deploying the updated auth service. It adds `users.system_role` (`user` or `admin`, default `user`), `organizations`, and `organization_members`. Existing users retain ordinary access. The Kolaboria organization is seeded, but no account is promoted and no membership is granted.
 
-`GET /api/v1/auth/me` includes `id`, `username`, `system_role`, and `initiable_organizations` (always an array). Only an active, non-deleted admin with an active membership whose `can_initiate_projects` is true can see an active organization in this list. Admin without such a relationship receives `[]`. This consumer list exposes no admin management capabilities.
+`GET /v1/auth/me` includes `id`, `username`, `system_role`, and `initiable_organizations` (always an array). Only an active, non-deleted admin with an active membership whose `can_initiate_projects` is true can see an active organization in this list. Admin without such a relationship receives `[]`. This consumer list exposes no admin management capabilities.
 
 Provisioning or revoking roles and memberships is an explicit administrative operation; no public endpoint in this milestone can perform it. Organization choices are queried from current persisted state rather than embedded in tokens. Login, refresh, and Google login use the persisted system role when issuing access tokens.
 

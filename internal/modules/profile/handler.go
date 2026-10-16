@@ -32,7 +32,7 @@ func NewProfileHandler(service ProfileUseCase) *ProfileHandler {
 // @Failure      401  {object}  response.ErrorResponse
 // @Failure      404  {object}  response.ErrorResponse
 // @Failure      500  {object}  response.ErrorResponse
-// @Router       /api/v1/profiles/onboarding/status [get]
+// @Router       /v1/profiles/onboarding/status [get]
 func (h *ProfileHandler) CheckOnboardingStatus(c *gin.Context) {
 	userID, ok := authenticatedProfileUserID(c)
 	if !ok {
@@ -67,7 +67,7 @@ func (h *ProfileHandler) CheckOnboardingStatus(c *gin.Context) {
 // @Failure      401  {object}  response.ErrorResponse
 // @Failure      404  {object}  response.ErrorResponse
 // @Failure      500  {object}  response.ErrorResponse
-// @Router       /api/v1/profiles/onboarding [post]
+// @Router       /v1/profiles/onboarding [post]
 func (h *ProfileHandler) SubmitOnboarding(c *gin.Context) {
 	userID, ok := authenticatedProfileUserID(c)
 	if !ok {

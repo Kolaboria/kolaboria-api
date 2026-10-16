@@ -35,7 +35,7 @@ func NewHandler(service *Service, discussions ...*DiscussionService) *Handler {
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
-// @Router /api/v1/workspaces/{projectSlug}/info [get]
+// @Router /v1/workspaces/{projectSlug}/info [get]
 func (handler *Handler) GetProjectInfo(c *gin.Context) {
 	actorID, err := uuid.Parse(c.GetString("user_id"))
 	if err != nil || actorID == uuid.Nil {
@@ -96,7 +96,7 @@ func writeWorkspaceDiscussionError(c *gin.Context, err error) {
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
-// @Router /api/v1/workspaces/{projectSlug}/discussions [get]
+// @Router /v1/workspaces/{projectSlug}/discussions [get]
 func (handler *Handler) ListDiscussions(c *gin.Context) {
 	actorID, ok := workspaceActorID(c)
 	if !ok {
@@ -125,7 +125,7 @@ func (handler *Handler) ListDiscussions(c *gin.Context) {
 // @Success 200 {object} response.SuccessResponse{data=DiscussionResponse}
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
-// @Router /api/v1/workspaces/{projectSlug}/discussions/{discussionID} [get]
+// @Router /v1/workspaces/{projectSlug}/discussions/{discussionID} [get]
 func (handler *Handler) GetDiscussion(c *gin.Context) {
 	actorID, ok := workspaceActorID(c)
 	if !ok {
@@ -153,7 +153,7 @@ func (handler *Handler) GetDiscussion(c *gin.Context) {
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
 // @Failure 409 {object} response.ErrorResponse
-// @Router /api/v1/workspaces/{projectSlug}/discussions [post]
+// @Router /v1/workspaces/{projectSlug}/discussions [post]
 func (handler *Handler) CreateDiscussion(c *gin.Context) {
 	actorID, ok := workspaceActorID(c)
 	if !ok {
@@ -191,7 +191,7 @@ func (handler *Handler) CreateDiscussion(c *gin.Context) {
 // @Failure 403 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
 // @Failure 409 {object} response.ErrorResponse
-// @Router /api/v1/workspaces/{projectSlug}/discussions/{discussionID} [patch]
+// @Router /v1/workspaces/{projectSlug}/discussions/{discussionID} [patch]
 func (handler *Handler) UpdateDiscussion(c *gin.Context) {
 	actorID, ok := workspaceActorID(c)
 	if !ok {
@@ -222,7 +222,7 @@ func (handler *Handler) UpdateDiscussion(c *gin.Context) {
 // @Failure 403 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
 // @Failure 409 {object} response.ErrorResponse
-// @Router /api/v1/workspaces/{projectSlug}/discussions/{discussionID} [delete]
+// @Router /v1/workspaces/{projectSlug}/discussions/{discussionID} [delete]
 func (handler *Handler) DeleteDiscussion(c *gin.Context) {
 	actorID, ok := workspaceActorID(c)
 	if !ok {
@@ -247,7 +247,7 @@ func (handler *Handler) DeleteDiscussion(c *gin.Context) {
 // @Success 200 {object} response.SuccessResponse{data=[]DiscussionReplyResponse,meta=project.ProjectPaginationMeta}
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
-// @Router /api/v1/workspaces/{projectSlug}/discussions/{discussionID}/replies [get]
+// @Router /v1/workspaces/{projectSlug}/discussions/{discussionID}/replies [get]
 func (handler *Handler) ListDiscussionReplies(c *gin.Context) {
 	actorID, ok := workspaceActorID(c)
 	if !ok {
@@ -281,7 +281,7 @@ func (handler *Handler) ListDiscussionReplies(c *gin.Context) {
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
 // @Failure 409 {object} response.ErrorResponse
-// @Router /api/v1/workspaces/{projectSlug}/discussions/{discussionID}/replies [post]
+// @Router /v1/workspaces/{projectSlug}/discussions/{discussionID}/replies [post]
 func (handler *Handler) CreateDiscussionReply(c *gin.Context) {
 	actorID, ok := workspaceActorID(c)
 	if !ok {
@@ -318,7 +318,7 @@ func (handler *Handler) CreateDiscussionReply(c *gin.Context) {
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 403 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
-// @Router /api/v1/workspaces/{projectSlug}/discussions/{discussionID}/replies/{replyID} [patch]
+// @Router /v1/workspaces/{projectSlug}/discussions/{discussionID}/replies/{replyID} [patch]
 func (handler *Handler) UpdateDiscussionReply(c *gin.Context) {
 	actorID, ok := workspaceActorID(c)
 	if !ok {
@@ -349,7 +349,7 @@ func (handler *Handler) UpdateDiscussionReply(c *gin.Context) {
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 403 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
-// @Router /api/v1/workspaces/{projectSlug}/discussions/{discussionID}/replies/{replyID} [delete]
+// @Router /v1/workspaces/{projectSlug}/discussions/{discussionID}/replies/{replyID} [delete]
 func (handler *Handler) DeleteDiscussionReply(c *gin.Context) {
 	actorID, ok := workspaceActorID(c)
 	if !ok {

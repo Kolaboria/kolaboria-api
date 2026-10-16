@@ -35,7 +35,7 @@ func NewApplicationHandler(service *ApplicationService) *ApplicationHandler {
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 403 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
-// @Router /api/v1/projects/{id}/applicants/summary [get]
+// @Router /v1/projects/{id}/applicants/summary [get]
 func (h *ApplicationHandler) ApplicantSummary(c *gin.Context) {
 	actorID, ok := requiredActorID(c)
 	if !ok {
@@ -73,7 +73,7 @@ func (h *ApplicationHandler) ApplicantSummary(c *gin.Context) {
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 403 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
-// @Router /api/v1/projects/{id}/applicants [get]
+// @Router /v1/projects/{id}/applicants [get]
 func (h *ApplicationHandler) ListProjectApplicants(c *gin.Context) {
 	actorID, ok := requiredActorID(c)
 	if !ok {
@@ -109,7 +109,7 @@ func (h *ApplicationHandler) ListProjectApplicants(c *gin.Context) {
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 403 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
-// @Router /api/v1/applications/{id} [get]
+// @Router /v1/applications/{id} [get]
 func (h *ApplicationHandler) ApplicationDetail(c *gin.Context) {
 	actorID, ok := requiredActorID(c)
 	if !ok {
@@ -144,7 +144,7 @@ func (h *ApplicationHandler) ApplicationDetail(c *gin.Context) {
 // @Failure 403 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
 // @Failure 409 {object} response.ErrorResponse
-// @Router /api/v1/applications/{id}/review [patch]
+// @Router /v1/applications/{id}/review [patch]
 func (h *ApplicationHandler) ReviewApplication(c *gin.Context) {
 	actorID, ok := requiredActorID(c)
 	if !ok {
@@ -183,7 +183,7 @@ func (h *ApplicationHandler) ReviewApplication(c *gin.Context) {
 // @Success 200 {object} response.SuccessResponse{data=MyApplicationSummaryResponse}
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 403 {object} response.ErrorResponse
-// @Router /api/v1/applications/my-applications/summary [get]
+// @Router /v1/applications/my-applications/summary [get]
 func (h *ApplicationHandler) MyApplicationSummary(c *gin.Context) {
 	actorID, ok := requiredActorID(c)
 	if !ok {
@@ -214,7 +214,7 @@ func (h *ApplicationHandler) MyApplicationSummary(c *gin.Context) {
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 403 {object} response.ErrorResponse
-// @Router /api/v1/applications/my-applications [get]
+// @Router /v1/applications/my-applications [get]
 func (h *ApplicationHandler) ListMyApplications(c *gin.Context) {
 	actorID, ok := requiredActorID(c)
 	if !ok {
@@ -246,7 +246,7 @@ func (h *ApplicationHandler) ListMyApplications(c *gin.Context) {
 // @Failure 403 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
 // @Failure 409 {object} response.ErrorResponse
-// @Router /api/v1/applications/{id}/withdraw [post]
+// @Router /v1/applications/{id}/withdraw [post]
 func (h *ApplicationHandler) WithdrawApplication(c *gin.Context) {
 	actorID, ok := requiredActorID(c)
 	if !ok {

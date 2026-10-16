@@ -71,7 +71,7 @@ func (h *MasterHandler) list(c *gin.Context, catalog Catalog) {
 // @Failure 500 {object} response.ErrorResponse
 // @Failure 503 {object} response.ErrorResponse
 // @Failure 504 {object} response.ErrorResponse
-// @Router /api/v1/master-data/contribution-roles [get]
+// @Router /v1/master-data/contribution-roles [get]
 func (h *MasterHandler) ListContributionRoles(c *gin.Context) {
 	h.list(c, CatalogContributionRoles)
 }
@@ -89,7 +89,7 @@ func (h *MasterHandler) ListContributionRoles(c *gin.Context) {
 // @Failure 500 {object} response.ErrorResponse
 // @Failure 503 {object} response.ErrorResponse
 // @Failure 504 {object} response.ErrorResponse
-// @Router /api/v1/master-data/skills [get]
+// @Router /v1/master-data/skills [get]
 func (h *MasterHandler) ListSkills(c *gin.Context) {
 	h.list(c, CatalogSkills)
 }
@@ -107,7 +107,7 @@ func (h *MasterHandler) ListSkills(c *gin.Context) {
 // @Failure 500 {object} response.ErrorResponse
 // @Failure 503 {object} response.ErrorResponse
 // @Failure 504 {object} response.ErrorResponse
-// @Router /api/v1/master-data/tools [get]
+// @Router /v1/master-data/tools [get]
 func (h *MasterHandler) ListTools(c *gin.Context) {
 	h.list(c, CatalogTools)
 }
@@ -124,7 +124,7 @@ func (h *MasterHandler) ListTools(c *gin.Context) {
 // @Failure 500 {object} response.ErrorResponse
 // @Failure 503 {object} response.ErrorResponse
 // @Failure 504 {object} response.ErrorResponse
-// @Router /api/v1/master-data/locations/search [get]
+// @Router /v1/master-data/locations/search [get]
 func (h *MasterHandler) SearchLocations(c *gin.Context) {
 	values, err := url.ParseQuery(c.Request.URL.RawQuery)
 	if err != nil {
@@ -172,7 +172,7 @@ func (h *MasterHandler) SearchLocations(c *gin.Context) {
 // @Failure 500 {object} response.ErrorResponse
 // @Failure 503 {object} response.ErrorResponse
 // @Failure 504 {object} response.ErrorResponse
-// @Router /api/v1/master-data/locations/{village_id} [get]
+// @Router /v1/master-data/locations/{village_id} [get]
 func (h *MasterHandler) GetLocationDetail(c *gin.Context) {
 	villageIDStr := c.Param("village_id")
 	villageID, err := parsePositiveInt64(villageIDStr)

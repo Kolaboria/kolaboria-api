@@ -36,7 +36,7 @@ func NewProjectHandler(service *ProjectService, applications ...*ApplicationHand
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 403 {object} response.ErrorResponse
 // @Failure 409 {object} response.ErrorResponse
-// @Router /api/v1/projects [post]
+// @Router /v1/projects [post]
 func (h *ProjectHandler) CreateDraft(c *gin.Context) {
 	actorID, ok := requiredActorID(c)
 	if !ok {
@@ -74,7 +74,7 @@ func (h *ProjectHandler) CreateDraft(c *gin.Context) {
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 403 {object} response.ErrorResponse
 // @Failure 409 {object} response.ErrorResponse
-// @Router /api/v1/projects/publish [post]
+// @Router /v1/projects/publish [post]
 func (h *ProjectHandler) CreateAndPublish(c *gin.Context) {
 	actorID, ok := requiredActorID(c)
 	if !ok {
@@ -112,7 +112,7 @@ func (h *ProjectHandler) CreateAndPublish(c *gin.Context) {
 // @Failure 403 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
 // @Failure 409 {object} response.ErrorResponse
-// @Router /api/v1/projects/{id} [put]
+// @Router /v1/projects/{id} [put]
 func (h *ProjectHandler) UpdateDefinition(c *gin.Context) {
 	actorID, ok := requiredActorID(c)
 	if !ok {
@@ -151,7 +151,7 @@ func (h *ProjectHandler) UpdateDefinition(c *gin.Context) {
 // @Failure 403 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
 // @Failure 409 {object} response.ErrorResponse
-// @Router /api/v1/projects/{id}/publish [post]
+// @Router /v1/projects/{id}/publish [post]
 func (h *ProjectHandler) Publish(c *gin.Context) {
 	actorID, ok := requiredActorID(c)
 	if !ok {
@@ -190,7 +190,7 @@ func (h *ProjectHandler) Publish(c *gin.Context) {
 // @Failure 403 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
 // @Failure 409 {object} response.ErrorResponse
-// @Router /api/v1/projects/{id}/apply [post]
+// @Router /v1/projects/{id}/apply [post]
 func (h *ProjectHandler) Apply(c *gin.Context) {
 	actorID, ok := requiredActorID(c)
 	if !ok {
@@ -223,7 +223,7 @@ func (h *ProjectHandler) Apply(c *gin.Context) {
 // @Success 200 {object} response.SuccessResponse{data=ProjectDetailResponse}
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
-// @Router /api/v1/projects/{id} [get]
+// @Router /v1/projects/{id} [get]
 func (h *ProjectHandler) GetByID(c *gin.Context) {
 	projectID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -245,7 +245,7 @@ func (h *ProjectHandler) GetByID(c *gin.Context) {
 // @Param slug path string true "Project slug"
 // @Success 200 {object} response.SuccessResponse{data=ProjectDetailResponse}
 // @Failure 404 {object} response.ErrorResponse
-// @Router /api/v1/projects/slug/{slug} [get]
+// @Router /v1/projects/slug/{slug} [get]
 func (h *ProjectHandler) GetBySlug(c *gin.Context) {
 	result, err := h.service.GetBySlug(c.Request.Context(), optionalActorID(c), c.Param("slug"))
 	if err != nil {
@@ -264,7 +264,7 @@ func (h *ProjectHandler) GetBySlug(c *gin.Context) {
 // @Param search query string false "Search title and summary"
 // @Success 200 {object} response.SuccessResponse{data=[]ProjectSummaryResponse,meta=ProjectPaginationMeta}
 // @Failure 400 {object} response.ErrorResponse
-// @Router /api/v1/projects [get]
+// @Router /v1/projects [get]
 func (h *ProjectHandler) ListPublic(c *gin.Context) {
 	filter, ok := parseProjectListFilter(c)
 	if !ok {
@@ -291,7 +291,7 @@ func (h *ProjectHandler) ListPublic(c *gin.Context) {
 // @Success 200 {object} response.SuccessResponse{data=[]MyProjectSummaryResponse,meta=ProjectPaginationMeta}
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
-// @Router /api/v1/projects/my-projects [get]
+// @Router /v1/projects/my-projects [get]
 func (h *ProjectHandler) ListMine(c *gin.Context) {
 	actorID, ok := requiredActorID(c)
 	if !ok {

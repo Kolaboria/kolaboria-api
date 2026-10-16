@@ -15,7 +15,27 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/applications/my-applications": {
+        "/health": {
+            "get": {
+                "description": "Check if the application is running and healthy",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Health Check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.SuccessResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/applications/my-applications": {
             "get": {
                 "security": [
                     {
@@ -113,7 +133,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/applications/my-applications/summary": {
+        "/v1/applications/my-applications/summary": {
             "get": {
                 "security": [
                     {
@@ -161,7 +181,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/applications/{id}": {
+        "/v1/applications/{id}": {
             "get": {
                 "security": [
                     {
@@ -224,7 +244,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/applications/{id}/review": {
+        "/v1/applications/{id}/review": {
             "patch": {
                 "security": [
                     {
@@ -311,7 +331,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/applications/{id}/withdraw": {
+        "/v1/applications/{id}/withdraw": {
             "post": {
                 "security": [
                     {
@@ -380,7 +400,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/auth/forgot-password": {
+        "/v1/auth/forgot-password": {
             "post": {
                 "description": "Send password reset link to user email",
                 "consumes": [
@@ -426,7 +446,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/auth/google": {
+        "/v1/auth/google": {
             "post": {
                 "description": "Authenticate via Google OAuth authorization code",
                 "consumes": [
@@ -490,7 +510,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/auth/login": {
+        "/v1/auth/login": {
             "post": {
                 "description": "Authenticate user and return tokens",
                 "consumes": [
@@ -560,7 +580,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/auth/logout": {
+        "/v1/auth/logout": {
             "post": {
                 "description": "Revoke refresh token and end session",
                 "consumes": [
@@ -606,14 +626,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/auth/me": {
+        "/v1/auth/me": {
             "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get current account identity, system role, and authorized organization choices from persisted state\nLogin with POST /api/v1/auth/login, copy data.access_token, and set Swagger Authorize to Bearer \u003caccess_token\u003e. Then use Try it out on this GET endpoint; no request body is required.",
+                "description": "Get current account identity, system role, and authorized organization choices from persisted state\nLogin with POST /v1/auth/login, copy data.access_token, and set Swagger Authorize to Bearer \u003caccess_token\u003e. Then use Try it out on this GET endpoint; no request body is required.",
                 "produces": [
                     "application/json"
                 ],
@@ -667,7 +687,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/auth/refresh": {
+        "/v1/auth/refresh": {
             "post": {
                 "description": "Get a new access token using a valid refresh token",
                 "consumes": [
@@ -737,7 +757,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/auth/register": {
+        "/v1/auth/register": {
             "post": {
                 "description": "Register a new user account",
                 "consumes": [
@@ -801,7 +821,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/auth/resend-verification": {
+        "/v1/auth/resend-verification": {
             "post": {
                 "description": "Resend email verification link with 60s cooldown",
                 "consumes": [
@@ -871,7 +891,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/auth/reset-password": {
+        "/v1/auth/reset-password": {
             "post": {
                 "description": "Reset user password using valid token",
                 "consumes": [
@@ -917,7 +937,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/auth/verify-email": {
+        "/v1/auth/verify-email": {
             "get": {
                 "description": "Verify user email using token",
                 "produces": [
@@ -958,7 +978,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/master-data/contribution-roles": {
+        "/v1/master-data/contribution-roles": {
             "get": {
                 "produces": [
                     "application/json"
@@ -1032,7 +1052,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/master-data/locations/search": {
+        "/v1/master-data/locations/search": {
             "get": {
                 "description": "Search locations (villages, districts, regencies, provinces) by keyword",
                 "produces": [
@@ -1091,7 +1111,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/master-data/locations/{village_id}": {
+        "/v1/master-data/locations/{village_id}": {
             "get": {
                 "description": "Get detailed hierarchy (province, regency, district, village) by village ID",
                 "produces": [
@@ -1156,7 +1176,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/master-data/skills": {
+        "/v1/master-data/skills": {
             "get": {
                 "produces": [
                     "application/json"
@@ -1230,7 +1250,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/master-data/tools": {
+        "/v1/master-data/tools": {
             "get": {
                 "produces": [
                     "application/json"
@@ -1304,7 +1324,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/profiles/me": {
+        "/v1/profiles/me": {
             "get": {
                 "security": [
                     {
@@ -1424,7 +1444,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/profiles/me/careers": {
+        "/v1/profiles/me/careers": {
             "get": {
                 "security": [
                     {
@@ -1511,7 +1531,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/profiles/me/careers/{id}": {
+        "/v1/profiles/me/careers/{id}": {
             "put": {
                 "security": [
                     {
@@ -1599,7 +1619,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/profiles/me/skills": {
+        "/v1/profiles/me/skills": {
             "get": {
                 "security": [
                     {
@@ -1686,7 +1706,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/profiles/me/skills/{id}": {
+        "/v1/profiles/me/skills/{id}": {
             "delete": {
                 "security": [
                     {
@@ -1719,7 +1739,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/profiles/me/skills/{id}/primary": {
+        "/v1/profiles/me/skills/{id}/primary": {
             "patch": {
                 "security": [
                     {
@@ -1752,7 +1772,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/profiles/me/tools": {
+        "/v1/profiles/me/tools": {
             "get": {
                 "security": [
                     {
@@ -1839,7 +1859,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/profiles/me/tools/{id}": {
+        "/v1/profiles/me/tools/{id}": {
             "delete": {
                 "security": [
                     {
@@ -1872,7 +1892,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/profiles/onboarding": {
+        "/v1/profiles/onboarding": {
             "post": {
                 "security": [
                     {
@@ -1935,7 +1955,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/profiles/onboarding/status": {
+        "/v1/profiles/onboarding/status": {
             "get": {
                 "security": [
                     {
@@ -1990,7 +2010,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/projects": {
+        "/v1/projects": {
             "get": {
                 "produces": [
                     "application/json"
@@ -2125,7 +2145,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/projects/my-projects": {
+        "/v1/projects/my-projects": {
             "get": {
                 "security": [
                     {
@@ -2206,7 +2226,81 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/projects/slug/{slug}": {
+        "/v1/projects/publish": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Create and publish project",
+                "parameters": [
+                    {
+                        "description": "Project definition to publish",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/project.PublishNewProjectRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/project.ProjectDetailResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/projects/slug/{slug}": {
             "get": {
                 "produces": [
                     "application/json"
@@ -2252,7 +2346,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/projects/{id}": {
+        "/v1/projects/{id}": {
             "get": {
                 "produces": [
                     "application/json"
@@ -2462,7 +2556,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/projects/{id}/applicants": {
+        "/v1/projects/{id}/applicants": {
             "get": {
                 "security": [
                     {
@@ -2573,7 +2667,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/projects/{id}/applicants/summary": {
+        "/v1/projects/{id}/applicants/summary": {
             "get": {
                 "security": [
                     {
@@ -2636,7 +2730,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/projects/{id}/apply": {
+        "/v1/projects/{id}/apply": {
             "post": {
                 "security": [
                     {
@@ -2723,7 +2817,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/projects/{id}/publish": {
+        "/v1/projects/{id}/publish": {
             "post": {
                 "security": [
                     {
@@ -2810,7 +2904,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/projects/{id}/status": {
+        "/v1/projects/{id}/status": {
             "patch": {
                 "security": [
                     {
@@ -2897,21 +2991,776 @@ const docTemplate = `{
                 }
             }
         },
-        "/health": {
+        "/v1/workspaces/{projectSlug}/discussions": {
             "get": {
-                "description": "Check if the application is running and healthy",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "health"
+                    "Workspace Discussions"
                 ],
-                "summary": "Health Check",
+                "summary": "List Workspace discussions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project slug",
+                        "name": "projectSlug",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size, maximum 50",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/workspace.DiscussionListItemResponse"
+                                            }
+                                        },
+                                        "meta": {
+                                            "$ref": "#/definitions/project.ProjectPaginationMeta"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workspace Discussions"
+                ],
+                "summary": "Create Workspace discussion",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project slug",
+                        "name": "projectSlug",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Unique retry key",
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Discussion title and body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/workspace.CreateDiscussionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/workspace.DiscussionResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/workspaces/{projectSlug}/discussions/{discussionID}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workspace Discussions"
+                ],
+                "summary": "Get Workspace discussion",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project slug",
+                        "name": "projectSlug",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Discussion UUID",
+                        "name": "discussionID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/workspace.DiscussionResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workspace Discussions"
+                ],
+                "summary": "Delete Workspace discussion",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project slug",
+                        "name": "projectSlug",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Discussion UUID",
+                        "name": "discussionID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.SuccessResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workspace Discussions"
+                ],
+                "summary": "Update Workspace discussion",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project slug",
+                        "name": "projectSlug",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Discussion UUID",
+                        "name": "discussionID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Discussion fields to update",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/workspace.UpdateDiscussionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/workspace.DiscussionResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/workspaces/{projectSlug}/discussions/{discussionID}/replies": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workspace Discussions"
+                ],
+                "summary": "List Workspace discussion replies",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project slug",
+                        "name": "projectSlug",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Discussion UUID",
+                        "name": "discussionID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size, maximum 50",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/workspace.DiscussionReplyResponse"
+                                            }
+                                        },
+                                        "meta": {
+                                            "$ref": "#/definitions/project.ProjectPaginationMeta"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workspace Discussions"
+                ],
+                "summary": "Create Workspace discussion reply",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project slug",
+                        "name": "projectSlug",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Discussion UUID",
+                        "name": "discussionID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Unique retry key",
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Reply body and optional root parent",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/workspace.CreateDiscussionReplyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/workspace.DiscussionReplyResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/workspaces/{projectSlug}/discussions/{discussionID}/replies/{replyID}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workspace Discussions"
+                ],
+                "summary": "Delete Workspace discussion reply",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project slug",
+                        "name": "projectSlug",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Discussion UUID",
+                        "name": "discussionID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Reply UUID",
+                        "name": "replyID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.SuccessResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workspace Discussions"
+                ],
+                "summary": "Update Workspace discussion reply",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project slug",
+                        "name": "projectSlug",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Discussion UUID",
+                        "name": "discussionID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Reply UUID",
+                        "name": "replyID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Reply body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/workspace.UpdateDiscussionReplyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/workspace.DiscussionReplyResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/workspaces/{projectSlug}/info": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workspace"
+                ],
+                "summary": "Get Workspace project info",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project slug",
+                        "name": "projectSlug",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/workspace.ProjectInfoResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
                 }
@@ -3277,7 +4126,7 @@ const docTemplate = `{
                         "$ref": "#/definitions/master.ItemResponse"
                     }
                 },
-                "err_message": {
+                "message": {
                     "type": "string"
                 },
                 "meta": {
@@ -4089,6 +4938,9 @@ const docTemplate = `{
         "project.ChangeProjectStatusRequest": {
             "type": "object",
             "properties": {
+                "confirm_underfilled_positions": {
+                    "type": "boolean"
+                },
                 "status": {
                     "$ref": "#/definitions/project.ProjectStatus"
                 },
@@ -4760,6 +5612,17 @@ const docTemplate = `{
                 }
             }
         },
+        "project.PublishNewProjectRequest": {
+            "type": "object",
+            "properties": {
+                "client_request_id": {
+                    "type": "string"
+                },
+                "definition": {
+                    "$ref": "#/definitions/project.ProjectDefinitionInput"
+                }
+            }
+        },
         "project.PublishProjectRequest": {
             "type": "object",
             "properties": {
@@ -4856,11 +5719,358 @@ const docTemplate = `{
                     "type": "integer"
                 }
             }
+        },
+        "workspace.CreateDiscussionReplyRequest": {
+            "type": "object",
+            "required": [
+                "body"
+            ],
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "parent_reply_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "workspace.CreateDiscussionRequest": {
+            "type": "object",
+            "required": [
+                "body",
+                "title"
+            ],
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "workspace.DiscussionAuthorResponse": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "workspace.DiscussionListItemResponse": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "$ref": "#/definitions/workspace.DiscussionAuthorResponse"
+                },
+                "body_preview": {
+                    "type": "string"
+                },
+                "can_delete": {
+                    "type": "boolean"
+                },
+                "can_edit": {
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_activity_at": {
+                    "type": "string"
+                },
+                "participant_count": {
+                    "type": "integer"
+                },
+                "reply_count": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "workspace.DiscussionReplyResponse": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "$ref": "#/definitions/workspace.DiscussionAuthorResponse"
+                },
+                "body": {
+                    "type": "string"
+                },
+                "can_delete": {
+                    "type": "boolean"
+                },
+                "can_edit": {
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "discussion_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_deleted": {
+                    "type": "boolean"
+                },
+                "parent_reply_id": {
+                    "type": "string"
+                },
+                "replies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/workspace.DiscussionReplyResponse"
+                    }
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "workspace.DiscussionResponse": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "$ref": "#/definitions/workspace.DiscussionAuthorResponse"
+                },
+                "body": {
+                    "type": "string"
+                },
+                "can_delete": {
+                    "type": "boolean"
+                },
+                "can_edit": {
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_activity_at": {
+                    "type": "string"
+                },
+                "participant_count": {
+                    "type": "integer"
+                },
+                "project_id": {
+                    "type": "string"
+                },
+                "project_title": {
+                    "type": "string"
+                },
+                "reply_count": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "workspace.PositionCapacitySummaryResponse": {
+            "type": "object",
+            "properties": {
+                "all_positions_filled": {
+                    "type": "boolean"
+                },
+                "total_remaining_capacity": {
+                    "type": "integer"
+                },
+                "underfilled_position_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "workspace.PositionInfoResponse": {
+            "type": "object",
+            "properties": {
+                "active_contributor_count": {
+                    "type": "integer"
+                },
+                "capacity": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "readiness_state": {
+                    "type": "string"
+                },
+                "recruitment_status": {
+                    "type": "string"
+                },
+                "remaining_capacity": {
+                    "type": "integer"
+                }
+            }
+        },
+        "workspace.ProjectInfoCapabilitiesResponse": {
+            "type": "object",
+            "properties": {
+                "can_manage_workspace": {
+                    "type": "boolean"
+                },
+                "can_start_project": {
+                    "type": "boolean"
+                },
+                "can_view_info": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "workspace.ProjectInfoOwnershipResponse": {
+            "type": "object",
+            "properties": {
+                "initiator_organization": {
+                    "$ref": "#/definitions/project.ProjectOrganizationResponse"
+                },
+                "initiator_organization_id": {
+                    "type": "string"
+                },
+                "initiator_profile": {
+                    "$ref": "#/definitions/project.ProjectPublicProfileResponse"
+                },
+                "owner_id": {
+                    "type": "string"
+                },
+                "owner_profile": {
+                    "$ref": "#/definitions/project.ProjectPublicProfileResponse"
+                },
+                "show_initiator": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "workspace.ProjectInfoProjectResponse": {
+            "type": "object",
+            "properties": {
+                "creation_mode": {
+                    "$ref": "#/definitions/project.CreationMode"
+                },
+                "deadline": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2026-12-01"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "initiator_organization_id": {
+                    "type": "string"
+                },
+                "ownership": {
+                    "$ref": "#/definitions/workspace.ProjectInfoOwnershipResponse"
+                },
+                "project_category": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2026-10-20"
+                },
+                "status": {
+                    "$ref": "#/definitions/project.ProjectStatus"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "workspace.ProjectInfoResponse": {
+            "type": "object",
+            "properties": {
+                "position_capacity_summary": {
+                    "$ref": "#/definitions/workspace.PositionCapacitySummaryResponse"
+                },
+                "positions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/workspace.PositionInfoResponse"
+                    }
+                },
+                "project": {
+                    "$ref": "#/definitions/workspace.ProjectInfoProjectResponse"
+                },
+                "viewer": {
+                    "$ref": "#/definitions/workspace.ProjectInfoViewerResponse"
+                }
+            }
+        },
+        "workspace.ProjectInfoViewerResponse": {
+            "type": "object",
+            "properties": {
+                "capabilities": {
+                    "$ref": "#/definitions/workspace.ProjectInfoCapabilitiesResponse"
+                },
+                "scope": {
+                    "type": "string"
+                }
+            }
+        },
+        "workspace.UpdateDiscussionReplyRequest": {
+            "type": "object",
+            "required": [
+                "body"
+            ],
+            "properties": {
+                "body": {
+                    "type": "string"
+                }
+            }
+        },
+        "workspace.UpdateDiscussionRequest": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
         }
     },
     "securityDefinitions": {
         "BearerAuth": {
-            "description": "Login via POST /api/v1/auth/login, copy data.access_token, then enter Bearer \u003caccess_token\u003e here before calling protected endpoints.",
+            "description": "Login via POST /v1/auth/login, copy data.access_token, then enter Bearer \u003caccess_token\u003e here before calling protected endpoints.",
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"

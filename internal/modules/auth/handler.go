@@ -35,7 +35,7 @@ func NewAuthHandler(service AuthService) *AuthHandler {
 // @Failure      400  {object}  response.ErrorResponse
 // @Failure      409  {object}  response.ErrorResponse
 // @Failure      500  {object}  response.ErrorResponse
-// @Router       /api/v1/auth/register [post]
+// @Router       /v1/auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -73,7 +73,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 // @Failure      401  {object}  response.ErrorResponse
 // @Failure      403  {object}  response.ErrorResponse
 // @Failure      500  {object}  response.ErrorResponse
-// @Router       /api/v1/auth/login [post]
+// @Router       /v1/auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -113,7 +113,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 // @Success      200  {object}  response.SuccessResponse
 // @Failure      400  {object}  response.ErrorResponse
 // @Failure      500  {object}  response.ErrorResponse
-// @Router       /api/v1/auth/logout [post]
+// @Router       /v1/auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
 	var req RefreshTokenRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -146,7 +146,7 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 // @Failure      401  {object}  response.ErrorResponse
 // @Failure      403  {object}  response.ErrorResponse
 // @Failure      500  {object}  response.ErrorResponse
-// @Router       /api/v1/auth/refresh [post]
+// @Router       /v1/auth/refresh [post]
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	var req RefreshTokenRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -185,7 +185,7 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 // @Success      200  {object}  response.SuccessResponse
 // @Failure      400  {object}  response.ErrorResponse
 // @Failure      500  {object}  response.ErrorResponse
-// @Router       /api/v1/auth/verify-email [get]
+// @Router       /v1/auth/verify-email [get]
 func (h *AuthHandler) VerifyEmail(c *gin.Context) {
 	token := c.Query("token")
 	if token == "" {
@@ -217,7 +217,7 @@ func (h *AuthHandler) VerifyEmail(c *gin.Context) {
 // @Failure      404  {object}  response.ErrorResponse
 // @Failure      429  {object}  response.ErrorResponse
 // @Failure      500  {object}  response.ErrorResponse
-// @Router       /api/v1/auth/resend-verification [post]
+// @Router       /v1/auth/resend-verification [post]
 func (h *AuthHandler) ResendVerification(c *gin.Context) {
 	var req ResendVerificationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -263,7 +263,7 @@ func (h *AuthHandler) ResendVerification(c *gin.Context) {
 // @Success      200  {object}  response.SuccessResponse
 // @Failure      400  {object}  response.ErrorResponse
 // @Failure      500  {object}  response.ErrorResponse
-// @Router       /api/v1/auth/forgot-password [post]
+// @Router       /v1/auth/forgot-password [post]
 func (h *AuthHandler) ForgotPassword(c *gin.Context) {
 	var req ForgotPasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -294,7 +294,7 @@ func (h *AuthHandler) ForgotPassword(c *gin.Context) {
 // @Success      200  {object}  response.SuccessResponse
 // @Failure      400  {object}  response.ErrorResponse
 // @Failure      500  {object}  response.ErrorResponse
-// @Router       /api/v1/auth/reset-password [post]
+// @Router       /v1/auth/reset-password [post]
 func (h *AuthHandler) ResetPassword(c *gin.Context) {
 	var req ResetPasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -330,7 +330,7 @@ func (h *AuthHandler) ResetPassword(c *gin.Context) {
 // @Failure      400  {object}  response.ErrorResponse
 // @Failure      403  {object}  response.ErrorResponse
 // @Failure      500  {object}  response.ErrorResponse
-// @Router       /api/v1/auth/google [post]
+// @Router       /v1/auth/google [post]
 func (h *AuthHandler) GoogleLogin(c *gin.Context) {
 	var req GoogleCallbackRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -359,7 +359,7 @@ func (h *AuthHandler) GoogleLogin(c *gin.Context) {
 // Me retrieves the current authenticated user profile.
 // @Summary      Get Current User
 // @Description  Get current account identity, system role, and authorized organization choices from persisted state
-// @Description  Login with POST /api/v1/auth/login, copy data.access_token, and set Swagger Authorize to Bearer <access_token>. Then use Try it out on this GET endpoint; no request body is required.
+// @Description  Login with POST /v1/auth/login, copy data.access_token, and set Swagger Authorize to Bearer <access_token>. Then use Try it out on this GET endpoint; no request body is required.
 // @Tags         auth
 // @Produce      json
 // @Security     BearerAuth
@@ -368,7 +368,7 @@ func (h *AuthHandler) GoogleLogin(c *gin.Context) {
 // @Failure      403  {object}  response.ErrorResponse
 // @Failure      404  {object}  response.ErrorResponse
 // @Failure      500  {object}  response.ErrorResponse
-// @Router       /api/v1/auth/me [get]
+// @Router       /v1/auth/me [get]
 func (h *AuthHandler) Me(c *gin.Context) {
 	userIDStr, exists := c.Get("user_id")
 	if !exists {

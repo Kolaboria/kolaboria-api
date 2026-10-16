@@ -3,6 +3,7 @@ package test
 import (
 	"encoding/json"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/syahrulfahmi/kolaboria-api/docs"
@@ -32,14 +33,17 @@ func TestSwaggerAuthenticatedOperationsHaveBearerDefinition(t *testing.T) {
 			if !exists || bearer.Type != "apiKey" || bearer.In != "header" || bearer.Name != "Authorization" {
 				t.Fatal("BearerAuth must define the Authorization header for Swagger Authorize")
 			}
-			me, exists := spec.Paths["/api/v1/auth/me"]["get"]
+			me, exists := spec.Paths["/v1/auth/me"]["get"]
 			if !exists || len(me.Security) == 0 {
-				t.Fatal("GET /api/v1/auth/me must require BearerAuth")
+				t.Fatal("GET /v1/auth/me must require BearerAuth")
 			}
 			if _, exists := me.Security[0]["BearerAuth"]; !exists {
-				t.Fatal("GET /api/v1/auth/me bearer requirement missing")
+				t.Fatal("GET /v1/auth/me bearer requirement missing")
 			}
 			for path, operations := range spec.Paths {
+				if path != "/health" && !strings.HasPrefix(path, "/v1/") {
+					t.Errorf("documented API path %s must use the /v1 prefix", path)
+				}
 				for method, operation := range operations {
 					for _, requirement := range operation.Security {
 						for scheme := range requirement {

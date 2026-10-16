@@ -63,7 +63,7 @@ func TestMasterDataRoutesAgainstPostgres(t *testing.T) {
 				TotalPages int64 `json:"total_pages"`
 			} `json:"meta"`
 		}
-		response := getMasterResponse(t, server.Client(), fmt.Sprintf("%s/api/v1/master-data/%s", server.URL, route))
+		response := getMasterResponse(t, server.Client(), fmt.Sprintf("%s/v1/master-data/%s", server.URL, route))
 		if response.StatusCode != http.StatusOK {
 			body, _ := io.ReadAll(response.Body)
 			response.Body.Close()
@@ -107,7 +107,7 @@ func TestMasterDataRoutesAgainstPostgres(t *testing.T) {
 		}
 		compareItems(1, payload.Data)
 		for page := 2; page <= 2; page++ {
-			pageResponse := getMasterResponse(t, server.Client(), fmt.Sprintf("%s/api/v1/master-data/%s?page=%d&limit=50", server.URL, route, page))
+			pageResponse := getMasterResponse(t, server.Client(), fmt.Sprintf("%s/v1/master-data/%s?page=%d&limit=50", server.URL, route, page))
 			var next struct {
 				Data []responseItem `json:"data"`
 				Meta struct {
@@ -127,7 +127,7 @@ func TestMasterDataRoutesAgainstPostgres(t *testing.T) {
 		}
 	}
 	for _, query := range []string{"  rEaCt  ", "next-js", "%", "_", `\`} {
-		response := getMasterResponse(t, server.Client(), server.URL+"/api/v1/master-data/tools?q="+url.QueryEscape(query))
+		response := getMasterResponse(t, server.Client(), server.URL+"/v1/master-data/tools?q="+url.QueryEscape(query))
 		var result struct {
 			Data []struct {
 				ID   string `json:"id"`
@@ -158,7 +158,7 @@ func TestMasterDataRoutesAgainstPostgres(t *testing.T) {
 			}
 		}
 	}
-	empty := getMasterResponse(t, server.Client(), server.URL+"/api/v1/master-data/tools?page=99&q=%25")
+	empty := getMasterResponse(t, server.Client(), server.URL+"/v1/master-data/tools?page=99&q=%25")
 	var emptyResult struct {
 		Data []json.RawMessage `json:"data"`
 		Meta struct {

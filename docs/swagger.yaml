@@ -237,7 +237,7 @@ definitions:
         items:
           $ref: '#/definitions/master.ItemResponse'
         type: array
-      err_message:
+      message:
         type: string
       meta:
         $ref: '#/definitions/master.PaginationMeta'
@@ -779,6 +779,8 @@ definitions:
     type: object
   project.ChangeProjectStatusRequest:
     properties:
+      confirm_underfilled_positions:
+        type: boolean
       status:
         $ref: '#/definitions/project.ProjectStatus'
       version:
@@ -1228,6 +1230,13 @@ definitions:
       total_capacity:
         type: integer
     type: object
+  project.PublishNewProjectRequest:
+    properties:
+      client_request_id:
+        type: string
+      definition:
+        $ref: '#/definitions/project.ProjectDefinitionInput'
+    type: object
   project.PublishProjectRequest:
     properties:
       version:
@@ -1291,13 +1300,254 @@ definitions:
       status:
         type: integer
     type: object
+  workspace.CreateDiscussionReplyRequest:
+    properties:
+      body:
+        type: string
+      parent_reply_id:
+        type: string
+    required:
+    - body
+    type: object
+  workspace.CreateDiscussionRequest:
+    properties:
+      body:
+        type: string
+      title:
+        type: string
+    required:
+    - body
+    - title
+    type: object
+  workspace.DiscussionAuthorResponse:
+    properties:
+      avatar_url:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  workspace.DiscussionListItemResponse:
+    properties:
+      author:
+        $ref: '#/definitions/workspace.DiscussionAuthorResponse'
+      body_preview:
+        type: string
+      can_delete:
+        type: boolean
+      can_edit:
+        type: boolean
+      created_at:
+        type: string
+      id:
+        type: string
+      last_activity_at:
+        type: string
+      participant_count:
+        type: integer
+      reply_count:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  workspace.DiscussionReplyResponse:
+    properties:
+      author:
+        $ref: '#/definitions/workspace.DiscussionAuthorResponse'
+      body:
+        type: string
+      can_delete:
+        type: boolean
+      can_edit:
+        type: boolean
+      created_at:
+        type: string
+      discussion_id:
+        type: string
+      id:
+        type: string
+      is_deleted:
+        type: boolean
+      parent_reply_id:
+        type: string
+      replies:
+        items:
+          $ref: '#/definitions/workspace.DiscussionReplyResponse'
+        type: array
+      updated_at:
+        type: string
+    type: object
+  workspace.DiscussionResponse:
+    properties:
+      author:
+        $ref: '#/definitions/workspace.DiscussionAuthorResponse'
+      body:
+        type: string
+      can_delete:
+        type: boolean
+      can_edit:
+        type: boolean
+      created_at:
+        type: string
+      id:
+        type: string
+      last_activity_at:
+        type: string
+      participant_count:
+        type: integer
+      project_id:
+        type: string
+      project_title:
+        type: string
+      reply_count:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  workspace.PositionCapacitySummaryResponse:
+    properties:
+      all_positions_filled:
+        type: boolean
+      total_remaining_capacity:
+        type: integer
+      underfilled_position_count:
+        type: integer
+    type: object
+  workspace.PositionInfoResponse:
+    properties:
+      active_contributor_count:
+        type: integer
+      capacity:
+        type: integer
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      readiness_state:
+        type: string
+      recruitment_status:
+        type: string
+      remaining_capacity:
+        type: integer
+    type: object
+  workspace.ProjectInfoCapabilitiesResponse:
+    properties:
+      can_manage_workspace:
+        type: boolean
+      can_start_project:
+        type: boolean
+      can_view_info:
+        type: boolean
+    type: object
+  workspace.ProjectInfoOwnershipResponse:
+    properties:
+      initiator_organization:
+        $ref: '#/definitions/project.ProjectOrganizationResponse'
+      initiator_organization_id:
+        type: string
+      initiator_profile:
+        $ref: '#/definitions/project.ProjectPublicProfileResponse'
+      owner_id:
+        type: string
+      owner_profile:
+        $ref: '#/definitions/project.ProjectPublicProfileResponse'
+      show_initiator:
+        type: boolean
+    type: object
+  workspace.ProjectInfoProjectResponse:
+    properties:
+      creation_mode:
+        $ref: '#/definitions/project.CreationMode'
+      deadline:
+        example: "2026-12-01"
+        format: date
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      initiator_organization_id:
+        type: string
+      ownership:
+        $ref: '#/definitions/workspace.ProjectInfoOwnershipResponse'
+      project_category:
+        type: string
+      slug:
+        type: string
+      start_date:
+        example: "2026-10-20"
+        format: date
+        type: string
+      status:
+        $ref: '#/definitions/project.ProjectStatus'
+      summary:
+        type: string
+      title:
+        type: string
+      version:
+        type: integer
+    type: object
+  workspace.ProjectInfoResponse:
+    properties:
+      position_capacity_summary:
+        $ref: '#/definitions/workspace.PositionCapacitySummaryResponse'
+      positions:
+        items:
+          $ref: '#/definitions/workspace.PositionInfoResponse'
+        type: array
+      project:
+        $ref: '#/definitions/workspace.ProjectInfoProjectResponse'
+      viewer:
+        $ref: '#/definitions/workspace.ProjectInfoViewerResponse'
+    type: object
+  workspace.ProjectInfoViewerResponse:
+    properties:
+      capabilities:
+        $ref: '#/definitions/workspace.ProjectInfoCapabilitiesResponse'
+      scope:
+        type: string
+    type: object
+  workspace.UpdateDiscussionReplyRequest:
+    properties:
+      body:
+        type: string
+    required:
+    - body
+    type: object
+  workspace.UpdateDiscussionRequest:
+    properties:
+      body:
+        type: string
+      title:
+        type: string
+    type: object
 info:
   contact: {}
   description: Backend API for Kolaboria Platform
   title: Kolaboria API
   version: "1.0"
 paths:
-  /api/v1/applications/{id}:
+  /health:
+    get:
+      description: Check if the application is running and healthy
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      summary: Health Check
+      tags:
+      - health
+  /v1/applications/{id}:
     get:
       parameters:
       - description: Application UUID
@@ -1334,7 +1584,7 @@ paths:
       summary: Get application detail
       tags:
       - Applications
-  /api/v1/applications/{id}/review:
+  /v1/applications/{id}/review:
     patch:
       consumes:
       - application/json
@@ -1387,7 +1637,7 @@ paths:
       summary: Review application
       tags:
       - Applications
-  /api/v1/applications/{id}/withdraw:
+  /v1/applications/{id}/withdraw:
     post:
       parameters:
       - description: Application UUID
@@ -1428,7 +1678,7 @@ paths:
       summary: Withdraw application
       tags:
       - Applications
-  /api/v1/applications/my-applications:
+  /v1/applications/my-applications:
     get:
       parameters:
       - description: Page number
@@ -1488,7 +1738,7 @@ paths:
       summary: List my applications
       tags:
       - Applications
-  /api/v1/applications/my-applications/summary:
+  /v1/applications/my-applications/summary:
     get:
       produces:
       - application/json
@@ -1515,7 +1765,7 @@ paths:
       summary: Get my application summary
       tags:
       - Applications
-  /api/v1/auth/forgot-password:
+  /v1/auth/forgot-password:
     post:
       consumes:
       - application/json
@@ -1545,7 +1795,7 @@ paths:
       summary: Forgot Password
       tags:
       - auth
-  /api/v1/auth/google:
+  /v1/auth/google:
     post:
       consumes:
       - application/json
@@ -1584,7 +1834,7 @@ paths:
       summary: Google Login
       tags:
       - auth
-  /api/v1/auth/login:
+  /v1/auth/login:
     post:
       consumes:
       - application/json
@@ -1627,7 +1877,7 @@ paths:
       summary: Login
       tags:
       - auth
-  /api/v1/auth/logout:
+  /v1/auth/logout:
     post:
       consumes:
       - application/json
@@ -1657,11 +1907,11 @@ paths:
       summary: Logout
       tags:
       - auth
-  /api/v1/auth/me:
+  /v1/auth/me:
     get:
       description: |-
         Get current account identity, system role, and authorized organization choices from persisted state
-        Login with POST /api/v1/auth/login, copy data.access_token, and set Swagger Authorize to Bearer <access_token>. Then use Try it out on this GET endpoint; no request body is required.
+        Login with POST /v1/auth/login, copy data.access_token, and set Swagger Authorize to Bearer <access_token>. Then use Try it out on this GET endpoint; no request body is required.
       produces:
       - application/json
       responses:
@@ -1695,7 +1945,7 @@ paths:
       summary: Get Current User
       tags:
       - auth
-  /api/v1/auth/refresh:
+  /v1/auth/refresh:
     post:
       consumes:
       - application/json
@@ -1738,7 +1988,7 @@ paths:
       summary: Refresh Token
       tags:
       - auth
-  /api/v1/auth/register:
+  /v1/auth/register:
     post:
       consumes:
       - application/json
@@ -1777,7 +2027,7 @@ paths:
       summary: Register
       tags:
       - auth
-  /api/v1/auth/resend-verification:
+  /v1/auth/resend-verification:
     post:
       consumes:
       - application/json
@@ -1820,7 +2070,7 @@ paths:
       summary: Resend Verification
       tags:
       - auth
-  /api/v1/auth/reset-password:
+  /v1/auth/reset-password:
     post:
       consumes:
       - application/json
@@ -1850,7 +2100,7 @@ paths:
       summary: Reset Password
       tags:
       - auth
-  /api/v1/auth/verify-email:
+  /v1/auth/verify-email:
     get:
       description: Verify user email using token
       parameters:
@@ -1877,7 +2127,7 @@ paths:
       summary: Verify Email
       tags:
       - auth
-  /api/v1/master-data/contribution-roles:
+  /v1/master-data/contribution-roles:
     get:
       parameters:
       - default: 1
@@ -1927,7 +2177,7 @@ paths:
       summary: List contribution roles
       tags:
       - master-data
-  /api/v1/master-data/locations/{village_id}:
+  /v1/master-data/locations/{village_id}:
     get:
       description: Get detailed hierarchy (province, regency, district, village) by
         village ID
@@ -1971,7 +2221,7 @@ paths:
       summary: Get location detail
       tags:
       - master-data
-  /api/v1/master-data/locations/search:
+  /v1/master-data/locations/search:
     get:
       description: Search locations (villages, districts, regencies, provinces) by
         keyword
@@ -2011,7 +2261,7 @@ paths:
       summary: Search locations
       tags:
       - master-data
-  /api/v1/master-data/skills:
+  /v1/master-data/skills:
     get:
       parameters:
       - default: 1
@@ -2061,7 +2311,7 @@ paths:
       summary: List skills
       tags:
       - master-data
-  /api/v1/master-data/tools:
+  /v1/master-data/tools:
     get:
       parameters:
       - default: 1
@@ -2111,7 +2361,7 @@ paths:
       summary: List tools
       tags:
       - master-data
-  /api/v1/profiles/me:
+  /v1/profiles/me:
     get:
       produces:
       - application/json
@@ -2181,7 +2431,7 @@ paths:
       summary: Update current profile
       tags:
       - profile
-  /api/v1/profiles/me/careers:
+  /v1/profiles/me/careers:
     get:
       produces:
       - application/json
@@ -2229,7 +2479,7 @@ paths:
       summary: Add career history
       tags:
       - profile
-  /api/v1/profiles/me/careers/{id}:
+  /v1/profiles/me/careers/{id}:
     delete:
       parameters:
       - description: Career history ID
@@ -2281,7 +2531,7 @@ paths:
       summary: Update career history
       tags:
       - profile
-  /api/v1/profiles/me/skills:
+  /v1/profiles/me/skills:
     get:
       produces:
       - application/json
@@ -2329,7 +2579,7 @@ paths:
       summary: Add a skill to current profile
       tags:
       - profile
-  /api/v1/profiles/me/skills/{id}:
+  /v1/profiles/me/skills/{id}:
     delete:
       parameters:
       - description: User skill ID
@@ -2349,7 +2599,7 @@ paths:
       summary: Remove a skill from current profile
       tags:
       - profile
-  /api/v1/profiles/me/skills/{id}/primary:
+  /v1/profiles/me/skills/{id}/primary:
     patch:
       parameters:
       - description: User skill ID
@@ -2369,7 +2619,7 @@ paths:
       summary: Set current profile primary skill
       tags:
       - profile
-  /api/v1/profiles/me/tools:
+  /v1/profiles/me/tools:
     get:
       produces:
       - application/json
@@ -2417,7 +2667,7 @@ paths:
       summary: Add a tool to current profile
       tags:
       - profile
-  /api/v1/profiles/me/tools/{id}:
+  /v1/profiles/me/tools/{id}:
     delete:
       parameters:
       - description: User tool ID
@@ -2437,7 +2687,7 @@ paths:
       summary: Remove a tool from current profile
       tags:
       - profile
-  /api/v1/profiles/onboarding:
+  /v1/profiles/onboarding:
     post:
       consumes:
       - application/json
@@ -2477,7 +2727,7 @@ paths:
       summary: Submit talent onboarding
       tags:
       - profile
-  /api/v1/profiles/onboarding/status:
+  /v1/profiles/onboarding/status:
     get:
       description: Check whether the authenticated user's profile has an account type.
       produces:
@@ -2509,7 +2759,7 @@ paths:
       summary: Check onboarding status
       tags:
       - profile
-  /api/v1/projects:
+  /v1/projects:
     get:
       parameters:
       - description: Page number
@@ -2590,7 +2840,7 @@ paths:
       summary: Create project draft
       tags:
       - Projects
-  /api/v1/projects/{id}:
+  /v1/projects/{id}:
     delete:
       consumes:
       - application/json
@@ -2720,7 +2970,7 @@ paths:
       summary: Update project definition
       tags:
       - Projects
-  /api/v1/projects/{id}/applicants:
+  /v1/projects/{id}/applicants:
     get:
       parameters:
       - description: Project UUID
@@ -2789,7 +3039,7 @@ paths:
       summary: List project applicants
       tags:
       - Applications
-  /api/v1/projects/{id}/applicants/summary:
+  /v1/projects/{id}/applicants/summary:
     get:
       parameters:
       - description: Project UUID
@@ -2826,7 +3076,7 @@ paths:
       summary: Get applicant management summary
       tags:
       - Applications
-  /api/v1/projects/{id}/apply:
+  /v1/projects/{id}/apply:
     post:
       consumes:
       - application/json
@@ -2879,7 +3129,7 @@ paths:
       summary: Apply to project
       tags:
       - Projects
-  /api/v1/projects/{id}/publish:
+  /v1/projects/{id}/publish:
     post:
       consumes:
       - application/json
@@ -2932,7 +3182,7 @@ paths:
       summary: Publish project
       tags:
       - Projects
-  /api/v1/projects/{id}/status:
+  /v1/projects/{id}/status:
     patch:
       consumes:
       - application/json
@@ -2985,7 +3235,7 @@ paths:
       summary: Change project status
       tags:
       - Projects
-  /api/v1/projects/my-projects:
+  /v1/projects/my-projects:
     get:
       parameters:
       - default: all
@@ -3034,7 +3284,51 @@ paths:
       summary: List my projects
       tags:
       - Projects
-  /api/v1/projects/slug/{slug}:
+  /v1/projects/publish:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Project definition to publish
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/project.PublishNewProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/project.ProjectDetailResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create and publish project
+      tags:
+      - Projects
+  /v1/projects/slug/{slug}:
     get:
       parameters:
       - description: Project slug
@@ -3061,9 +3355,121 @@ paths:
       summary: Get project by slug
       tags:
       - Projects
-  /health:
+  /v1/workspaces/{projectSlug}/discussions:
     get:
-      description: Check if the application is running and healthy
+      parameters:
+      - description: Project slug
+        in: path
+        name: projectSlug
+        required: true
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size, maximum 50
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/workspace.DiscussionListItemResponse'
+                  type: array
+                meta:
+                  $ref: '#/definitions/project.ProjectPaginationMeta'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List Workspace discussions
+      tags:
+      - Workspace Discussions
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Project slug
+        in: path
+        name: projectSlug
+        required: true
+        type: string
+      - description: Unique retry key
+        in: header
+        name: Idempotency-Key
+        required: true
+        type: string
+      - description: Discussion title and body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/workspace.CreateDiscussionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/workspace.DiscussionResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create Workspace discussion
+      tags:
+      - Workspace Discussions
+  /v1/workspaces/{projectSlug}/discussions/{discussionID}:
+    delete:
+      parameters:
+      - description: Project slug
+        in: path
+        name: projectSlug
+        required: true
+        type: string
+      - description: Discussion UUID
+        in: path
+        name: discussionID
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -3071,12 +3477,365 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/response.SuccessResponse'
-      summary: Health Check
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete Workspace discussion
       tags:
-      - health
+      - Workspace Discussions
+    get:
+      parameters:
+      - description: Project slug
+        in: path
+        name: projectSlug
+        required: true
+        type: string
+      - description: Discussion UUID
+        in: path
+        name: discussionID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/workspace.DiscussionResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Workspace discussion
+      tags:
+      - Workspace Discussions
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Project slug
+        in: path
+        name: projectSlug
+        required: true
+        type: string
+      - description: Discussion UUID
+        in: path
+        name: discussionID
+        required: true
+        type: string
+      - description: Discussion fields to update
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/workspace.UpdateDiscussionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/workspace.DiscussionResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update Workspace discussion
+      tags:
+      - Workspace Discussions
+  /v1/workspaces/{projectSlug}/discussions/{discussionID}/replies:
+    get:
+      parameters:
+      - description: Project slug
+        in: path
+        name: projectSlug
+        required: true
+        type: string
+      - description: Discussion UUID
+        in: path
+        name: discussionID
+        required: true
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size, maximum 50
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/workspace.DiscussionReplyResponse'
+                  type: array
+                meta:
+                  $ref: '#/definitions/project.ProjectPaginationMeta'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List Workspace discussion replies
+      tags:
+      - Workspace Discussions
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Project slug
+        in: path
+        name: projectSlug
+        required: true
+        type: string
+      - description: Discussion UUID
+        in: path
+        name: discussionID
+        required: true
+        type: string
+      - description: Unique retry key
+        in: header
+        name: Idempotency-Key
+        required: true
+        type: string
+      - description: Reply body and optional root parent
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/workspace.CreateDiscussionReplyRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/workspace.DiscussionReplyResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create Workspace discussion reply
+      tags:
+      - Workspace Discussions
+  /v1/workspaces/{projectSlug}/discussions/{discussionID}/replies/{replyID}:
+    delete:
+      parameters:
+      - description: Project slug
+        in: path
+        name: projectSlug
+        required: true
+        type: string
+      - description: Discussion UUID
+        in: path
+        name: discussionID
+        required: true
+        type: string
+      - description: Reply UUID
+        in: path
+        name: replyID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete Workspace discussion reply
+      tags:
+      - Workspace Discussions
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Project slug
+        in: path
+        name: projectSlug
+        required: true
+        type: string
+      - description: Discussion UUID
+        in: path
+        name: discussionID
+        required: true
+        type: string
+      - description: Reply UUID
+        in: path
+        name: replyID
+        required: true
+        type: string
+      - description: Reply body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/workspace.UpdateDiscussionReplyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/workspace.DiscussionReplyResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update Workspace discussion reply
+      tags:
+      - Workspace Discussions
+  /v1/workspaces/{projectSlug}/info:
+    get:
+      parameters:
+      - description: Project slug
+        in: path
+        name: projectSlug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/workspace.ProjectInfoResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Workspace project info
+      tags:
+      - Workspace
 securityDefinitions:
   BearerAuth:
-    description: Login via POST /api/v1/auth/login, copy data.access_token, then enter
+    description: Login via POST /v1/auth/login, copy data.access_token, then enter
       Bearer <access_token> here before calling protected endpoints.
     in: header
     name: Authorization

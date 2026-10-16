@@ -78,7 +78,7 @@ Tidak terlihat action bulk review, shortlist, rating, ekspor, interview, chat, u
 
 ### 3.1 Sudah tersedia pada backend aktif
 
-1. `POST /api/v1/projects/:id/apply` menyimpan application pending.
+1. `POST /v1/projects/:id/apply` menyimpan application pending.
 2. Project detail melalui UUID dan slug, serta DTO ownership dan roles.
 3. Skema `project_applications` dengan applicant/project/role, motivasi, kontribusi, portfolio_links, availability, estimated_hours_per_week, status, applied_at, created_at, updated_at.
 4. FK gabungan `(project_role_id, project_id)` menjaga posisi berasal dari proyek yang sama.
@@ -185,7 +185,7 @@ Kriteria review sebelum menyatakan implementasi selesai: fungsi dan file memilik
 
 ## 5. Kontrak endpoint yang diusulkan
 
-Seluruh route memakai prefix `/api/v1`, auth wajib, snake_case, dan helper response existing. Endpoint baru berikut merupakan usulan, bukan route aktif saat analisis.
+Seluruh route memakai prefix `/v1`, auth wajib, snake_case, dan helper response existing. Endpoint baru berikut merupakan usulan, bukan route aktif saat analisis.
 
 ### 5.1 Endpoint inti halaman applicants
 
@@ -274,7 +274,7 @@ Semantik summary:
 Contoh:
 
 ```text
-GET /api/v1/projects/{project_id}/applicants?page=1&limit=5&search=vue&statuses=pending,accepted&project_role_ids={role_id_1},{role_id_2}&sort=newest
+GET /v1/projects/{project_id}/applicants?page=1&limit=5&search=vue&statuses=pending,accepted&project_role_ids={role_id_1},{role_id_2}&sort=newest
 ```
 
 | Parameter | Aturan usulan |

@@ -18,16 +18,18 @@ Copy-Item .env.example .env
 go run ./cmd/api
 ```
 
-The API listens on `APP_PORT` (default `8080`). The health endpoint is `GET /health`; Swagger UI is `/swagger/index.html`.
+The API listens on `APP_PORT`. The local `.env.example` sets `8081`, so the API base URL is `http://localhost:8081/v1`. Without an override, the server and container default to port `8080`.
+
+All versioned routes share the `/v1` router group. The deployed development base URL is `https://api.dev.kolaboria.com/v1/`. Configure the frontend's `NUXT_PUBLIC_API_BASE_URL` with the full base URL, including `/v1`; endpoint paths remain relative to it. The health endpoint is `GET /health`; Swagger UI is `/swagger/index.html`.
 
 ## Master data
 
 Public, read-only catalog endpoints:
 
 ```text
-GET /api/v1/master-data/contribution-roles
-GET /api/v1/master-data/skills
-GET /api/v1/master-data/tools
+GET /v1/master-data/contribution-roles
+GET /v1/master-data/skills
+GET /v1/master-data/tools
 ```
 
 Each list accepts `page` (default `1`), `limit` (default `50`, maximum `100`), and `q` (literal case-insensitive substring, maximum 100 Unicode characters). The response uses `data` and `meta` with `page`, `limit`, `total`, and `total_pages`.
@@ -51,4 +53,4 @@ Migration `000009_create_project_editor_tables` adds the active project editor s
 
 ## Swagger and Apidog
 
-Run `task swagger` after changing API annotations. Maintained Apidog import files are in `docs/apidog/`; select the Postman collection or OpenAPI file in Apidog's import dialog. Set the collection variable `base_url` to the API scheme, host, and port only, such as `http://localhost:8080`.
+Run `task swagger` after changing API annotations. Import `docs/swagger.json` or `docs/swagger.yaml` into Apidog. Swagger paths already include `/v1`, so its server base path stays `/`. For API tools that prepend a server URL to these paths, use the scheme, host, and port only, such as `http://localhost:8081`.

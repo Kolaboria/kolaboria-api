@@ -13,11 +13,11 @@ func TestCORSAllowsIdempotencyKeyForDiscussionPreflight(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	router.Use(CORS(nil))
-	router.POST("/api/v1/workspaces/:projectSlug/discussions", func(c *gin.Context) {
+	router.POST("/v1/workspaces/:projectSlug/discussions", func(c *gin.Context) {
 		c.Status(http.StatusCreated)
 	})
 
-	request := httptest.NewRequest(http.MethodOptions, "/api/v1/workspaces/test-project/discussions", nil)
+	request := httptest.NewRequest(http.MethodOptions, "/v1/workspaces/test-project/discussions", nil)
 	request.Header.Set("Origin", "http://localhost:3000")
 	request.Header.Set("Access-Control-Request-Method", http.MethodPost)
 	request.Header.Set("Access-Control-Request-Headers", "content-type,idempotency-key")
