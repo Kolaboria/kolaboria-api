@@ -38,7 +38,11 @@ func NewPostgresConnection(cfg config.DatabaseConfig, debug bool) (*gorm.DB, err
 
 	// Connection Pool settings
 	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetMaxOpenConns(100)
+	maxOpen := cfg.MaxOpenConns
+	if maxOpen < 1 {
+		maxOpen = 100
+	}
+	sqlDB.SetMaxOpenConns(maxOpen)
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	// Test connection with ping

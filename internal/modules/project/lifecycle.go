@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/syahrulfahmi/kolaboria-api/internal/infrastructure/workspaceactivity"
 	sharedErrors "github.com/syahrulfahmi/kolaboria-api/internal/shared/errors"
 	"gorm.io/gorm"
 )
@@ -100,6 +101,18 @@ func (s *ProjectService) ChangeStatus(ctx context.Context, actorID, projectID uu
 		}
 		if err := tx.UpdateStatus(ctx, projectID, request.Status, publishedAt, aggregate.AgreementAt, aggregate.Version+1); err != nil {
 			return err
+		}
+		eventType := ""
+		if request.Status == ProjectStatusInProgress {
+			eventType = "project.started"
+		}
+		if request.Status == ProjectStatusArchived {
+			eventType = "project.archived"
+		}
+		if eventType != "" {
+			if err := tx.AppendActivity(ctx, workspaceactivity.Input{ProjectID: projectID, ActorID: actorID, SubjectType: "project", SubjectID: projectID, Type: eventType, At: s.now().UTC(), Payload: map[string]any{"from": ProjectStatusOpen, "to": request.Status, "version": request.Version + 1, "underfilled_confirmed": request.ConfirmUnderfilledPositions}}); err != nil {
+				return err
+			}
 		}
 		stored, err := tx.LockProject(ctx, projectID)
 		if err != nil {

@@ -11,6 +11,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/google/uuid"
+	"github.com/syahrulfahmi/kolaboria-api/internal/infrastructure/workspaceactivity"
 	"github.com/syahrulfahmi/kolaboria-api/internal/modules/project"
 	sharedErrors "github.com/syahrulfahmi/kolaboria-api/internal/shared/errors"
 	"gorm.io/gorm"
@@ -136,6 +137,9 @@ func (service *DiscussionService) Create(ctx context.Context, actorID uuid.UUID,
 			discussion.ID = existing.ID
 		} else {
 			created = true
+			if err := tx.AppendActivity(ctx, workspaceactivity.Input{ProjectID: access.ID, ActorID: actorID, SubjectType: "discussion", SubjectID: discussion.ID, Type: "discussion.created", At: now, Payload: map[string]any{"title_snapshot": title}}); err != nil {
+				return err
+			}
 		}
 		row, err := tx.GetDiscussion(ctx, access.ID, discussion.ID, false)
 		if err != nil {
@@ -193,8 +197,13 @@ func (service *DiscussionService) Update(ctx context.Context, actorID uuid.UUID,
 			}
 		}
 		now := time.Now().UTC()
-		if err := tx.UpdateDiscussion(ctx, access.ID, discussionID, title, body, now); err != nil {
-			return err
+		if title != row.Title || body != row.Body {
+			if err := tx.UpdateDiscussion(ctx, access.ID, discussionID, title, body, now); err != nil {
+				return err
+			}
+			if err := tx.AppendActivity(ctx, workspaceactivity.Input{ProjectID: access.ID, ActorID: actorID, SubjectType: "discussion", SubjectID: discussionID, Type: "discussion.updated", At: now, Payload: map[string]any{"title_snapshot": title, "title_changed": title != row.Title, "body_changed": body != row.Body}}); err != nil {
+				return err
+			}
 		}
 		updated, err := tx.GetDiscussion(ctx, access.ID, discussionID, false)
 		if err != nil {
@@ -238,7 +247,10 @@ func (service *DiscussionService) Delete(ctx context.Context, actorID uuid.UUID,
 		if err := tx.SoftDeleteDiscussionReplies(ctx, access.ID, discussionID, now); err != nil {
 			return err
 		}
-		return tx.SoftDeleteDiscussion(ctx, access.ID, discussionID, now)
+		if err := tx.SoftDeleteDiscussion(ctx, access.ID, discussionID, now); err != nil {
+			return err
+		}
+		return tx.AppendActivity(ctx, workspaceactivity.Input{ProjectID: access.ID, ActorID: actorID, SubjectType: "discussion", SubjectID: discussionID, Type: "discussion.deleted", At: now, Payload: map[string]any{"author_user_id": row.AuthorID}})
 	}))
 }
 
@@ -364,6 +376,9 @@ func (service *DiscussionService) CreateReply(ctx context.Context, actorID uuid.
 			if err := tx.TouchDiscussion(ctx, access.ID, discussionID, now); err != nil {
 				return err
 			}
+			if err := recordDiscussionReplyActivity(ctx, tx, access.ID, actorID, reply, "discussion.reply_created", now); err != nil {
+				return err
+			}
 		}
 		row, err := tx.GetDiscussionReply(ctx, access.ID, discussionID, reply.ID, false)
 		if err != nil {
@@ -416,11 +431,16 @@ func (service *DiscussionService) UpdateReply(ctx context.Context, actorID uuid.
 			return sharedErrors.ErrForbidden
 		}
 		now := time.Now().UTC()
-		if err := tx.UpdateDiscussionReply(ctx, access.ID, discussionID, replyID, body, now); err != nil {
-			return err
-		}
-		if err := tx.TouchDiscussion(ctx, access.ID, discussionID, now); err != nil {
-			return err
+		if body != row.Body {
+			if err := tx.UpdateDiscussionReply(ctx, access.ID, discussionID, replyID, body, now); err != nil {
+				return err
+			}
+			if err := tx.TouchDiscussion(ctx, access.ID, discussionID, now); err != nil {
+				return err
+			}
+			if err := recordDiscussionReplyActivity(ctx, tx, access.ID, actorID, &row.DiscussionReply, "discussion.reply_updated", now); err != nil {
+				return err
+			}
 		}
 		updated, err := tx.GetDiscussionReply(ctx, access.ID, discussionID, replyID, false)
 		if err != nil {
@@ -471,7 +491,10 @@ func (service *DiscussionService) DeleteReply(ctx context.Context, actorID uuid.
 		if err := tx.SoftDeleteDiscussionReply(ctx, access.ID, discussionID, replyID, now); err != nil {
 			return err
 		}
-		return tx.TouchDiscussion(ctx, access.ID, discussionID, now)
+		if err := tx.TouchDiscussion(ctx, access.ID, discussionID, now); err != nil {
+			return err
+		}
+		return recordDiscussionReplyActivity(ctx, tx, access.ID, actorID, &row.DiscussionReply, "discussion.reply_deleted", now)
 	}))
 }
 
@@ -622,3 +645,14 @@ func mapDiscussionReply(row DiscussionReplyProjection, actorID, owner uuid.UUID,
 }
 
 func discussionRuneLength(value string) int { return utf8.RuneCountInString(value) }
+
+func recordDiscussionReplyActivity(ctx context.Context, tx DiscussionTx, projectID, actorID uuid.UUID, reply *DiscussionReply, eventType string, now time.Time) error {
+	topic, err := tx.GetDiscussion(ctx, projectID, reply.DiscussionID, false)
+	if err != nil {
+		return err
+	}
+	return tx.AppendActivity(ctx, workspaceactivity.Input{ProjectID: projectID, ActorID: actorID,
+		SubjectType: "discussion_reply", SubjectID: reply.ID, Type: eventType, At: now,
+		Payload: map[string]any{"discussion_id": reply.DiscussionID, "parent_reply_id": reply.ParentReplyID, "author_user_id": reply.AuthorID, "title_snapshot": topic.Title},
+	})
+}

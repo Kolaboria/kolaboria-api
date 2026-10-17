@@ -1,0 +1,1 @@
+DROP INDEX IF EXISTS workspace_activity_events_feed_order_idx;

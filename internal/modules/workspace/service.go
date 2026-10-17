@@ -12,8 +12,16 @@ import (
 	"gorm.io/gorm"
 )
 
+type ProjectInfoSnapshot struct {
+	Project      *project.ProjectAggregate
+	ActiveMember bool
+	CanInitiate  bool
+	TaskAccess   TaskViewerAccess
+	Closure      ProjectClosureResponse
+}
+
 type Repository interface {
-	LoadProjectInfo(context.Context, string, uuid.UUID) (*project.ProjectAggregate, bool, bool, error)
+	LoadProjectInfo(context.Context, string, uuid.UUID) (*ProjectInfoSnapshot, error)
 }
 
 type Service struct{ repository Repository }
@@ -24,19 +32,20 @@ func (service *Service) GetProjectInfo(ctx context.Context, actorID uuid.UUID, s
 	if actorID == uuid.Nil || slug == "" {
 		return nil, sharedErrors.ErrBadRequest
 	}
-	aggregate, activeMember, canInitiate, err := service.repository.LoadProjectInfo(ctx, slug, actorID)
+	snapshot, err := service.repository.LoadProjectInfo(ctx, slug, actorID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, sharedErrors.ErrNotFound
 		}
 		return nil, fmt.Errorf("load workspace project by slug: %w", err)
 	}
-	if aggregate == nil {
+	if snapshot == nil || snapshot.Project == nil {
 		return nil, sharedErrors.ErrNotFound
 	}
 
-	canManage, scope := service.canManage(actorID, aggregate, canInitiate)
-	if !canManage && !activeMember {
+	aggregate := snapshot.Project
+	canManage, scope := service.canManage(actorID, aggregate, snapshot.CanInitiate)
+	if !canManage && !snapshot.ActiveMember {
 		return nil, sharedErrors.ErrNotFound
 	}
 	if !canManage {
@@ -46,18 +55,36 @@ func (service *Service) GetProjectInfo(ctx context.Context, actorID uuid.UUID, s
 	if err := validateProjectInfo(aggregate); err != nil {
 		return nil, err
 	}
-	return mapProjectInfo(aggregate, scope, canManage), nil
+	result := mapProjectInfo(aggregate, scope, canManage)
+	result.Closure = snapshot.Closure
+	result.Closure.Eligible = aggregate.Status == project.ProjectStatusInProgress && snapshot.Closure.TaskSummary.OutstandingTasks == 0 && snapshot.Closure.TaskSummary.InvalidClosedTasks == 0
+	result.Viewer.MembershipID = snapshot.TaskAccess.ActiveMemberID
+	result.Viewer.Capabilities.CanCreateTask = aggregate.Status == project.ProjectStatusInProgress &&
+		(canManage || (snapshot.TaskAccess.ActiveMemberID != nil && snapshot.TaskAccess.TaskManagementGranted))
+	result.Viewer.Capabilities.CanCompleteProject = scope == "owner" && aggregate.Status == project.ProjectStatusInProgress
+	return result, nil
 }
 
 func (service *Service) canManage(actorID uuid.UUID, aggregate *project.ProjectAggregate, canInitiate bool) (bool, string) {
+	canManage := canManageWorkspace(actorID, &aggregate.Project, canInitiate)
 	if aggregate.OwnerID != nil && *aggregate.OwnerID == actorID {
 		return true, "owner"
 	}
-	if aggregate.OwnerID != nil || aggregate.CreationMode != project.CreationModeOrganizationInitiated ||
-		aggregate.InitiatorOrganizationID == nil || aggregate.CreatedByUserID != actorID || !canInitiate {
+	if !canManage {
 		return false, ""
 	}
 	return true, "organization_initiator"
+}
+
+func canManageWorkspace(actorID uuid.UUID, record *project.Project, canInitiate bool) bool {
+	if record == nil || actorID == uuid.Nil {
+		return false
+	}
+	if record.OwnerID != nil && *record.OwnerID == actorID {
+		return true
+	}
+	return record.OwnerID == nil && record.CreationMode == project.CreationModeOrganizationInitiated &&
+		record.InitiatorOrganizationID != nil && record.CreatedByUserID == actorID && canInitiate
 }
 
 func mapProjectInfo(aggregate *project.ProjectAggregate, scope string, canManage bool) *ProjectInfoResponse {

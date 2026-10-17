@@ -3,6 +3,7 @@ package workspace
 import (
 	"context"
 	"database/sql"
+
 	"github.com/google/uuid"
 	"github.com/syahrulfahmi/kolaboria-api/internal/modules/project"
 	"gorm.io/gorm"
@@ -16,31 +17,33 @@ func NewRepository(db *gorm.DB) *GormRepository {
 	return &GormRepository{db: db}
 }
 
-func (repository *GormRepository) LoadProjectInfo(ctx context.Context, slug string, actorID uuid.UUID) (*project.ProjectAggregate, bool, bool, error) {
-	var aggregate *project.ProjectAggregate
-	var activeMember, canInitiate bool
+func (repository *GormRepository) LoadProjectInfo(ctx context.Context, slug string, actorID uuid.UUID) (*ProjectInfoSnapshot, error) {
+	snapshot := &ProjectInfoSnapshot{}
 	err := repository.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		var err error
-		aggregate, err = project.NewProjectRepository(tx).FindBySlug(ctx, slug)
+		access, err := resolveWorkspaceReadAccess(tx, slug, actorID)
 		if err != nil {
 			return err
 		}
-		var membershipCount int64
-		if err := tx.Model(&project.ProjectMember{}).
-			Where("project_id = ? AND user_id = ? AND status = 'active'", aggregate.ID, actorID).
-			Count(&membershipCount).Error; err != nil {
+		snapshot.Project, err = project.NewProjectRepository(tx).FindBySlug(ctx, slug)
+		if err != nil {
 			return err
 		}
-		activeMember = membershipCount > 0
-		if aggregate.OwnerID == nil && aggregate.InitiatorOrganizationID != nil {
-			canInitiate, err = canInitiateOrganization(tx, ctx, actorID, *aggregate.InitiatorOrganizationID)
-			if err != nil {
-				return err
-			}
+		snapshot.ActiveMember, snapshot.CanInitiate = access.ActiveMember, access.CanInitiate
+		if access.Member != nil {
+			snapshot.TaskAccess = TaskViewerAccess{ActiveMemberID: &access.Member.ID, TaskManagementGranted: access.Member.TaskManagementGranted}
 		}
+		snapshot.Closure.TaskSummary, err = loadProjectTaskSummary(tx, access.Project.ID)
+		if err != nil {
+			return err
+		}
+		completion, err := findProjectCompletion(tx, access.Project.ID)
+		if err != nil {
+			return err
+		}
+		snapshot.Closure.Completion = mapProjectCompletion(completion)
 		return nil
 	}, &sql.TxOptions{Isolation: sql.LevelRepeatableRead, ReadOnly: true})
-	return aggregate, activeMember, canInitiate, err
+	return snapshot, err
 }
 
 func canInitiateOrganization(db *gorm.DB, ctx context.Context, actorID, organizationID uuid.UUID) (bool, error) {

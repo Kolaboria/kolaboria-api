@@ -10,6 +10,7 @@ type ProjectInfoResponse struct {
 	Positions               []PositionInfoResponse          `json:"positions"`
 	PositionCapacitySummary PositionCapacitySummaryResponse `json:"position_capacity_summary"`
 	Viewer                  ProjectInfoViewerResponse       `json:"viewer"`
+	Closure                 ProjectClosureResponse          `json:"closure"`
 }
 
 type ProjectInfoProjectResponse struct {
@@ -56,6 +57,7 @@ type PositionCapacitySummaryResponse struct {
 
 type ProjectInfoViewerResponse struct {
 	Scope        string                          `json:"scope"`
+	MembershipID *uuid.UUID                      `json:"membership_id"`
 	Capabilities ProjectInfoCapabilitiesResponse `json:"capabilities"`
 }
 
@@ -63,4 +65,6 @@ type ProjectInfoCapabilitiesResponse struct {
 	CanViewInfo        bool `json:"can_view_info"`
 	CanStartProject    bool `json:"can_start_project"`
 	CanManageWorkspace bool `json:"can_manage_workspace"`
+	CanCreateTask      bool `json:"can_create_task"`
+	CanCompleteProject bool `json:"can_complete_project"`
 }

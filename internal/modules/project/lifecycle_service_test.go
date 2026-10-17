@@ -7,11 +7,14 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/syahrulfahmi/kolaboria-api/internal/infrastructure/workspaceactivity"
 	sharedErrors "github.com/syahrulfahmi/kolaboria-api/internal/shared/errors"
 	"gorm.io/gorm"
 )
 
 type lifecycleTx struct {
+	events   []workspaceactivity.Input
+	eventErr error
 	ProjectTx
 	actor               *ProjectActor
 	project             *ProjectAggregate
@@ -220,5 +223,39 @@ func TestProjectLifecycleHistoryLookupFailureDoesNotMutate(t *testing.T) {
 	err := service.DeleteDraft(context.Background(), tx.actor.ID, tx.project.ID, DeleteProjectDraftRequest{Version: 3})
 	if !errors.Is(err, tx.historyError) || tx.deleted {
 		t.Fatalf("failed history lookup must retain draft: %v", err)
+	}
+}
+
+func (tx *lifecycleTx) AppendActivity(_ context.Context, input workspaceactivity.Input) error {
+	if tx.eventErr != nil {
+		return tx.eventErr
+	}
+	tx.events = append(tx.events, input)
+	return nil
+}
+
+func TestLifecycleRecordsCommittedChangeWithoutInventingDraftActivity(t *testing.T) {
+	for _, target := range []ProjectStatus{ProjectStatusInProgress, ProjectStatusArchived, ProjectStatusDraft} {
+		service, tx := lifecycleFixture(ProjectStatusOpen)
+		_, err := service.ChangeStatus(context.Background(), tx.actor.ID, tx.project.ID, ChangeProjectStatusRequest{Version: 3, Status: target})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if target == ProjectStatusDraft {
+			if len(tx.events) != 0 {
+				t.Fatal("draft transition must not pretend collaboration started")
+			}
+		} else if len(tx.events) != 1 || tx.events[0].ProjectID != tx.project.ID || tx.events[0].ActorID != tx.actor.ID {
+			t.Fatalf("missing actor/project-linked lifecycle event: %#v", tx.events)
+		}
+	}
+}
+
+func TestLifecyclePropagatesActivityPersistenceFailure(t *testing.T) {
+	service, tx := lifecycleFixture(ProjectStatusOpen)
+	tx.eventErr = errors.New("event persistence unavailable")
+	_, err := service.ChangeStatus(context.Background(), tx.actor.ID, tx.project.ID, ChangeProjectStatusRequest{Version: 3, Status: ProjectStatusInProgress})
+	if !errors.Is(err, tx.eventErr) {
+		t.Fatalf("transaction must fail with recorder failure, got %v", err)
 	}
 }

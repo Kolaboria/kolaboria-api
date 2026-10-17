@@ -7,12 +7,15 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/syahrulfahmi/kolaboria-api/internal/infrastructure/workspaceactivity"
 	"github.com/syahrulfahmi/kolaboria-api/internal/modules/project"
 	sharedErrors "github.com/syahrulfahmi/kolaboria-api/internal/shared/errors"
 	"gorm.io/gorm"
 )
 
 type memoryDiscussionRepository struct {
+	events      []workspaceactivity.Input
+	eventErr    error
 	access      *DiscussionProjectAccess
 	resolveErr  error
 	listItems   []DiscussionProjection
@@ -41,7 +44,22 @@ func (repository *memoryDiscussionRepository) ListDiscussionReplies(context.Cont
 }
 
 func (repository *memoryDiscussionRepository) WithDiscussionTransaction(_ context.Context, fn func(DiscussionTx) error) error {
-	return fn(&memoryDiscussionTx{repository: repository})
+	discussions := make(map[uuid.UUID]Discussion, len(repository.discussions))
+	for id, record := range repository.discussions {
+		discussions[id] = record
+	}
+	replies := make(map[uuid.UUID]DiscussionReply, len(repository.replies))
+	for id, record := range repository.replies {
+		replies[id] = record
+	}
+	eventCount := len(repository.events)
+	err := fn(&memoryDiscussionTx{repository: repository})
+	if err != nil {
+		repository.discussions = discussions
+		repository.replies = replies
+		repository.events = repository.events[:eventCount]
+	}
+	return err
 }
 
 type memoryDiscussionTx struct{ repository *memoryDiscussionRepository }
@@ -183,5 +201,54 @@ func TestDiscussionPageAndPageSizeDefaults(t *testing.T) {
 	}
 	if got := normalizeDiscussionPageSize(999); got != DiscussionMaxPageSize {
 		t.Fatalf("expected max page size, got %d", got)
+	}
+}
+
+func (tx *memoryDiscussionTx) AppendActivity(_ context.Context, input workspaceactivity.Input) error {
+	if tx.repository.eventErr != nil {
+		return tx.repository.eventErr
+	}
+	tx.repository.events = append(tx.repository.events, input)
+	return nil
+}
+
+func TestDiscussionActivitiesAreIdempotentAndIgnoreNoopEdits(t *testing.T) {
+	actor := uuid.New()
+	repository := newMemoryDiscussionRepository(&DiscussionProjectAccess{ID: uuid.New(), Status: project.ProjectStatusInProgress, OwnerID: &actor, IsActiveMember: true})
+	service := NewDiscussionService(repository)
+	request := CreateDiscussionRequest{Title: "Rencana rilis", Body: "Diskusikan alur rilis"}
+	topic, _, err := service.Create(context.Background(), actor, "project", "same-key", request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err = service.Create(context.Background(), actor, "project", "same-key", request); err != nil {
+		t.Fatal(err)
+	}
+	if len(repository.events) != 1 {
+		t.Fatal("retried create must retain one event")
+	}
+	if _, err = service.Update(context.Background(), actor, "project", topic.ID, UpdateDiscussionRequest{Title: &request.Title}); err != nil {
+		t.Fatal(err)
+	}
+	if len(repository.events) != 1 {
+		t.Fatal("noop update must not create activity")
+	}
+	nextTitle := "Jadwal rilis baru"
+	if _, err = service.Update(context.Background(), actor, "project", topic.ID, UpdateDiscussionRequest{Title: &nextTitle}); err != nil {
+		t.Fatal(err)
+	}
+	if len(repository.events) != 2 || repository.events[1].Type != "discussion.updated" {
+		t.Fatal("real update must record an event")
+	}
+}
+
+func TestDiscussionRecorderFailureRollsBackSource(t *testing.T) {
+	actor := uuid.New()
+	repository := newMemoryDiscussionRepository(&DiscussionProjectAccess{ID: uuid.New(), Status: project.ProjectStatusInProgress, OwnerID: &actor, IsActiveMember: true})
+	repository.eventErr = errors.New("event insert failed")
+	service := NewDiscussionService(repository)
+	_, _, err := service.Create(context.Background(), actor, "project", "request", CreateDiscussionRequest{Title: "Rencana rilis", Body: "Diskusikan alur rilis"})
+	if err == nil || len(repository.discussions) != 0 || len(repository.events) != 0 {
+		t.Fatalf("source and event must roll back together: %v", err)
 	}
 }

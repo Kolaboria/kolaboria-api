@@ -13,8 +13,14 @@ import (
 )
 
 type Handler struct {
-	service     *Service
-	discussions *DiscussionService
+	service           *Service
+	discussions       *DiscussionService
+	team              *TeamService
+	tasks             *TaskService
+	activities        *ActivityService
+	completion        *CompletionService
+	overview          *OverviewService
+	overviewAdmission *OverviewAdmission
 }
 
 func NewHandler(service *Service, discussions ...*DiscussionService) *Handler {
@@ -23,6 +29,63 @@ func NewHandler(service *Service, discussions ...*DiscussionService) *Handler {
 		handler.discussions = discussions[0]
 	}
 	return handler
+}
+
+func NewHandlerWithTeam(service *Service, team *TeamService, discussions ...*DiscussionService) *Handler {
+	handler := NewHandler(service, discussions...)
+	handler.team = team
+	return handler
+}
+
+func NewHandlerWithTasks(service *Service, team *TeamService, tasks *TaskService, discussions ...*DiscussionService) *Handler {
+	handler := NewHandlerWithTeam(service, team, discussions...)
+	handler.tasks = tasks
+	return handler
+}
+
+// ListTeamMembers returns a page of active project members and the project context.
+// @Summary List Workspace team members
+// @Tags Workspace
+// @Produce json
+// @Security BearerAuth
+// @Param projectSlug path string true "Project slug"
+// @Param page query int false "Page number"
+// @Param limit query int false "Page size, maximum 50"
+// @Success 200 {object} response.SuccessResponse{data=[]TeamMemberResponse,meta=project.ProjectPaginationMeta}
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Router /v1/workspaces/{projectSlug}/members [get]
+func (handler *Handler) ListTeamMembers(c *gin.Context) {
+	actorID, ok := workspaceActorID(c)
+	if !ok {
+		return
+	}
+	page, limit, err := parseWorkspacePagination(c.Query("page"), c.Query("limit"))
+	if err != nil {
+		writeWorkspaceTeamError(c, err)
+		return
+	}
+	result, meta, err := handler.team.ListMembers(c.Request.Context(), actorID, c.Param("projectSlug"), page, limit)
+	if err != nil {
+		writeWorkspaceTeamError(c, err)
+		return
+	}
+	response.SuccessWithMeta(c, http.StatusOK, "Workspace team retrieved", result, meta)
+}
+
+func writeWorkspaceTeamError(c *gin.Context, err error) {
+	switch {
+	case errors.Is(err, sharedErrors.ErrUnauthorized):
+		response.ErrorWithException(c, http.StatusUnauthorized, "Authentication is required", err)
+	case errors.Is(err, sharedErrors.ErrNotFound):
+		response.ErrorWithException(c, http.StatusNotFound, "Project not found", err)
+	case errors.Is(err, sharedErrors.ErrBadRequest):
+		response.ErrorWithException(c, http.StatusBadRequest, "Workspace team request is invalid", err)
+	default:
+		response.ErrorWithException(c, http.StatusInternalServerError, "Unable to load workspace team", err)
+	}
 }
 
 // GetProjectInfo returns the authenticated viewer's project Workspace Info.
@@ -386,6 +449,9 @@ func parseWorkspacePagination(pageValue, limitValue string) (int, int, error) {
 			return 0, 0, fmt.Errorf("%w: limit must be a positive integer", sharedErrors.ErrBadRequest)
 		}
 		limit = normalizeDiscussionPageSize(parsed)
+	}
+	if page-1 > int(^uint(0)>>1)/limit {
+		return 0, 0, fmt.Errorf("%w: page is too large", sharedErrors.ErrBadRequest)
 	}
 	return page, limit, nil
 }

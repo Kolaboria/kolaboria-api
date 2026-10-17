@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/syahrulfahmi/kolaboria-api/internal/infrastructure/workspaceactivity"
 	"github.com/syahrulfahmi/kolaboria-api/internal/modules/project"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -48,6 +49,7 @@ type DiscussionRepository interface {
 }
 
 type DiscussionTx interface {
+	AppendActivity(context.Context, workspaceactivity.Input) error
 	ValidateDiscussionWriter(context.Context, uuid.UUID, uuid.UUID) (*DiscussionProjectAccess, error)
 	GetDiscussion(context.Context, uuid.UUID, uuid.UUID, bool) (*DiscussionProjection, error)
 	FindDiscussionByIdempotency(context.Context, uuid.UUID, uuid.UUID, string) (*Discussion, error)
@@ -333,4 +335,8 @@ func requireDiscussionRows(result *gorm.DB) error {
 		return gorm.ErrRecordNotFound
 	}
 	return nil
+}
+
+func (tx *discussionGormTx) AppendActivity(ctx context.Context, input workspaceactivity.Input) error {
+	return workspaceactivity.Record(tx.db.WithContext(ctx), input)
 }

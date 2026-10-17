@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/syahrulfahmi/kolaboria-api/internal/infrastructure/workspaceactivity"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -21,6 +22,7 @@ type ProjectRepository interface {
 }
 
 type ProjectTx interface {
+	AppendActivity(context.Context, workspaceactivity.Input) error
 	FindActor(ctx context.Context, actorID uuid.UUID) (*ProjectActor, error)
 	FindInitiableOrganization(ctx context.Context, actorID, organizationID uuid.UUID) (*ProjectOrganization, error)
 	FindByClientRequest(ctx context.Context, actorID, requestID uuid.UUID) (*ProjectAggregate, error)
@@ -323,7 +325,7 @@ func (tx *gormProjectTx) UpdateStatus(ctx context.Context, projectID uuid.UUID, 
 }
 
 func (tx *gormProjectTx) HasProjectHistory(ctx context.Context, projectID uuid.UUID) (bool, error) {
-	var applications, contributors int64
+	var applications, contributors, taskHistory int64
 	if err := tx.db.WithContext(ctx).Model(&ProjectApplication{}).Where("project_id = ?", projectID).Count(&applications).Error; err != nil {
 		return false, err
 	}
@@ -333,7 +335,13 @@ func (tx *gormProjectTx) HasProjectHistory(ctx context.Context, projectID uuid.U
 	if err := tx.db.WithContext(ctx).Model(&ProjectMember{}).Where("project_id = ? AND membership_role <> 'owner'", projectID).Count(&contributors).Error; err != nil {
 		return false, err
 	}
-	return contributors > 0, nil
+	if contributors > 0 {
+		return true, nil
+	}
+	if err := tx.db.WithContext(ctx).Table("workspace_tasks").Where("project_id = ?", projectID).Count(&taskHistory).Error; err != nil {
+		return false, err
+	}
+	return taskHistory > 0, nil
 }
 
 func (tx *gormProjectTx) DeleteDraftProject(ctx context.Context, projectID uuid.UUID, version int64) error {

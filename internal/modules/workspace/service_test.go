@@ -15,10 +15,44 @@ type infoRepositoryFake struct {
 	activeMember bool
 	canInitiate  bool
 	findErr      error
+	closure      ProjectClosureResponse
+	taskAccess   TaskViewerAccess
 }
 
-func (repository infoRepositoryFake) LoadProjectInfo(context.Context, string, uuid.UUID) (*project.ProjectAggregate, bool, bool, error) {
-	return repository.project, repository.activeMember, repository.canInitiate, repository.findErr
+func (repository infoRepositoryFake) LoadProjectInfo(context.Context, string, uuid.UUID) (*ProjectInfoSnapshot, error) {
+	return &ProjectInfoSnapshot{Project: repository.project, ActiveMember: repository.activeMember, CanInitiate: repository.canInitiate, Closure: repository.closure, TaskAccess: repository.taskAccess}, repository.findErr
+}
+
+func TestProjectInfoClosureUsesSnapshotAndDoesNotDelegateOwnerAuthority(t *testing.T) {
+	owner, member := uuid.New(), uuid.New()
+	memberID := uuid.New()
+	repository := infoRepositoryFake{
+		project:      &project.ProjectAggregate{Project: project.Project{ID: uuid.New(), Slug: "platform", OwnerID: &owner, Version: 4, Status: project.ProjectStatusInProgress}},
+		activeMember: true,
+		taskAccess:   TaskViewerAccess{ActiveMemberID: &memberID, TaskManagementGranted: true},
+		closure:      ProjectClosureResponse{TaskSummary: ProjectTaskSummaryResponse{Version: 15, TotalTasks: 2, DoneTasks: 1, ClosedTasks: 1}},
+	}
+	result, err := NewService(repository).GetProjectInfo(context.Background(), member, "platform")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !result.Closure.Eligible || result.Closure.TaskSummary.Version != 15 || result.Viewer.Capabilities.CanCompleteProject || !result.Viewer.Capabilities.CanCreateTask {
+		t.Fatalf("unexpected member scope: %#v", result)
+	}
+	result, err = NewService(repository).GetProjectInfo(context.Background(), owner, "platform")
+	if err != nil || !result.Viewer.Capabilities.CanCompleteProject {
+		t.Fatalf("owner must retain closure authority: %#v, %v", result, err)
+	}
+	repository.closure.TaskSummary.OutstandingTasks = 1
+	result, err = NewService(repository).GetProjectInfo(context.Background(), owner, "platform")
+	if err != nil || result.Closure.Eligible {
+		t.Fatal("outstanding task must block closure")
+	}
+	repository.project.Status = project.ProjectStatusCompleted
+	result, err = NewService(repository).GetProjectInfo(context.Background(), owner, "platform")
+	if err != nil || result.Viewer.Capabilities.CanCompleteProject || result.Viewer.Capabilities.CanCreateTask || result.Closure.Eligible {
+		t.Fatal("completed projects must not expose task/closure write capabilities")
+	}
 }
 
 func TestGetProjectInfoUsesPersistedCapacityAndKeepsInitiatorSeparate(t *testing.T) {

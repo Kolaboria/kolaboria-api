@@ -91,17 +91,19 @@ type ProjectRoleTool struct {
 func (ProjectRoleTool) TableName() string { return "project_role_tools" }
 
 type ProjectMember struct {
-	ID                 uuid.UUID  `gorm:"column:id;type:uuid;primaryKey"`
-	ProjectID          uuid.UUID  `gorm:"column:project_id;type:uuid;not null"`
-	UserID             uuid.UUID  `gorm:"column:user_id;type:uuid;not null"`
-	MembershipRole     string     `gorm:"column:membership_role"`
-	Status             string     `gorm:"column:status"`
-	ProjectRoleID      *uuid.UUID `gorm:"column:project_role_id;type:uuid"`
-	ContributionRoleID *uuid.UUID `gorm:"column:contribution_role_id;type:uuid"`
-	JoinedAt           time.Time  `gorm:"column:joined_at"`
-	LeftAt             *time.Time `gorm:"column:left_at"`
-	CreatedAt          time.Time  `gorm:"column:created_at"`
-	UpdatedAt          time.Time  `gorm:"column:updated_at"`
+	ID                    uuid.UUID  `gorm:"column:id;type:uuid;primaryKey"`
+	ProjectID             uuid.UUID  `gorm:"column:project_id;type:uuid;not null"`
+	UserID                uuid.UUID  `gorm:"column:user_id;type:uuid;not null"`
+	MembershipRole        string     `gorm:"column:membership_role"`
+	Status                string     `gorm:"column:status"`
+	ProjectRoleID         *uuid.UUID `gorm:"column:project_role_id;type:uuid"`
+	ContributionRoleID    *uuid.UUID `gorm:"column:contribution_role_id;type:uuid"`
+	TaskManagementGranted bool       `gorm:"column:task_management_granted;not null;default:false"`
+	TaskAccessVersion     int64      `gorm:"column:task_access_version;not null;default:1"`
+	JoinedAt              time.Time  `gorm:"column:joined_at"`
+	LeftAt                *time.Time `gorm:"column:left_at"`
+	CreatedAt             time.Time  `gorm:"column:created_at"`
+	UpdatedAt             time.Time  `gorm:"column:updated_at"`
 }
 
 func (ProjectMember) TableName() string { return "project_members" }

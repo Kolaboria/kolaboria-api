@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/syahrulfahmi/kolaboria-api/internal/infrastructure/workspaceactivity"
 )
 
 type ApplicationRepository interface {
@@ -22,6 +23,7 @@ type ApplicationRepository interface {
 }
 
 type ApplicationTx interface {
+	AppendActivity(context.Context, workspaceactivity.Input) error
 	FindActor(context.Context, uuid.UUID) (*ProjectActor, error)
 	FindActorForRead(context.Context, uuid.UUID) (*ProjectActor, error)
 	LockProjectState(context.Context, uuid.UUID) (*Project, error)

@@ -1,0 +1,2 @@
+DROP INDEX workspace_tasks_project_summary_idx;
+DROP TABLE workspace_project_completions;

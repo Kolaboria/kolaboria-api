@@ -266,7 +266,12 @@ func loadProjectAggregate(db *gorm.DB, query string, args ...any) (*ProjectAggre
 	aggregate.OwnerRole = nil
 	if aggregate.OwnerID != nil {
 		var member ProjectMember
-		err := db.Where("project_id = ? AND membership_role = 'owner' AND status = 'active'", aggregate.ID).Take(&member).Error
+		// Keep this projection stable across additive project_members migrations.
+		// Selecting the whole row lets pgx reuse a cached prepared statement whose
+		// result shape no longer matches after a column is added.
+		err := db.Select("id, project_id, user_id, membership_role, status, project_role_id, contribution_role_id, joined_at, left_at, created_at, updated_at").
+			Where("project_id = ? AND membership_role = 'owner' AND status = 'active'", aggregate.ID).
+			Take(&member).Error
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, err
 		}

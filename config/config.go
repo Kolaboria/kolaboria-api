@@ -9,11 +9,12 @@ import (
 )
 
 type Config struct {
-	App      AppConfig
-	Database DatabaseConfig
-	JWT      JWTConfig
-	Mail     MailConfig
-	Google   GoogleConfig
+	App       AppConfig
+	Database  DatabaseConfig
+	JWT       JWTConfig
+	Mail      MailConfig
+	Google    GoogleConfig
+	Workspace WorkspaceConfig
 }
 
 // Load preserves the API's optional .env file and environment-variable behavior.
@@ -63,6 +64,12 @@ func loadConfig(path string, requireFile, requireDatabaseTarget bool) (*Config, 
 	if err := v.Unmarshal(&cfg.Google); err != nil {
 		return nil, fmt.Errorf("load Google config: %w", err)
 	}
+	if err := v.Unmarshal(&cfg.Workspace); err != nil {
+		return nil, fmt.Errorf("load workspace config: %w", err)
+	}
+	if err := cfg.Workspace.Validate(cfg.Database.MaxOpenConns); err != nil {
+		return nil, err
+	}
 	if origins := strings.TrimSpace(v.GetString("APP_ALLOW_ORIGINS")); origins != "" {
 		for _, origin := range strings.Split(origins, ",") {
 			cfg.App.AllowOrigins = append(cfg.App.AllowOrigins, strings.TrimSpace(origin))
@@ -91,12 +98,15 @@ func setDefaults(v *viper.Viper) {
 	defaults := map[string]any{
 		"APP_NAME": "kolaboria-api", "APP_ENV": "development", "APP_PORT": "8080", "APP_DEBUG": true,
 		"APP_FRONTEND_URL": "http://localhost:3000",
-		"DB_HOST":          "localhost", "DB_PORT": "5432", "DB_NAME": "kolaboria", "DB_USER": "postgres",
+		"DB_HOST":          "localhost", "DB_PORT": "5432", "DB_NAME": "kolaboria", "DB_USER": "postgres", "DB_MAX_OPEN_CONNS": 100,
 		"DB_PASSWORD": "postgres", "DB_SSLMODE": "disable", "DB_TIMEZONE": "Asia/Jakarta",
 		"JWT_SECRET": "change-this-to-a-long-random-secret", "JWT_ACCESS_EXPIRY": "15m", "JWT_REFRESH_EXPIRY": "168h",
 		"MAIL_HOST": "smtp.mailtrap.io", "MAIL_PORT": 587, "MAIL_USERNAME": "", "MAIL_PASSWORD": "",
 		"MAIL_FROM_NAME": "Kolaboria", "MAIL_FROM_EMAIL": "noreply@kolaboria.com", "MAIL_LOGO_URL": "",
 		"GOOGLE_CLIENT_ID": "", "GOOGLE_CLIENT_SECRET": "", "GOOGLE_REDIRECT_URI": "http://localhost:3000/auth/callback",
+		"WORKSPACE_OVERVIEW_ENABLED": true, "WORKSPACE_OVERVIEW_MAX_REQUESTS": 64, "WORKSPACE_OVERVIEW_MAX_SNAPSHOTS": 8,
+		"WORKSPACE_OVERVIEW_REQUEST_TIMEOUT_MS": 2000, "WORKSPACE_OVERVIEW_SNAPSHOT_TIMEOUT_MS": 1500,
+		"WORKSPACE_OVERVIEW_STATEMENT_TIMEOUT_MS": 750, "WORKSPACE_OVERVIEW_LOCK_TIMEOUT_MS": 150,
 	}
 	for key, value := range defaults {
 		v.SetDefault(key, value)

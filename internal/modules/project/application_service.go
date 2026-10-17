@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/syahrulfahmi/kolaboria-api/internal/infrastructure/workspaceactivity"
 	sharedErrors "github.com/syahrulfahmi/kolaboria-api/internal/shared/errors"
 	"gorm.io/gorm"
 )
@@ -227,6 +228,11 @@ func (s *ApplicationService) ReviewApplication(ctx context.Context, actorID, app
 			memberRecord := &ProjectMember{ID: uuid.New(), ProjectID: project.ID, UserID: applicant.ID, MembershipRole: "contributor", Status: "active", ProjectRoleID: uuidPointer(role.ID), ContributionRoleID: contributionRoleID, JoinedAt: decisionTime, CreatedAt: decisionTime, UpdatedAt: decisionTime}
 			if err := tx.CreateContributor(ctx, memberRecord); err != nil {
 				return mapPersistenceError(err)
+			}
+			if err := tx.AppendActivity(ctx, workspaceactivity.Input{ProjectID: project.ID, ActorID: actorID, SubjectType: "project_member", SubjectID: memberRecord.ID, Type: "member.joined", At: decisionTime,
+				Payload: map[string]any{"application_id": application.ID, "member_id": memberRecord.ID, "user_id": applicant.ID, "project_role_id": role.ID, "contribution_role_id": contributionRoleID},
+			}); err != nil {
+				return err
 			}
 		}
 		if request.Status == ApplicationStatusRejected && !canRejectProject(project.Status) {
